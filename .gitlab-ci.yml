@@ -64,3 +64,18 @@ build-python:
       changes:
         - python/*
         - common/*
+
+build-node:
+  stage: build
+  tags:
+    - wopr
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/node/Dockerfile --destination $CI_REGISTRY_IMAGE:node
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      changes:
+        - node/*
+        - common/*
