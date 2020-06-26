@@ -1,4 +1,4 @@
-FROM registry.mdcatapult.io/informatics/software-engineering/ci:common
+FROM registry.mdcatapult.io/informatics/docker-images/ci:common
 
 ENV GOVERSION 1.14.4
 
