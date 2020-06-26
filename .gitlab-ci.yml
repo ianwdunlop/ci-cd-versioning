@@ -1,0 +1,66 @@
+stages:
+  - build-common
+  - build
+
+default:
+  before_script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+
+build-common:
+  stage: build-common
+  tags:
+    - wopr
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/common/Dockerfile --destination $CI_REGISTRY_IMAGE:common
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      changes:
+        - common/*
+
+build-golang:
+  stage: build
+  tags:
+    - wopr
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/golang/Dockerfile --destination $CI_REGISTRY_IMAGE:golang
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      changes:
+        - golang/*
+        - common/*
+
+build-scala:
+  stage: build
+  tags:
+    - wopr
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/scala/Dockerfile --destination $CI_REGISTRY_IMAGE:scala
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      changes:
+        - scala/*
+        - common/*
+
+build-python:
+  stage: build
+  tags:
+    - wopr
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/python/Dockerfile --destination $CI_REGISTRY_IMAGE:python
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+      changes:
+        - python/*
+        - common/*
