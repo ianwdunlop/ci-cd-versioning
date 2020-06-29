@@ -12,7 +12,7 @@ BUMP="$("$DIR"/bump.sh "$PREVIOUS_TAG" "$1")"
 RELEASE_TAG="$("$DIR"/next-tag.sh "$PREVIOUS_TAG" "$BUMP")"
 RELEASE_VERSION="$("$DIR"/next-tag.sh "$PREVIOUS_TAG" "$BUMP" --no-prefix)"
 GIT_LOG="$("$DIR"/git-log.sh "$PREVIOUS_TAG")"
-NEXT_VERSION="$("$DIR"/next-tag.sh "$RELEASE_TAG" patch --no-prefix).a0"
+NEXT_VERSION="$("$DIR"/next-tag.sh "$RELEASE_TAG" patch --no-prefix)a0"
 
 export PREVIOUS_TAG
 export BUMP
