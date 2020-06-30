@@ -1,10 +1,5 @@
 #! /bin/bash
 
-if [ $# -lt 1 ]; then
-  echo "usage: ./setup-git.sh [branch]"
-  exit 1
-fi
-
 command -v ssh-agent || ( apt-get install -qq openssh-client )
 eval "$(ssh-agent -s)"
 echo "${SSH_PRIVATE_KEY}" | ssh-add -
@@ -15,5 +10,5 @@ git config --global user.email "$GIT_RELEASE_EMAIL"
 git config --global user.name "$GIT_RELEASE_USER"
 
 git fetch --all --tags
-git checkout "$1"
-git pull origin "$1"
+git checkout "$CI_COMMIT_BRANCH"
+git pull origin "$CI_COMMIT_BRANCH"

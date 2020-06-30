@@ -1,20 +1,31 @@
 #!/bin/bash
 
-if [ $# -lt 2 ]; then
-  echo "usage: ./release.sh [source module] [--commits|--branches]"
+if [ $# -lt 1 ]; then
+  echo "usage: ./release.sh [source module]"
   exit 1
 fi
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # shellcheck source=.
-. "$DIR/setup-git.sh" "$CI_COMMIT_BRANCH"
+. "$DIR/utils.sh"
 
 # shellcheck source=.
-. "$DIR/export-env.sh" "$2"
+. "$DIR/setup-git.sh"
+reportError $?
 
 # shellcheck source=.
-. "$DIR/version.sh" "$1" "$CI_COMMIT_BRANCH"
+. "$DIR/export-env.sh" "$@"
+reportError $?
+
+# shellcheck source=.
+. "$DIR/version.sh"
+reportError $?
+
+# shellcheck source=.
+. "$DIR/rebase.sh"
+reportError $?
 
 # shellcheck source=.
 . "$DIR/create-release.sh"
+reportError $?

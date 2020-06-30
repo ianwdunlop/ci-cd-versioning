@@ -1,14 +1,14 @@
 #! /bin/bash
 
 if [ $# -lt 1 ]; then
-  echo "usage: ./bump.sh [previous tag] [--commits|--branches]"
+  echo "usage: ./bump.sh [previous tag]" >&2
   exit 1
 fi
 
 breaking_change="breaking-change"
 feature="feature"
 
-if [[ $2 == "--commits" ]]; then
+if [[ $VERSIONING_STRATEGY == "commits" ]]; then
   if [[ $1 != "none" ]]; then
     commit_prefixes=$(git log --no-merges --pretty=format:"%s" "$1..HEAD" | sed -n "s/\(${breaking_change}\|${feature}\):.*/\1/p")
   else
@@ -23,7 +23,7 @@ if [[ $2 == "--commits" ]]; then
     echo "patch"
   fi
 
-elif [[ $2 == "--branches" ]]; then
+elif [[ $VERSIONING_STRATEGY == "branches" ]]; then
   if [[ $1 != "none" ]]; then
     branch_prefixes=$(git log --merges --oneline "$1..HEAD" | sed -n "s/.*Merge branch '\(${breaking_change}\|${feature}\)\/.*' into '\(develop\|master\)'/\1/p")
   else
@@ -39,6 +39,6 @@ elif [[ $2 == "--branches" ]]; then
   fi
 
 else
-  echo "usage: ./bump.sh [previous tag] [--commits|--branches]"
+  echo "VERSIONING_STRATEGY environment variable must be set to 'branches' or 'commits'." >&2
   exit 1
 fi

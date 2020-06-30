@@ -20,6 +20,22 @@ build-common:
       changes:
         - common/*
 
+tag-common:
+  stage: build-common
+  tags:
+    - wopr
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/common/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^common-v\d\.\d\.\d$/
+
+
 build-golang:
   stage: build
   tags:
@@ -34,6 +50,21 @@ build-golang:
       changes:
         - golang/*
         - common/*
+
+tag-golang:
+  stage: build
+  tags:
+    - wopr
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/golang/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^golang-v\d\.\d\.\d$/
 
 build-scala:
   stage: build
@@ -50,6 +81,21 @@ build-scala:
         - scala/*
         - common/*
 
+tag-scala:
+  stage: build
+  tags:
+    - wopr
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/scala/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^scala-v\d\.\d\.\d$/
+
 build-python:
   stage: build
   tags:
@@ -65,6 +111,21 @@ build-python:
         - python/*
         - common/*
 
+tag-python:
+  stage: build
+  tags:
+    - wopr
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/python/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^python-v\d\.\d\.\d$/
+
 build-node:
   stage: build
   tags:
@@ -79,3 +140,18 @@ build-node:
       changes:
         - node/*
         - common/*
+
+tag-node:
+  stage: build
+  tags:
+    - wopr
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/node/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^node-v\d\.\d\.\d$/
