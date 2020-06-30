@@ -42,10 +42,11 @@ release-common:
   image: ubuntu:20.04
   script:
     - ./release.sh common --branches --rebase develop
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-      changes:
-        - common/*
+  only:
+    variables:
+      - '$CI_COMMIT_BRANCH == "master"'
+    changes:
+      - common/*
 
 tag-common:
   stage: build-common
@@ -84,10 +85,11 @@ release-golang:
   image: ubuntu:20.04
   script:
     - ./release.sh golang --branches --rebase develop
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-      changes:
-        - golang/*
+  only:
+    variables:
+      - '$CI_COMMIT_BRANCH == "master"'
+    changes:
+      - golang/*
   except:
     changes:
       - common/*
@@ -130,10 +132,11 @@ release-scala:
   image: ubuntu:20.04
   script:
     - ./release.sh scala --branches --rebase develop
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-      changes:
-        - scala/*
+  only:
+    variables:
+      - '$CI_COMMIT_BRANCH == "master"'
+    changes:
+      - scala/*
   except:
     changes:
       - common/*
@@ -176,10 +179,11 @@ release-python:
   image: ubuntu:20.04
   script:
     - ./release.sh python --branches --rebase develop
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-      changes:
-        - python/*
+  only:
+    variables:
+      - '$CI_COMMIT_BRANCH == "master"'
+    changes:
+      - python/*
   except:
     changes:
       - common/*
@@ -222,10 +226,11 @@ release-node:
   image: ubuntu:20.04
   script:
     - ./release.sh node --branches --rebase develop
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-      changes:
-        - node/*
+  only:
+    variables:
+      - '$CI_COMMIT_BRANCH == "master"'
+    changes:
+      - node/*
   except:
     changes:
       - common/*
