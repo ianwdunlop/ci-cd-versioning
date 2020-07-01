@@ -41,7 +41,7 @@ release-common:
   stage: release
   tags:
     - wopr
-  image: ubuntu:20.04
+  image: ubuntu:18.04
   script:
     - ./release.sh common --branches --rebase develop
   only:
@@ -85,7 +85,7 @@ release-golang:
   stage: release
   tags:
     - wopr
-  image: ubuntu:20.04
+  image: ubuntu:18.04
   script:
     - ./release.sh golang --branches --rebase develop
   only:
@@ -133,7 +133,7 @@ release-scala:
   stage: release
   tags:
     - wopr
-  image: ubuntu:20.04
+  image: ubuntu:18.04
   script:
     - ./release.sh scala --branches --rebase develop
   only:
@@ -181,7 +181,7 @@ release-python:
   stage: release
   tags:
     - wopr
-  image: ubuntu:20.04
+  image: ubuntu:18.04
   script:
     - ./release.sh python --branches --rebase develop
   only:
@@ -229,7 +229,7 @@ release-node:
   stage: release
   tags:
     - wopr
-  image: ubuntu:20.04
+  image: ubuntu:18.04
   script:
     - ./release.sh node --branches --rebase develop
   only:
