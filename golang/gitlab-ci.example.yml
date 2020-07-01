@@ -1,0 +1,66 @@
+stages:
+  - test
+  - release
+  - publish
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
+test:
+  stage: test
+  image: golang:1.13
+  tags:
+    - wopr
+  script:
+    - go test ./... -coverpkg=./... -coverprofile=cover.out
+    - go tool cover -func cover.out
+    - go vet ./...
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+  coverage: /total:\s+\(statements\)\s+(\d+.\d+\%)/
+
+publish:
+  stage: publish
+  tags:
+    - wopr
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  except:
+    - master
+
+release:
+  stage: release
+  image: registry.mdcatapult.io/informatics/docker-images/ci:golang
+  tags:
+    - wopr
+  script:
+    - /scripts/release.sh
+  only:
+    - master
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+publish-master:
+  stage: publish
+  tags:
+    - wopr
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --destination $CI_REGISTRY_IMAGE
+    - /kaniko/executor --context $CI_PROJECT_DIR --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/

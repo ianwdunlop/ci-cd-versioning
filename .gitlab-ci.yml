@@ -1,6 +1,7 @@
 stages:
   - build-common
   - build
+  - release
 
 default:
   before_script:
@@ -14,11 +15,55 @@ build-common:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/common/Dockerfile --destination $CI_REGISTRY_IMAGE:common-$CI_COMMIT_REF_SLUG
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH != "master"
+    changes:
+      - common/*
+
+build-common-master:
+  stage: build-common
+  tags:
+    - wopr
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/common/Dockerfile --destination $CI_REGISTRY_IMAGE:common
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-      changes:
-        - common/*
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == "master"
+    changes:
+      - common/*
+
+release-common:
+  stage: release
+  tags:
+    - wopr
+  image: ubuntu:18.04
+  script:
+    - ./release.sh common --branches --rebase develop
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == "master"
+    changes:
+      - common/*
+
+tag-common:
+  stage: build-common
+  tags:
+    - wopr
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/common/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^common-v\d\.\d\.\d$/
 
 build-golang:
   stage: build
@@ -28,12 +73,45 @@ build-golang:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/golang/Dockerfile --destination $CI_REGISTRY_IMAGE:golang-$CI_COMMIT_REF_SLUG
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH != "master"
+    changes:
+      - golang/*
+      - common/*
+
+release-golang:
+  stage: release
+  tags:
+    - wopr
+  image: ubuntu:18.04
+  script:
+    - ./release.sh golang --branches --rebase develop
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == "master"
+    changes:
+      - golang/*
+  except:
+    changes:
+      - common/*
+
+tag-golang:
+  stage: build
+  tags:
+    - wopr
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/golang/Dockerfile --destination $CI_REGISTRY_IMAGE:golang
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-      changes:
-        - golang/*
-        - common/*
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/golang/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^golang-v\d\.\d\.\d$/
 
 build-scala:
   stage: build
@@ -43,12 +121,45 @@ build-scala:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/scala/Dockerfile --destination $CI_REGISTRY_IMAGE:scala-$CI_COMMIT_REF_SLUG
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH != "master"
+    changes:
+      - scala/*
+      - common/*
+
+release-scala:
+  stage: release
+  tags:
+    - wopr
+  image: ubuntu:18.04
+  script:
+    - ./release.sh scala --branches --rebase develop
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == "master"
+    changes:
+      - scala/*
+  except:
+    changes:
+      - common/*
+
+tag-scala:
+  stage: build
+  tags:
+    - wopr
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/scala/Dockerfile --destination $CI_REGISTRY_IMAGE:scala
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-      changes:
-        - scala/*
-        - common/*
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/scala/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^scala-v\d\.\d\.\d$/
 
 build-python:
   stage: build
@@ -58,12 +169,45 @@ build-python:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/python/Dockerfile --destination $CI_REGISTRY_IMAGE:python-$CI_COMMIT_REF_SLUG
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH != "master"
+    changes:
+      - python/*
+      - common/*
+
+release-python:
+  stage: release
+  tags:
+    - wopr
+  image: ubuntu:18.04
+  script:
+    - ./release.sh python --branches --rebase develop
+  only:
+    variables:
+      - '$CI_COMMIT_BRANCH == "master"'
+    changes:
+      - python/*
+  except:
+    changes:
+      - common/*
+
+tag-python:
+  stage: build
+  tags:
+    - wopr
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/python/Dockerfile --destination $CI_REGISTRY_IMAGE:python
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-      changes:
-        - python/*
-        - common/*
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/python/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^python-v\d\.\d\.\d$/
 
 build-node:
   stage: build
@@ -73,9 +217,42 @@ build-node:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
   script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/node/Dockerfile --destination $CI_REGISTRY_IMAGE:node-$CI_COMMIT_REF_SLUG
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH != "master"
+    changes:
+      - node/*
+      - common/*
+
+release-node:
+  stage: release
+  tags:
+    - wopr
+  image: ubuntu:18.04
+  script:
+    - ./release.sh node --branches --rebase develop
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == "master"
+    changes:
+      - node/*
+  except:
+    changes:
+      - common/*
+
+tag-node:
+  stage: build
+  tags:
+    - wopr
+  image: 
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/node/Dockerfile --destination $CI_REGISTRY_IMAGE:node
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-      changes:
-        - node/*
-        - common/*
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/node/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^node-v\d\.\d\.\d$/

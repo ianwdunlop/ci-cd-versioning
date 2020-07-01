@@ -1,4 +1,4 @@
-FROM registry.mdcatapult.io/informatics/docker-images/ci:common
+FROM registry.mdcatapult.io/informatics/docker-images/ci:common-develop
 
 ENV NODE_VERSION=v12.16.2
 
@@ -13,11 +13,9 @@ RUN curl https://nodejs.org/dist/$NODE_VERSION/node-${NODE_VERSION}-linux-x64.ta
 
 ENV PATH=$PATH:/tmp/node-${NODE_VERSION}-linux-x64/bin
 
-RUN curl -LO https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    apt-get install -y ./google-chrome-stable_current_amd64.deb && \
-    rm google-chrome-stable_current_amd64.deb
+RUN apt update && apt install -yqq chromium-browser
 
-ENV CHROME_BIN=/usr/bin/google-chrome
+ENV CHROME_BIN=/usr/bin/chromium-browser
 
 COPY node/*.sh /scripts/
 

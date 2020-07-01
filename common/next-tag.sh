@@ -1,7 +1,7 @@
 #! /bin/bash
 
 if [ $# -lt 2 ]; then
-  echo "usage: ./next-tag.sh [previous tag] [major|minor|patch]"
+  echo "usage: ./next-tag.sh [previous tag] [major|minor|patch]" >&2
   exit 1
 fi
 
@@ -28,7 +28,7 @@ elif [[ $tag == "none" ]]; then
   echo "v1.0.0"
   exit 0
 else
-  echo "usage: ./next-tag.sh [previous tag] [major|minor|patch]"
+  echo "usage: ./next-tag.sh [previous tag] [major|minor|patch]" >&2
   echo "[previous tag] must be semver or 'none'"
   exit 1
 fi
@@ -43,7 +43,7 @@ elif [[ "$2" == "minor" ]]; then
 elif [[ "$2" == "patch" ]]; then
   patch=$(echo $patch + 1 | bc)
 else
-  echo "usage: ./next-tag.sh [previous tag] [major|minor|patch]"
+  echo "usage: ./next-tag.sh [previous tag] [major|minor|patch]" >&2
   exit 1
 fi
 
