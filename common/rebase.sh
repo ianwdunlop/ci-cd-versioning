@@ -19,6 +19,10 @@ git branch -D "$REBASE_BRANCH"
 git fetch origin "$REBASE_BRANCH"
 ignoreError $?
 
+echo "Checking out $REBASE_BRANCH..."
+git checkout "$REBASE_BRANCH"
+ignoreError $?
+
 echo "Rebasing $REBASE_BRANCH onto $CI_COMMIT_BRANCH..."
 git rebase "$CI_COMMIT_BRANCH"
 ignoreError $?
