@@ -142,8 +142,8 @@ Does the following:
 2. Sources `setup-git.sh` to set up git.
 3. Sources `export-env.sh` with `$@` to pass down it's command line arguments.
 4. Sources `version.sh` to run the versioning procedure.
-5. Sources `rebase.sh` to rebase if required.
-6. Sources `create-release.sh` to push the release to gitlab.
+5. Sources `create-release.sh` to push the release to gitlab.
+6. Calls `rebase.sh` to rebase if required.
 
 ### Node
 Available at `registry.mdcatapult.io/informatics/docker-images/ci:node` and based 
@@ -173,8 +173,8 @@ Does the following:
 2. Sources `setup-git.sh` to set up git.
 3. Sources `export-env.sh` with `$@` to pass down it's command line arguments.
 4. Sources `version.sh` to run the versioning procedure (and export `RELEASE_TAG`)
-5. Sources `rebase.sh` to rebase if required.
-6. Sources `create-release.sh` to push the release to gitlab.
+5. Sources `create-release.sh` to push the release to gitlab.
+6. Calls `rebase.sh` to rebase if required.
 
 ### Scala
 Available at `registry.mdcatapult.io/informatics/docker-images/ci:scala` and based 
@@ -208,8 +208,8 @@ Does the following:
 2. Sources `setup-git.sh` to set up git.
 3. Sources `export-env.sh` with `$@` to pass down it's command line arguments.
 4. Sources `version.sh` to run the versioning procedure.
-5. Sources `rebase.sh` to rebase if required.
-6. Sources `create-release.sh` to push the release to gitlab.
+5. Sources `create-release.sh` to push the release to gitlab.
+6. Calls `rebase.sh` to rebase if required.
 
 ### Golang
 Available at `registry.mdcatapult.io/informatics/docker-images/ci:golang` and based 
@@ -241,5 +241,5 @@ Does the following:
 2. Sources `setup-git.sh` to set up git.
 3. Sources `export-env.sh` with `$@` to pass down it's command line arguments.
 4. Sources `version.sh` to run the versioning procedure.
-5. Sources `rebase.sh` to rebase if required.
-6. Sources `create-release.sh` to push the release to gitlab.
+5. Sources `create-release.sh` to push the release to gitlab.
+6. Calls `rebase.sh` to rebase if required.
