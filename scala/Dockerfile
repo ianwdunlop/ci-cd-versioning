@@ -1,4 +1,4 @@
-FROM common-ci
+FROM registry.mdcatapult.io/informatics/docker-images/ci:common-develop
 
 ENV JDK_VERSION=14.0.1
 
