@@ -11,6 +11,7 @@ function previous_tag() {
 
 if [ $# -lt 1 ]; then
   echo "usage: ./release.sh [common|python|scala|node|golang]"
+  exit 1
 fi
 
 # Install dependencies
@@ -58,7 +59,7 @@ if [[ $IMAGE == "common" ]]; then
   git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
   git push origin "$CI_COMMIT_BRANCH"
   git push origin --tags
-  . ./common-release.sh
+  . ./common/create-release.sh
 
   PREVIOUS_TAG=$(previous_tag node)
   reportError $?
@@ -68,7 +69,7 @@ if [[ $IMAGE == "common" ]]; then
   git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
   git push origin "$CI_COMMIT_BRANCH"
   git push origin --tags
-  . ./common-release.sh
+  . ./common/create-release.sh
 
   PREVIOUS_TAG=$(previous_tag scala)
   reportError $?
@@ -78,16 +79,16 @@ if [[ $IMAGE == "common" ]]; then
   git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
   git push origin "$CI_COMMIT_BRANCH"
   git push origin --tags
-  . ./common-release.sh
+  . ./common/create-release.sh
 
-  PREVIOUS_TAG=$(previous_tag scala)
+  PREVIOUS_TAG=$(previous_tag golang)
   reportError $?
-  RELEASE_TAG="scala-$(./common/next-tag.sh "$PREVIOUS_TAG" "$BUMP")"
+  RELEASE_TAG="golang-$(./common/next-tag.sh "$PREVIOUS_TAG" "$BUMP")"
   reportError $?
   git commit --allow-empty -am "Setting version to $RELEASE_TAG"
   git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
   git push origin "$CI_COMMIT_BRANCH"
   git push origin --tags
-  . ./common-release.sh
+  . ./common/create-release.sh
 
 fi
