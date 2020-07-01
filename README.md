@@ -66,7 +66,7 @@ For the branch prefix strategy, the prefixed `feature/` and `breaking-change/` a
 handled in the same way.
 
 #### `next-tag.sh`
-Takes a semver comformant tag and the version to bump (`major|minor|patch`) 
+Takes a [semver comformant](https://semver.org/) tag and the version to bump (`major|minor|patch`) 
 as command line arguments. Returns a version with the bump applied. e.g.:
 ```bash
 /scripts/next-version.sh v1.0.1 minor
