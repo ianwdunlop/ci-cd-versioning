@@ -33,6 +33,10 @@ PREVIOUS_TAG=$(previous_tag "$IMAGE")
 PREVIOUS_TAG_GENERAL=$(./common/previous-tag.sh)
 reportError $?
 
+GIT_LOG=$(./common/git-log.sh "$PREVIOUS_TAG_GENERAL")
+reportError $?
+export GIT_LOG
+
 BUMP=$(./common/bump.sh "$PREVIOUS_TAG_GENERAL")
 reportError $?
 
@@ -43,6 +47,7 @@ git commit --allow-empty -am "Setting version to $RELEASE_TAG"
 git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
 git push origin "$CI_COMMIT_BRANCH"
 git push origin --tags
+. ./common/create-release.sh
 
 if [[ $IMAGE == "common" ]]; then
   PREVIOUS_TAG=$(previous_tag python)
@@ -51,6 +56,9 @@ if [[ $IMAGE == "common" ]]; then
   reportError $?
   git commit --allow-empty -am "Setting version to $RELEASE_TAG"
   git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
+  git push origin "$CI_COMMIT_BRANCH"
+  git push origin --tags
+  . ./common-release.sh
 
   PREVIOUS_TAG=$(previous_tag node)
   reportError $?
@@ -58,21 +66,28 @@ if [[ $IMAGE == "common" ]]; then
   reportError $?
   git commit --allow-empty -am "Setting version to $RELEASE_TAG"
   git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
-
-  PREVIOUS_TAG=$(previous_tag scala)
-  reportError $?
-  RELEASE_TAG="scala-$(./common/next-tag.sh "$PREVIOUS_TAG" "$BUMP")"
-  reportError $?
-  git commit --allow-empty -am "Setting version to $RELEASE_TAG"
-  git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
-
-  PREVIOUS_TAG=$(previous_tag scala)
-  reportError $?
-  RELEASE_TAG="scala-$(./common/next-tag.sh "$PREVIOUS_TAG" "$BUMP")"
-  reportError $?
-  git commit --allow-empty -am "Setting version to $RELEASE_TAG"
-  git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
-
   git push origin "$CI_COMMIT_BRANCH"
   git push origin --tags
+  . ./common-release.sh
+
+  PREVIOUS_TAG=$(previous_tag scala)
+  reportError $?
+  RELEASE_TAG="scala-$(./common/next-tag.sh "$PREVIOUS_TAG" "$BUMP")"
+  reportError $?
+  git commit --allow-empty -am "Setting version to $RELEASE_TAG"
+  git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
+  git push origin "$CI_COMMIT_BRANCH"
+  git push origin --tags
+  . ./common-release.sh
+
+  PREVIOUS_TAG=$(previous_tag scala)
+  reportError $?
+  RELEASE_TAG="scala-$(./common/next-tag.sh "$PREVIOUS_TAG" "$BUMP")"
+  reportError $?
+  git commit --allow-empty -am "Setting version to $RELEASE_TAG"
+  git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
+  git push origin "$CI_COMMIT_BRANCH"
+  git push origin --tags
+  . ./common-release.sh
+
 fi
