@@ -18,9 +18,9 @@ reportError $?
 reportError $?
 
 # shellcheck source=.
-. "$DIR/rebase.sh"
+. "$DIR/create-release.sh"
 reportError $?
 
 # shellcheck source=.
-. "$DIR/create-release.sh"
+"$DIR/rebase.sh"
 reportError $?
