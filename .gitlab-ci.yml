@@ -16,10 +16,11 @@ build-common:
     entrypoint: [""]
   script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/common/Dockerfile --destination $CI_REGISTRY_IMAGE:common-$CI_COMMIT_REF_SLUG
-  rules:
-    - if: '$CI_COMMIT_BRANCH != "master"'
-      changes:
-        - common/*
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH != "master"
+    changes:
+      - common/*
 
 build-common-master:
   stage: build-common
@@ -30,10 +31,11 @@ build-common-master:
     entrypoint: [""]
   script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/common/Dockerfile --destination $CI_REGISTRY_IMAGE:common
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "master"'
-      changes:
-        - common/*
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH == "master"
+    changes:
+      - common/*
 
 release-common:
   stage: release
@@ -44,7 +46,7 @@ release-common:
     - ./release.sh common --branches --rebase develop
   only:
     variables:
-      - '$CI_COMMIT_BRANCH == "master"'
+      - $CI_COMMIT_BRANCH == "master"
     changes:
       - common/*
 
@@ -72,11 +74,12 @@ build-golang:
     entrypoint: [""]
   script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/golang/Dockerfile --destination $CI_REGISTRY_IMAGE:golang-$CI_COMMIT_REF_SLUG
-  rules:
-    - if: '$CI_COMMIT_BRANCH != "master"'
-      changes:
-        - golang/*
-        - common/*
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH != "master"
+    changes:
+      - golang/*
+      - common/*
 
 release-golang:
   stage: release
@@ -87,7 +90,7 @@ release-golang:
     - ./release.sh golang --branches --rebase develop
   only:
     variables:
-      - '$CI_COMMIT_BRANCH == "master"'
+      - $CI_COMMIT_BRANCH == "master"
     changes:
       - golang/*
   except:
@@ -119,11 +122,12 @@ build-scala:
     entrypoint: [""]
   script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/scala/Dockerfile --destination $CI_REGISTRY_IMAGE:scala-$CI_COMMIT_REF_SLUG
-  rules:
-    - if: '$CI_COMMIT_BRANCH != "master"'
-      changes:
-        - scala/*
-        - common/*
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH != "master"
+    changes:
+      - scala/*
+      - common/*
 
 release-scala:
   stage: release
@@ -134,7 +138,7 @@ release-scala:
     - ./release.sh scala --branches --rebase develop
   only:
     variables:
-      - '$CI_COMMIT_BRANCH == "master"'
+      - $CI_COMMIT_BRANCH == "master"
     changes:
       - scala/*
   except:
@@ -166,11 +170,12 @@ build-python:
     entrypoint: [""]
   script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/python/Dockerfile --destination $CI_REGISTRY_IMAGE:python-$CI_COMMIT_REF_SLUG
-  rules:
-    - if: '$CI_COMMIT_BRANCH != "master"'
-      changes:
-        - python/*
-        - common/*
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH != "master"
+    changes:
+      - python/*
+      - common/*
 
 release-python:
   stage: release
@@ -213,11 +218,12 @@ build-node:
     entrypoint: [""]
   script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/node/Dockerfile --destination $CI_REGISTRY_IMAGE:node-$CI_COMMIT_REF_SLUG
-  rules:
-    - if: '$CI_COMMIT_BRANCH != "master"'
-      changes:
-        - node/*
-        - common/*
+  only:
+    variables:
+      - $CI_COMMIT_BRANCH != "master"
+    changes:
+      - node/*
+      - common/*
 
 release-node:
   stage: release
@@ -228,7 +234,7 @@ release-node:
     - ./release.sh node --branches --rebase develop
   only:
     variables:
-      - '$CI_COMMIT_BRANCH == "master"'
+      - $CI_COMMIT_BRANCH == "master"
     changes:
       - node/*
   except:
