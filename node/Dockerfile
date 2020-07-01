@@ -14,7 +14,8 @@ RUN curl https://nodejs.org/dist/$NODE_VERSION/node-${NODE_VERSION}-linux-x64.ta
 ENV PATH=$PATH:/tmp/node-${NODE_VERSION}-linux-x64/bin
 
 RUN curl -LO https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb && \
-    apt-get install -y ./google-chrome-stable_current_amd64.deb && \
+    apt-get update && \
+    apt-get install --fix-missing -y ./google-chrome-stable_current_amd64.deb && \
     rm google-chrome-stable_current_amd64.deb
 
 ENV CHROME_BIN=/usr/bin/google-chrome
