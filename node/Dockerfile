@@ -1,4 +1,4 @@
-FROM registry.mdcatapult.io/informatics/docker-images/ci:common
+FROM registry.mdcatapult.io/informatics/docker-images/ci:common-develop
 
 ENV NODE_VERSION=v12.16.2
 
