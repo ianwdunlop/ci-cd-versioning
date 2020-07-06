@@ -71,7 +71,6 @@ build-golang:
     - if: $CI_COMMIT_BRANCH != "master"
       changes:
         - golang/*
-        - common/*
 
 release-golang:
   stage: release
@@ -114,7 +113,6 @@ build-scala:
     - if: $CI_COMMIT_BRANCH != "master"
       changes:
         - scala/*
-        - common/*
 
 release-scala:
   stage: release
@@ -157,7 +155,6 @@ build-python:
     - if: $CI_COMMIT_BRANCH != "master"
       changes:
         - python/*
-        - common/*
 
 release-python:
   stage: release
@@ -200,7 +197,6 @@ build-node:
     - if: $CI_COMMIT_BRANCH != "master"
       changes:
         - node/*
-        - common/*
 
 release-node:
   stage: release
