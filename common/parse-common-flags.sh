@@ -3,6 +3,7 @@ VERSIONING_STRATEGY="commits"
 REBASE_BRANCH=""
 PARAMS=""
 UPLOADS=""
+NO_RELEASE=""
 while (( "$#" )); do
   case "$1" in
     -c|--commits)
@@ -10,6 +11,10 @@ while (( "$#" )); do
       ;;
     -b|--branches)
       VERSIONING_STRATEGY="branches"
+      shift
+      ;;
+    -N|--no-release)
+      NO_RELEASE="true"
       shift
       ;;
     -r|--rebase)
@@ -43,3 +48,4 @@ export PARAMS
 export VERSIONING_STRATEGY
 export REBASE_BRANCH
 export UPLOADS
+export NO_RELEASE
