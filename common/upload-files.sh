@@ -12,5 +12,5 @@ for FILE in $1; do
 
   curl --request POST --header "PRIVATE-TOKEN: $GIT_RELEASE_TOKEN" \
        --data name="$(basename "$FILE")" --data url="$LINK" \
-       "https://gitlab.mdcatapult.io/api/v4/projects/$CI_PROJECT_ID/releases/$2/  assets/links"
+       "https://gitlab.mdcatapult.io/api/v4/projects/$CI_PROJECT_ID/releases/$2/assets/links"
 done
