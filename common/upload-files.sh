@@ -1,6 +1,6 @@
 #! /bin/bash
 
-if [ $# -ne 1 ]; then
+if [ $# -lt 2 ]; then
   echo "usage: ./upload-files.sh [glob pattern] [tag name]" >&2
   exit 1
 fi
