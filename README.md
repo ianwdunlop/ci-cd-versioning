@@ -33,6 +33,9 @@ This sets the `REBASE_BRANCH` environment variable.
 (this is the default). This sets the `VERSIONING_STRATEGY` environment variable.
 * `-b --branches` use branch prefixes to determine which version to bump. This sets 
 the `VERSIONING_STRATEGY` environment variable.
+* `-u --uploads` file glob for files to add to the release. The files **MUST** be 
+present before running any `release.sh` scripts. This sets the `UPLOADS` environment
+variable.
 
 Any remaining arguments are concatenated in a space separated list and exported as 
 `PARAMS`. 
@@ -94,6 +97,19 @@ following environment variables to be set:
 * `RELEASE_TAG`: the tag being released against. There must be a matching tag in the
 repository.
 * `GIT_LOG`: This can be outputted by `git-log.sh`.
+* `CI_PROJECT_ID`: set automatically by gitlab.
+
+If `UPLOADS` has been set via the flag parser, `create-release.sh` will then call `upload-files.sh`
+with `UPLOADS` and `RELEASE_TAG`.
+
+#### `upload-files.sh`
+Uploads files to the specified release. Takes a file glob and the release tag as command 
+line arguments. e.g.
+```bash
+/scripts/upload-files.sh builds/* v1.0.1
+```
+This script expects the following environment variables to be set:
+* `GIT_RELEASE_TOKEN`: API token configured as a CI variable in gitlab.
 * `CI_PROJECT_ID`: set automatically by gitlab.
 
 ### Python

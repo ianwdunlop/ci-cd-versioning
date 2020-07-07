@@ -1,6 +1,6 @@
 #! /bin/bash
 
-if [ $# -lt 1 ]; then
+if [ $# -ne 1 ]; then
   echo "usage: ./bump.sh [previous tag]" >&2
   exit 1
 fi
