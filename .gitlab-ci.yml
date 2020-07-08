@@ -1,74 +1,73 @@
 stages:
-  - build
+  - release
 
 default:
-  image:
-    name: gcr.io/kaniko-project/executor:debug
-    entrypoint: [""]
-  before_script:
-    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+  image: ubuntu:18.04
 
-tag-common:
-  stage: build
+release-common:
+  stage: release
   tags:
     - wopr
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/common/Dockerfile --destination $CI_REGISTRY_IMAGE:common
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/common/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
-  only:
-    refs:
-      - tags
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^common-v\d\.\d\.\d$/
+    - ./release.sh common
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - common/*
 
-tag-golang:
-  stage: build
+release-golang:
+  stage: release
   tags:
     - wopr
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/golang/Dockerfile --destination $CI_REGISTRY_IMAGE:golang
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/golang/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
-  only:
-    refs:
-      - tags
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^golang-v\d\.\d\.\d$/
+    - ./release.sh golang
+  rules:
+    - changes:
+        - common/*
+      when: never
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - golang/*
 
-tag-scala:
-  stage: build
+release-scala:
+  stage: release
   tags:
     - wopr
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/scala/Dockerfile --destination $CI_REGISTRY_IMAGE:scala
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/scala/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
-  only:
-    refs:
-      - tags
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^scala-v\d\.\d\.\d$/
+    - ./release.sh scala --branches
+  rules:
+    - changes:
+        - common/*
+      when: never
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - scala/*
 
-tag-python:
-  stage: build
+release-python:
+  stage: release
   tags:
     - wopr
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/python/Dockerfile --destination $CI_REGISTRY_IMAGE:python
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/python/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
-  only:
-    refs:
-      - tags
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^python-v\d\.\d\.\d$/
+    - ./release.sh python
+  rules:
+    - changes:
+        - common/*
+      when: never
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - python/*
 
-tag-node:
-  stage: build
+release-node:
+  stage: release
   tags:
     - wopr
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/node/Dockerfile --destination $CI_REGISTRY_IMAGE:node
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/node/Dockerfile --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
-  only:
-    refs:
-      - tags
-    variables:
-      - $CI_COMMIT_REF_NAME =~ /^node-v\d\.\d\.\d$/
+    - ./release.sh node
+  rules:
+    - changes:
+        - common/*
+      when: never
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - node/*
+

@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 command -v ssh-agent || ( apt-get install -qq openssh-client )
 eval "$(ssh-agent -s)"

@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 if [[ $NO_RELEASE == "true" ]]; then
   echo "no-release flag set, skipping..." >&2

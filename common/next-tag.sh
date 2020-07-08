@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 if [ $# -lt 2 ]; then
   echo "usage: ./next-tag.sh [previous tag] [major|minor|patch]" >&2

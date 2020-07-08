@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 function ignoreError() {
     if [ "$1" -ne 0 ]; then

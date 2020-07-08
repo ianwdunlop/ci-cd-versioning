@@ -1,4 +1,4 @@
-#! /bin/bash
+#!/bin/bash
 
 if [ $# -lt 1 ]; then
   echo "usage: ./git-log.sh [previous tag]" >&2
