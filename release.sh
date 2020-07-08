@@ -23,7 +23,7 @@ apt-get update -yqq && apt-get install -yqq apt-transport-https ca-certificates 
 . ./common/setup-git.sh
 
 # Parse flags
-. ./common/parse-common-flags.sh
+. ./common/parse-common-flags.sh "$@"
 
 IMAGE=$(trim "$PARAMS")
 

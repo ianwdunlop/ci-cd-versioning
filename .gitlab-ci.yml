@@ -1,13 +1,30 @@
+services:
+  - docker:dind
+
 stages:
+  - build-common
+  - build
   - release
 
 default:
-  image: ubuntu:18.04
+  image: docker:latest
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+
+build-common-master:
+  stage: build-common
+  script:
+    - docker build --pull -f common/Dockerfile -t "$CI_REGISTRY_IMAGE:common" .
+    - docker push "$CI_REGISTRY_IMAGE:common"
+  rules:
+    - if: $CI_COMMIT_BRANCH == "master"
+      changes:
+        - common/*
 
 release-common:
   stage: release
-  tags:
-    - wopr
+  image: ubuntu:18.04
+  before_script: [""]
   script:
     - ./release.sh common
   rules:
@@ -15,10 +32,21 @@ release-common:
       changes:
         - common/*
 
+tag-common:
+  stage: build-common
+  script:
+    - docker build --pull -f common/Dockerfile -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME" .
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^common-v\d\.\d\.\d$/
+
 release-golang:
   stage: release
-  tags:
-    - wopr
+  image: ubuntu:18.04
+  before_script: [""]
   script:
     - ./release.sh golang
   rules:
@@ -29,12 +57,24 @@ release-golang:
       changes:
         - golang/*
 
+tag-golang:
+  stage: build
+  script:
+    - docker build --pull -f golang/Dockerfile -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME" -t "$CI_REGISTRY_IMAGE:golang" .
+    - docker push "$CI_REGISTRY_IMAGE:golang"
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^golang-v\d\.\d\.\d$/
+
 release-scala:
   stage: release
-  tags:
-    - wopr
+  image: ubuntu:18.04
+  before_script: [""]
   script:
-    - ./release.sh scala --branches
+    - ./release.sh scala
   rules:
     - changes:
         - common/*
@@ -43,10 +83,22 @@ release-scala:
       changes:
         - scala/*
 
+tag-scala:
+  stage: build
+  script:
+    - docker build --pull -f scala/Dockerfile -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME" -t "$CI_REGISTRY_IMAGE:scala" .
+    - docker push "$CI_REGISTRY_IMAGE:scala"
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^scala-v\d\.\d\.\d$/
+
 release-python:
   stage: release
-  tags:
-    - wopr
+  image: ubuntu:18.04
+  before_script: [""]
   script:
     - ./release.sh python
   rules:
@@ -57,10 +109,22 @@ release-python:
       changes:
         - python/*
 
+tag-python:
+  stage: build
+  script:
+    - docker build --pull -f python/Dockerfile -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME" -t "$CI_REGISTRY_IMAGE:python" .
+    - docker push "$CI_REGISTRY_IMAGE:python"
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^python-v\d\.\d\.\d$/
+
 release-node:
   stage: release
-  tags:
-    - wopr
+  image: ubuntu:18.04
+  before_script: [""]
   script:
     - ./release.sh node
   rules:
@@ -71,3 +135,14 @@ release-node:
       changes:
         - node/*
 
+tag-node:
+  stage: build
+  script:
+    - docker build --pull -f node/Dockerfile -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME" -t "$CI_REGISTRY_IMAGE:node" .
+    - docker push "$CI_REGISTRY_IMAGE:node"
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_REF_NAME =~ /^node-v\d\.\d\.\d$/
