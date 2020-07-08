@@ -44,12 +44,9 @@ Any remaining arguments are concatenated in a space separated list and exported 
 Sets up the CI git user to track the `CI_COMMIT_BRANCH`. Requires the following 
 environment variables to be set:
 * `SSH_PRIVATE_KEY`: ssh key configured in gitlab.
-* `CI_PROJECT_PATH`: set automatically by gitlab.
 * `GIT_RELEASE_USER`: CI username configured in gitlab.
 * `GIT_RELEASE_EMAIL`: CI user email configured in gitlab (must match email in 
 `SSH_PRIVATE_KEY`).
-* `CI_COMMIT_BRANCH`:  set automatically by gitlab (represents the branch that the 
-pipeline is running against).
 
 #### `previous-tag.sh`
 Returns the previous tag if there is one. Returns `none` otherwise.
@@ -97,7 +94,6 @@ following environment variables to be set:
 * `RELEASE_TAG`: the tag being released against. There must be a matching tag in the
 repository.
 * `GIT_LOG`: This can be outputted by `git-log.sh`.
-* `CI_PROJECT_ID`: set automatically by gitlab.
 
 If `UPLOADS` has been set via the flag parser, `create-release.sh` will then call `upload-files.sh`
 with `UPLOADS` and `RELEASE_TAG`.
@@ -110,7 +106,6 @@ line arguments. e.g.
 ```
 This script expects the following environment variables to be set:
 * `GIT_RELEASE_TOKEN`: API token configured as a CI variable in gitlab.
-* `CI_PROJECT_ID`: set automatically by gitlab.
 
 ### Python
 Available at `registry.mdcatapult.io/informatics/docker-images/ci:python` and based 
@@ -259,3 +254,11 @@ Does the following:
 4. Sources `version.sh` to run the versioning procedure.
 5. Sources `create-release.sh` to push the release to gitlab.
 6. Calls `rebase.sh` to rebase if required.
+
+#### `setup-go-private.sh`
+Sets up the CI git user with credentials to perform `go get` commands against 
+packages defined on the private gitlab instance. Requires the following 
+environment variables to be set:
+* `SSH_PRIVATE_KEY`: ssh key configured in gitlab.
+* `GIT_RELEASE_USER`: CI username configured in gitlab.
+* `GIT_RELEASE_TOKEN`: gitlab API token configured in gitlab.
