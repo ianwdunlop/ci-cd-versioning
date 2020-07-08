@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 VERSIONING_STRATEGY="commits"
 REBASE_BRANCH=""
 PARAMS=""

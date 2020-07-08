@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 
 function reportError() {
     if [ $1 -ne 0 ]; then

@@ -1,4 +1,4 @@
-#!/bin/bash
+#! /bin/bash
 
 eval "$(ssh-agent -s)"
 echo "${SSH_PRIVATE_KEY}" | ssh-add -
