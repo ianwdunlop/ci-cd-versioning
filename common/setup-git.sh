@@ -5,7 +5,7 @@ eval "$(ssh-agent -s)"
 echo "${SSH_PRIVATE_KEY}" | ssh-add -
 mkdir -p ~/.ssh
 [[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-git remote set-url origin "git@gitlab.mdcatapult.io:$CI_PROJECT_PATH.git"
+git remote set-url origin "git@$CI_SERVER_HOST:$CI_PROJECT_PATH.git"
 git config --global user.email "$GIT_RELEASE_EMAIL"
 git config --global user.name "$GIT_RELEASE_USER"
 

@@ -1,6 +1,6 @@
 #! /bin/bash
 
-echo -e "machine gitlab.mdcatapult.io\n\tlogin $GIT_RELEASE_USER\n\tpassword $GIT_RELEASE_TOKEN" > ~/.netrc
+echo -e "machine $CI_SERVER_HOST\n\tlogin $GIT_RELEASE_USER\n\tpassword $GIT_RELEASE_TOKEN" > ~/.netrc
 GOPRIVATE="$CI_SERVER_HOST:$CI_SERVER_PORT/*"
 command -v ssh-agent || ( apt-get install -qq openssh-client )
 eval "$(ssh-agent -s)"
