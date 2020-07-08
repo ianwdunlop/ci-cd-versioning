@@ -48,7 +48,8 @@ git commit --allow-empty -am "Setting version to $RELEASE_TAG"
 git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
 git push origin "$CI_COMMIT_BRANCH"
 git push origin --tags
-. ./common/create-release.sh
+./common/create-release.sh
+reportError $?
 
 if [[ $IMAGE == "common" ]]; then
   PREVIOUS_TAG=$(previous_tag python)
@@ -59,7 +60,8 @@ if [[ $IMAGE == "common" ]]; then
   git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
   git push origin "$CI_COMMIT_BRANCH"
   git push origin --tags
-  . ./common/create-release.sh
+  ./common/create-release.sh
+  reportError $?
 
   PREVIOUS_TAG=$(previous_tag node)
   reportError $?
@@ -69,7 +71,8 @@ if [[ $IMAGE == "common" ]]; then
   git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
   git push origin "$CI_COMMIT_BRANCH"
   git push origin --tags
-  . ./common/create-release.sh
+  ./common/create-release.sh
+  reportError $?
 
   PREVIOUS_TAG=$(previous_tag scala)
   reportError $?
@@ -79,7 +82,8 @@ if [[ $IMAGE == "common" ]]; then
   git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
   git push origin "$CI_COMMIT_BRANCH"
   git push origin --tags
-  . ./common/create-release.sh
+  ./common/create-release.sh
+  reportError $?
 
   PREVIOUS_TAG=$(previous_tag golang)
   reportError $?
@@ -89,6 +93,7 @@ if [[ $IMAGE == "common" ]]; then
   git tag -a "$RELEASE_TAG" -m "Setting version to $RELEASE_TAG"
   git push origin "$CI_COMMIT_BRANCH"
   git push origin --tags
-  . ./common/create-release.sh
+  ./common/create-release.sh
+  reportError $?
 
 fi
