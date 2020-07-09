@@ -4,7 +4,7 @@ ENV NODE_VERSION=v12.16.2
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get install -yqq --no-install-recommends xz-utils
+RUN apt-get install -yqq --no-install-recommends xz-utils python
 
 WORKDIR /tmp
 RUN curl https://nodejs.org/dist/$NODE_VERSION/node-${NODE_VERSION}-linux-x64.tar.xz \
