@@ -19,4 +19,4 @@ fi
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 # shellcheck source=.
-. "$DIR/upload-files.sh $UPLOADS $RELEASE_TAG"
+. "$DIR/upload-files.sh" "$UPLOADS" "$RELEASE_TAG"
