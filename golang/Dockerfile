@@ -12,6 +12,7 @@ ENV CGO_ENABLED 0
 
 RUN curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
 RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.28.0
+RUN go get -u golang.org/x/tools/...
 
 COPY golang/*.sh /scripts/
 
