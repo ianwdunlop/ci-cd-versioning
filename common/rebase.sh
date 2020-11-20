@@ -11,9 +11,6 @@ if [ -z "$REBASE_BRANCH" ]; then
     exit 0
 fi
 
-eval "$(ssh-agent -s)"
-echo "${SSH_PRIVATE_KEY}" | ssh-add -
-
 echo "Refreshing $REBASE_BRANCH from remote..."
 git branch -D "$REBASE_BRANCH"
 git fetch origin "$REBASE_BRANCH"
