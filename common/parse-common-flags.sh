@@ -45,7 +45,6 @@ done
 eval set -- "$PARAMS"
 
 export PARAMS
-export VERSIONING_STRATEGY
 export REBASE_BRANCH
 export UPLOADS
 export NO_RELEASE
