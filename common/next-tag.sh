@@ -22,10 +22,10 @@ if [[ $tag =~ $regex ]]; then
   minor="${BASH_REMATCH[2]}"
   patch="${BASH_REMATCH[3]}"
 elif [[ $tag == "none" ]] && [[ $3 == "--no-prefix" ]]; then
-  echo "1.0.0"
+  echo "0.0.1"
   exit 0
 elif [[ $tag == "none" ]]; then
-  echo "v1.0.0"
+  echo "v0.0.1"
   exit 0
 else
   echo "usage: ./next-tag.sh [previous tag] [major|minor|patch]" >&2
