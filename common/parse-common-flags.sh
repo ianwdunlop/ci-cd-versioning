@@ -1,5 +1,4 @@
 #! /bin/bash
-VERSIONING_STRATEGY="commits"
 REBASE_BRANCH=""
 PARAMS=""
 UPLOADS=""
@@ -7,10 +6,11 @@ NO_RELEASE=""
 while (( "$#" )); do
   case "$1" in
     -c|--commits)
+      echo "Warn: Versioning strategy flags are now deprecated. Both commit message and branch prefixes can be used."
       shift
       ;;
     -b|--branches)
-      VERSIONING_STRATEGY="branches"
+      echo "Warn: Versioning strategy flags are now deprecated. Both commit message and branch prefixes can be used."
       shift
       ;;
     -N|--no-release)
