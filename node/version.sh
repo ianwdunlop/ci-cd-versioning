@@ -1,8 +1,5 @@
 #! /bin/bash
 
-eval "$(ssh-agent -s)"
-echo "${SSH_PRIVATE_KEY}" | ssh-add -
-
 RELEASE_TAG=$(npm version "$BUMP" -m "Setting version to v%s")
 reportError $?
 

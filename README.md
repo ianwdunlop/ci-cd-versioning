@@ -43,10 +43,9 @@ Any remaining arguments are concatenated in a space separated list and exported 
 #### `setup-git.sh`
 Sets up the CI git user to track the `CI_COMMIT_BRANCH`. Requires the following 
 environment variables to be set:
-* `SSH_PRIVATE_KEY`: ssh key configured in gitlab.
-* `GIT_RELEASE_USER`: CI username configured in gitlab.
-* `GIT_RELEASE_EMAIL`: CI user email configured in gitlab (must match email in 
-`SSH_PRIVATE_KEY`).
+* `CI_USER`: CI username configured in gitlab.
+* `CI_USER_EMAIL`: CI user email configured in gitlab.
+* `CI_USER_TOKEN`: CI user api token with read/write access.
 
 #### `previous-tag.sh`
 Returns the previous tag if there is one. Returns `none` otherwise.
@@ -90,7 +89,7 @@ warning but will exit with `0`.
 #### `create-release.sh`
 Uses `curl` to create a formatted release in the gitlab project. Requires the 
 following environment variables to be set:
-* `GIT_RELEASE_TOKEN`: gitlab API token configured as a CI variable in gitlab.
+* `CI_TOKEN`: gitlab API token configured as a CI variable in gitlab.
 * `RELEASE_TAG`: the tag being released against. There must be a matching tag in the
 repository.
 * `GIT_LOG`: This can be outputted by `git-log.sh`.
@@ -105,7 +104,7 @@ line arguments. e.g.
 /scripts/upload-files.sh builds/* v1.0.1
 ```
 This script expects the following environment variables to be set:
-* `GIT_RELEASE_TOKEN`: API token configured as a CI variable in gitlab.
+* `CI_TOKEN`: API token configured as a CI variable in gitlab.
 
 ### Python
 Available at `registry.mdcatapult.io/informatics/docker-images/ci:python` and based 
@@ -259,6 +258,5 @@ Does the following:
 Sets up the CI git user with credentials to perform `go get` commands against 
 packages defined on the private gitlab instance. Requires the following 
 environment variables to be set:
-* `SSH_PRIVATE_KEY`: ssh key configured in gitlab.
-* `GIT_RELEASE_USER`: CI username configured in gitlab.
-* `GIT_RELEASE_TOKEN`: gitlab API token configured in gitlab.
+* `CI_READONLY_USER`: CI username configured in gitlab.
+* `CI_READONLY_TOKEN`: gitlab API token configured in gitlab.
