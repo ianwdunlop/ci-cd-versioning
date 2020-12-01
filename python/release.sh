@@ -27,5 +27,5 @@ reportError $?
 reportError $?
 
 # shellcheck source=.
-"$DIR/rebase.sh"
+. "$DIR/rebase.sh"
 reportError $?
