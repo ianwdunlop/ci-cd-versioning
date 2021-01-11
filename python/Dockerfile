@@ -18,7 +18,7 @@ RUN wget https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSIO
 RUN update-alternatives --install /usr/local/bin/python python /usr/local/bin/python3 1 && \
     update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
 
-RUN pip install wheel twine
+RUN pip install wheel twine pipenv
 
 COPY python/*.sh /scripts/
 
