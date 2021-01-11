@@ -4,7 +4,7 @@ ENV PYTHON_VERSION=3.7.7
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt-get install -yqq --no-install-recommends make build-essential libssl-dev \
+RUN apt-get update && apt-get install -yqq --no-install-recommends make build-essential libssl-dev \
     zlib1g-dev libbz2-dev libreadline-dev libsqlite3-dev wget llvm libncurses5-dev \
     xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 
