@@ -9,14 +9,10 @@ RUN apt-get update && apt-get install -yqq --no-install-recommends make build-es
     xz-utils tk-dev libxml2-dev libxmlsec1-dev libffi-dev liblzma-dev
 
 WORKDIR /tmp
-RUN wget https://www.python.org/ftp/python/$PYTHON_VERSION/Python-$PYTHON_VERSION.tgz && \
-    tar -xf Python-$PYTHON_VERSION.tgz && \
-    cd Python-$PYTHON_VERSION && \
-    ./configure --enable-optimizations && \
-    make install
-
-RUN update-alternatives --install /usr/local/bin/python python /usr/local/bin/python3 1 && \
-    update-alternatives --install /usr/local/bin/pip pip /usr/local/bin/pip3 1
+RUN curl https://pyenv.run | bash
+ENV PYENV_ROOT="/root/.pyenv"
+ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
+RUN pyenv install ${PYTHON_VERSION} && pyenv local ${PYTHON_VERSION}
 
 RUN pip install wheel twine pipenv
 
