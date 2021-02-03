@@ -12,7 +12,7 @@ WORKDIR /tmp
 RUN curl https://pyenv.run | bash
 ENV PYENV_ROOT="/root/.pyenv"
 ENV PATH="$PYENV_ROOT/bin:$PYENV_ROOT/shims:$PATH"
-RUN pyenv install ${PYTHON_VERSION} && pyenv local ${PYTHON_VERSION}
+RUN pyenv install ${PYTHON_VERSION} && pyenv global ${PYTHON_VERSION}
 
 RUN pip install wheel twine pipenv
 
