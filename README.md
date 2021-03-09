@@ -29,10 +29,6 @@ Parses flags that are common to all `release.sh` scripts and exports appropriate
 environment variables. The supported flags are:
 * `-r --rebase [branch]` specify a branch to rebase onto (optional, default none).
 This sets the `REBASE_BRANCH` environment variable.
-* `-c --commits` use commit message prefixes to determine which version tier to bump 
-(this is the default). This sets the `VERSIONING_STRATEGY` environment variable.
-* `-b --branches` use branch prefixes to determine which version to bump. This sets 
-the `VERSIONING_STRATEGY` environment variable.
 * `-u --uploads` file glob for files to add to the release. The files **MUST** be 
 present before running any `release.sh` scripts. This sets the `UPLOADS` environment
 variable.
@@ -52,9 +48,7 @@ Returns the previous tag if there is one. Returns `none` otherwise.
 
 #### `bump.sh`
 Interprets the git log between HEAD and the given tag to determine which version 
-to bump. Requires a tag to be passed as a **command line argument**. Requires the 
-`VERSIONING_STRATEGY` environment variable to be set to `commits` (default) or 
-`branches` (see [parsing](#parse-common-flags.sh)). Returns `major`, `minor`, or 
+to bump. Requires a tag to be passed as a **command line argument**. Returns `major`, `minor`, or 
 `patch`.
 
 For the commit message prefix strategy, the prefixes `feature:` and `breaking-change:`
@@ -115,8 +109,6 @@ all python dependencies (i.e. libsqlite3-dev), Python3.7.7, pip, and twine. Scri
 #### `export-env.sh`
 Interprets the command line arguments and git history using scripts from `common` to 
 export the following environment variables:
-* `VERSIONING_STRATEGY`: The strategy to use when determining the version to 
-increment.
 * `REBASE_BRANCH`: The branch to rebase, if any.
 * `PARAMS`: Remaining command line arguments not consumed by `parse-common-flags.sh`.
 * `VERSION_DIR`: The directory containing the `version.py` file.
@@ -164,8 +156,6 @@ in `node` are moved into `scripts` (in which the scripts from `common` are also 
 #### `export-env.sh`
 Interprets the command line arguments and git history using scripts from `common` to 
 export the following environment variables:
-* `VERSIONING_STRATEGY`: The strategy to use when determining the version to 
-increment.
 * `REBASE_BRANCH`: The branch to rebase, if any.
 * `PARAMS`: Remaining command line arguments not consumed by `parse-common-flags.sh`.
 * `PREVIOUS_TAG`: The previous git tag.
@@ -195,8 +185,6 @@ from `common` are also located).
 #### `export-env.sh`
 Interprets the command line arguments and git history using scripts from `common` to 
 export the following environment variables:
-* `VERSIONING_STRATEGY`: The strategy to use when determining the version to 
-increment.
 * `REBASE_BRANCH`: The branch to rebase, if any.
 * `PARAMS`: Remaining command line arguments not consumed by `parse-common-flags.sh`.
 * `PREVIOUS_TAG`: The previous git tag.
@@ -230,8 +218,6 @@ are moved into `scripts` (in which the scripts from `common` are also located).
 #### `export-env.sh`
 Interprets the command line arguments and git history using scripts from `common` to 
 export the following environment variables:
-* `VERSIONING_STRATEGY`: The strategy to use when determining the version to 
-increment.
 * `REBASE_BRANCH`: The branch to rebase, if any.
 * `PARAMS`: Remaining command line arguments not consumed by `parse-common-flags.sh`.
 * `PREVIOUS_TAG`: The previous git tag.
