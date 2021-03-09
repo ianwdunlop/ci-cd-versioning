@@ -2,9 +2,6 @@
 
 function rebase() {
 
-    eval "$(ssh-agent -s)"
-    echo "${SSH_PRIVATE_KEY}" | ssh-add -
-
     echo "Checking out $1..."
     git checkout "$1"
 
