@@ -25,4 +25,7 @@ wget    --recursive \
         --no-host-directories \
         "http://localhost:6060/pkg/$GO_MODULE/"
 
+
+find godoc -type f -exec sed -i 's|http://localhost:6060|https://pkg.go.dev|g' {} \;
+
 kill $PID
