@@ -2,8 +2,10 @@
 
 > Shared repository for base images to use in CI/CD.
 
-Each language specific image uses the `common` image as a base. All scripts in `common` are moved into the `/scripts` folder. It is important that script 
-names in a language specific folder do not collide with those in `common`.
+All images:
+* Are based on [debian](https://www.debian.org/).
+* Contain useful scripts in the `/scripts` folder and available on the `PATH`.
+* Are simple to use out of the box. Most CI will need only `release.sh`.
 
 ## Usage
 Example `.gitlab-ci.yml` files are available for each supported language:
@@ -19,15 +21,15 @@ commits, and **never** squash your commits. These are the default options in git
 Overview of the images, their use cases, and the usage of the scripts they contain.
 
 ### Common
-Available at `registry.mdcatapult.io/informatics/docker-images/ci:common` and based on
-`ubuntu:20.04`, this image contains base scripts which are useful for the release
+Available at `registry.mdcatapult.io/informatics/docker-images/ci` and based on
+`debian:buster`, this image contains base scripts which are useful for the release
 process of all languages. It is preinstalled with some apt packages to meet the 
 dependencies of the scripts. The following scripts are included:
 
 #### `parse-common-flags.sh`
 Parses flags that are common to all `release.sh` scripts and exports appropriate 
 environment variables. The supported flags are:
-* `-r --rebase [branch]` specify a branch to rebase onto (optional, default none).
+* `-r --rebase [branch]` specify a branch to rebase onto (optional, rebase will still point to `develop` or `dev` if missing).
 This sets the `REBASE_BRANCH` environment variable.
 * `-u --uploads` file glob for files to add to the release. The files **MUST** be 
 present before running any `release.sh` scripts. This sets the `UPLOADS` environment
@@ -77,9 +79,9 @@ Contains utility functions `reportError` for checking the error code of a child 
 and `trim` for trimming whitespace from a bash variable.
 
 #### `rebase.sh`
-Attempts to rebase `REBASE_BRANCH` onto `CI_COMMIT_BRANCH`. If `REBASE_BRANCH` 
-is empty no rebase is attempted. If the rebase fails, this script will print a 
-warning but will exit with `0`.
+Attempts to rebase `REBASE_BRANCH` onto `CI_COMMIT_BRANCH` if it has been set. 
+Otherwise, the script will look for branches called `develop` or `dev` and rebases those instead. 
+If the rebase fails, this script should error.
 
 #### `create-release.sh`
 Uses `curl` to create a formatted release in the gitlab project. Requires the 
@@ -101,11 +103,25 @@ line arguments. e.g.
 This script expects the following environment variables to be set:
 * `GIT_RELEASE_TOKEN`: API token configured as a CI variable in gitlab.
 
+#### `version.sh`
+Does the following:
+1. Adds an empty commit with the message to "Setting version to..." for CI purposes.
+2. Pushes the commit.
+3. Tags the commit with `RELEASE_TAG` and pushes the tag.
+
+#### `release.sh`
+Does the following:
+1. Sources `utils.sh` to make utility functions available.
+2. Sources `setup-git.sh` to set up git.
+3. Sources `export-env.sh` with `$@` to pass down it's command line arguments.
+4. Sources `version.sh` to run the versioning procedure (and export `RELEASE_TAG`)
+5. Sources `create-release.sh` to push the release to gitlab.
+6. Calls `rebase.sh` to rebase if required.
+
 ### Python
-Available at `registry.mdcatapult.io/informatics/docker-images/ci:python` and based 
-on `registry.mdcatapult.io/informatics/docker-images/ci:common`. It is preinstalled with 
-all python dependencies (i.e. libsqlite3-dev), Python3.7.7, pip, and twine. Scripts in 
-`python` are moved into `scripts` (in which the scripts from `common` are also located).
+Available at `registry.mdcatapult.io/informatics/docker-images/ci/python` and based on `python:latest`. A Python 3.6 version is available at `registry.mdcatapult.io/informatics/docker-images/ci/python:3.6`.
+Scripts in `python` and `common` are copied to `/scripts`.
+Scripts with the same filename are overwritten by the files in `python`.
 
 #### `export-env.sh`
 Interprets the command line arguments and git history using scripts from `common` to 
@@ -149,10 +165,9 @@ Does the following:
 6. Calls `rebase.sh` to rebase if required.
 
 ### Node
-Available at `registry.mdcatapult.io/informatics/docker-images/ci:node` and based 
-on `registry.mdcatapult.io/informatics/docker-images/ci:common`. It is preinstalled with 
-node v12.16.2 LTS and google chrome (for running tests in a headless browser). Scripts 
-in `node` are moved into `scripts` (in which the scripts from `common` are also located).
+Available at `registry.mdcatapult.io/informatics/docker-images/ci/node` and based on `node:buster`.
+Scripts in `node` and `common` are copied to `/scripts`.
+Scripts with the same filename are overwritten by the files in `node`.
 
 #### `export-env.sh`
 Interprets the command line arguments and git history using scripts from `common` to 
@@ -168,20 +183,10 @@ Does the following:
 1. Calls npm version with `BUMP` and exports the result at `RELEASE_TAG`.
 2. Pushes the changes and tag to git.
 
-#### `release.sh`
-Does the following:
-1. Sources `utils.sh` to make utility functions available.
-2. Sources `setup-git.sh` to set up git.
-3. Sources `export-env.sh` with `$@` to pass down it's command line arguments.
-4. Sources `version.sh` to run the versioning procedure (and export `RELEASE_TAG`)
-5. Sources `create-release.sh` to push the release to gitlab.
-6. Calls `rebase.sh` to rebase if required.
-
 ### Scala
-Available at `registry.mdcatapult.io/informatics/docker-images/ci:scala` and based 
-on `registry.mdcatapult.io/informatics/docker-images/ci:common`. It is preinstalled with 
-Openjdk 14 and sbt. Scripts in `scala` are moved into `scripts` (in which the scripts 
-from `common` are also located).
+Available at `registry.mdcatapult.io/informatics/docker-images/ci/scala` and based on `openjdk:buster`.
+Scripts in `scala` and `common` are copied to `/scripts`.
+Scripts with the same filename are overwritten by the files in `scala`.
 
 #### `export-env.sh`
 Interprets the command line arguments and git history using scripts from `common` to 
@@ -201,20 +206,10 @@ version of the next anticipated release, which is always a patch on the release 
 Does the following:
 1. Calls `sbt "release with-defaults"` with the `RELEASE_VERSION` and `NEXT_VERSION`.
 
-#### `release.sh`
-Does the following:
-1. Sources `utils.sh` to make utility functions available.
-2. Sources `setup-git.sh` to set up git.
-3. Sources `export-env.sh` with `$@` to pass down it's command line arguments.
-4. Sources `version.sh` to run the versioning procedure.
-5. Sources `create-release.sh` to push the release to gitlab.
-6. Calls `rebase.sh` to rebase if required.
-
 ### Golang
-Available at `registry.mdcatapult.io/informatics/docker-images/ci:golang` and based 
-on `registry.mdcatapult.io/informatics/docker-images/ci:common`. It is preinstalled with 
-go version 1.14.4 and sets up the go environment in the standard way. Scripts in `golang`
-are moved into `scripts` (in which the scripts from `common` are also located).
+Available at `registry.mdcatapult.io/informatics/docker-images/ci/golang` and based on `golang:latest`. 
+Scripts in `golang` and `common` are copied to `/scripts`.
+Scripts with the same filename are overwritten by the files in `golang`.
 
 #### `export-env.sh`
 Interprets the command line arguments and git history using scripts from `common` to 
@@ -225,21 +220,6 @@ export the following environment variables:
 * `BUMP`: The version to bump.
 * `RELEASE_TAG`: The tag to release with.
 * `GIT_LOG`: Prettyfied git log for use in gitlab release.
-
-#### `version.sh`
-Does the following:
-1. Adds an empty commit with the message to "Setting version to..." for CI purposes.
-2. Pushes the commit.
-3. Tags the commit with `RELEASE_TAG` and pushes the tag.
-
-#### `release.sh`
-Does the following:
-1. Sources `utils.sh` to make utility functions available.
-2. Sources `setup-git.sh` to set up git.
-3. Sources `export-env.sh` with `$@` to pass down it's command line arguments.
-4. Sources `version.sh` to run the versioning procedure.
-5. Sources `create-release.sh` to push the release to gitlab.
-6. Calls `rebase.sh` to rebase if required.
 
 #### `setup-go-private.sh`
 Sets up the CI git user with credentials to perform `go get` commands against 
