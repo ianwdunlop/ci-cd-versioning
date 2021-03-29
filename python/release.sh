@@ -1,14 +1,12 @@
 #! /bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+# shellcheck source=.
+. "$DIR/utils.sh"
 
 if [ $# -lt 1 ]; then
   echo "usage: ./release.sh [source module]"
   exit 1
 fi
-
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-
-# shellcheck source=.
-. "$DIR/utils.sh"
 
 # shellcheck source=.
 . "$DIR/setup-git.sh"

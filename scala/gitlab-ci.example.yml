@@ -1,21 +1,7 @@
-services:
-  - name: mongo:latest
-    alias: mongo
-  - name: rabbitmq:management
-    alias: rabbitmq
-
 stages:
   - test
   - build
   - publish
-
-variables:
-  SBT_OPTS: "-Dsbt.global.base=sbt-cache/.sbtboot -Dsbt.boot.directory=sbt-cache/.boot -Dsbt.ivy.home=sbt-cache/.ivy"
-  MONGO_INITDB_ROOT_USERNAME: admin
-  MONGO_INITDB_ROOT_PASSWORD: admin
-  RABBITMQ_DEFAULT_USER: guest
-  RABBITMQ_DEFAULT_PASS: guest
-
 
 cache:
   key: "${CI_COMMIT_REF_SLUG}"
@@ -26,43 +12,27 @@ cache:
     - "sbt-cache/.sbtboot"
     - "sbt-cache/target"
 
-test:
-  stage: test
-  image: registry.mdcatapult.io/informatics/docker-images/ci:scala
+default:
+  image: registry.mdcatapult.io/informatics/docker-images/ci/scala
   tags:
     - wopr
-  variables:
-    MONGO_HOST: mongo
-    MONGO_DATABASE: prefetch-test
-    MONGO_COLLECTION: documents
-    MONGO_USERNAME: admin
-    MONGO_PASSWORD: admin
-    RABBITMQ_HOST: rabbitmq
-    RABBITMQ_USERNAME: guest
-    RABBITMQ_PASSWORD: guest
+
+test:
+  stage: test
   script:
-    - curl http://guest:guest@rabbitmq:15672/api/overview
-    - sbt clean coverage test it:test coverageReport
-  artifacts:
-    name: "$CI_JOB_NAME-$CI_COMMIT_REF_NAME"
-    paths:
-      - target/scala-2.13/scoverage-report/
+    - sbt clean coverage test coverageReport
+  coverage: /Coverage was \[\d+.\d+\%\]/
   except:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
 assemble:
   stage: build
-  image: registry.mdcatapult.io/informatics/docker-images/ci:scala
-  tags:
-    - wopr
   script:
     - sbt assembly
-    - curl https://repo1.maven.org/maven2/io/netty/netty-all/4.1.49.Final/netty-all-4.1.49.Final.jar -o target/netty.jar
   artifacts:
     paths:
       - target/scala-2.13/consumer.jar
-      - target/netty.jar
   except:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
@@ -77,7 +47,10 @@ publish:
   before_script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --build-arg VERSION_HASH=$CI_COMMIT_SHORT_SHA --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+    - >
+      /kaniko/executor --context $CI_PROJECT_DIR \
+      --build-arg VERSION_HASH=$CI_COMMIT_SHORT_SHA \
+      --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   except:
     refs:
       - master
@@ -86,11 +59,8 @@ publish:
 
 release:
   stage: build
-  tags:
-    - wopr
-  image: registry.mdcatapult.io/informatics/docker-images/ci:scala
   script:
-    - /scripts/release.sh
+    - release.sh -u target/scala-2.13/consumer.jar
   only:
     - master
   except:
@@ -99,16 +69,11 @@ release:
 
 assemble-master:
   stage: build
-  image: registry.mdcatapult.io/informatics/docker-images/ci:scala
-  tags:
-    - wopr
   script:
     - sbt assembly
-    - curl https://repo1.maven.org/maven2/io/netty/netty-all/4.1.49.Final/netty-all-4.1.49.Final.jar -o target/netty.jar
   artifacts:
     paths:
       - target/scala-2.13/consumer.jar
-      - target/netty.jar
   only:
     refs:
       - tags
@@ -125,8 +90,11 @@ publish-master:
   before_script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --build-arg VERSION_HASH=$CI_COMMIT_SHORT_SHA --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
-    - /kaniko/executor --context $CI_PROJECT_DIR --build-arg VERSION_HASH=$CI_COMMIT_SHORT_SHA --destination $CI_REGISTRY_IMAGE
+    - >
+      /kaniko/executor --context $CI_PROJECT_DIR \
+      --build-arg VERSION_HASH=$CI_COMMIT_SHORT_SHA \
+      --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME \
+      --destination $CI_REGISTRY_IMAGE
   only:
     refs:
       - tags

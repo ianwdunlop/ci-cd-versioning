@@ -1,12 +1,5 @@
-services:
-  - name: postgres:latest
-    alias: postgres
-
 variables:
   PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-  POSTGRES_DB: test
-  POSTGRES_USER: postgres
-  POSTGRES_PASSWORD: password
 
 cache:
   paths:
@@ -18,18 +11,16 @@ stages:
   - publish
 
 default:
-  image: registry.mdcatapult.io/informatics/docker-images/ci:python
+  image: registry.mdcatapult.io/informatics/docker-images/ci/python:3.6
   before_script:
-    - >
-      pip install -r requirements.txt --trusted-host=nexus.mdcatapult.io
-      --index=https://$NEXUS_USERNAME:$NEXUS_PASSWORD@nexus.mdcatapult.io/repository/pypi-all/pypi
-      --index-url=https://$NEXUS_USERNAME:$NEXUS_PASSWORD@nexus.mdcatapult.io/repository/pypi-all/simple
+    - configure-pip.sh
 
 lint:
   stage: test
   tags:
     - wopr
   script:
+    - pip install -r requirements.txt
     - pylint --rcfile=.pylintrc src
   except:
     refs:
@@ -42,17 +33,14 @@ test:
   tags:
     - wopr
   script:
-    -  python -m pytest --cov-report term --cov src/ tests/
+    - pip install -r requirements.txt
+    - python -m pytest --cov-report term --cov src/ tests/
   coverage: '/TOTAL.*\s+(\d+%)$/'
-  variables:
-    POSTGRES_HOST: postgres
 
 publish-stable:
   stage: publish
   tags:
     - wopr
-  before_script:
-    - ''
   script:
     - python setup.py sdist bdist_wheel
     - twine upload -u $NEXUS_USERNAME -p $NEXUS_PASSWORD --repository-url https://nexus.mdcatapult.io/repository/pypi-stable/ dist/*
@@ -66,8 +54,6 @@ publish-unstable:
   stage: publish
   tags:
     - wopr
-  before_script:
-    - ''
   script:
     - python setup.py sdist bdist_wheel
     - twine upload -u $NEXUS_USERNAME -p $NEXUS_PASSWORD --repository-url https://nexus.mdcatapult.io/repository/pypi-unstable/ dist/*
@@ -81,8 +67,6 @@ release:
   stage: release
   tags:
     - wopr
-  before_script:
-    - ''
   script:
     - /scripts/release.sh src
   only:

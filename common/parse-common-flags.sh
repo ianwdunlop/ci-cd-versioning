@@ -2,7 +2,7 @@
 REBASE_BRANCH=""
 PARAMS=""
 UPLOADS=""
-NO_RELEASE=""
+NO_RELEASE="false"
 while (( "$#" )); do
   case "$1" in
     -c|--commits)

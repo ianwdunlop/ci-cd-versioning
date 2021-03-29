@@ -1,4 +1,7 @@
 #!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+# shellcheck source=.
+. "$DIR/utils.sh"
 
 if [ $# -ne 1 ]; then
   echo "usage: ./bump.sh [previous tag]" >&2
@@ -12,8 +15,10 @@ minor="feature\|minor"
 # Pull keywords out of git log.
 if [[ $1 != "none" ]]; then
   commit_prefixes=$(git log --no-merges --pretty=format:"%s" "$1..HEAD" | sed -n "s/\(${major}\|${minor}\):.*/\1/p")
+  reportError $?
 else
   commit_prefixes=$(git log --no-merges --pretty=format:"%s" | sed -n "s/\(${major}\|${minor}\):.*/\1/p")
+  reportError $?
 fi
 
 if [[ $1 != "none" ]]; then
