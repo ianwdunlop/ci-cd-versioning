@@ -1,4 +1,5 @@
 stages:
+  - ensure-build
   - release
   - build
 
@@ -106,6 +107,72 @@ node:
       --destination $CI_REGISTRY_IMAGE/node:$CI_COMMIT_REF_NAME
   only:
     refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+ensure-common:
+  stage: ensure-build
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile common/Dockerfile
+  except:
+    refs:
+      - master
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+ensure-golang:
+  stage: ensure-build
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile golang/Dockerfile
+  except:
+    refs:
+      - master
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+ensure-scala:
+  stage: ensure-build
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile scala/Dockerfile
+  except:
+    refs:
+      - master
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+ensure-python:
+  stage: ensure-build
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile
+  except:
+    refs:
+      - master
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+ensure-python3.6:
+  stage: ensure-build
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.6
+  except:
+    refs:
+      - master
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+ensure-node:
+  stage: ensure-build
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile node/Dockerfile
+  except:
+    refs:
+      - master
       - tags
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
