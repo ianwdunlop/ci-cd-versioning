@@ -1,4 +1,7 @@
 #! /bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+# shellcheck source=.
+. "$DIR/utils.sh"
 
 if [ $# -lt 2 ]; then
   echo "usage: ./next-tag.sh [previous tag] [major|minor|patch]" >&2
@@ -35,10 +38,12 @@ fi
 
 if [[ "$2" == "major" ]]; then
   major=$(echo $major + 1 | bc)
+  reportError $?
   minor=0
   patch=0
 elif [[ "$2" == "minor" ]]; then
   minor=$(echo $minor + 1 | bc)
+  reportError $?
   patch=0
 elif [[ "$2" == "patch" ]]; then
   patch=$(echo $patch + 1 | bc)
