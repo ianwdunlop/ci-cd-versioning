@@ -224,8 +224,4 @@ export the following environment variables:
 * `GIT_LOG`: Prettyfied git log for use in gitlab release.
 
 #### `setup-go-private.sh`
-Sets up the CI git user with credentials to perform `go get` commands against 
-packages defined on the private gitlab instance. Requires the following 
-environment variables to be set:
-* `CI_READONLY_USER`: CI username configured in gitlab.
-* `CI_READONLY_TOKEN`: gitlab API token configured in gitlab.
+Writes a `~/.netrc` file using the `gitlab-ci-token` user and the `$CI_JOB_TOKEN` password. This makes the CI image capable of go getting private modules from gitlab. Note that the permissions of the job token are the same as the user that triggered the job.
