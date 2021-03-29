@@ -1,21 +1,16 @@
-FROM registry.mdcatapult.io/informatics/docker-images/ci:common
+ARG TAG=buster
+FROM node:$TAG
 
-ENV NODE_VERSION=v12.16.2
+RUN apt-get update -yqq && apt-get install -yqq build-essential apt-transport-https ca-certificates curl gnupg git bc jq wget git-lfs
+RUN git lfs install
 
-ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get install -yqq chromium
+ENV CHROME_BIN=/usr/bin/chromium
 
-RUN apt-get install -yqq xz-utils chromium-browser python g++ libssl-dev make
-ENV CHROME_BIN=/usr/bin/chromium-browser
-
-WORKDIR /tmp
-RUN curl https://nodejs.org/dist/$NODE_VERSION/node-${NODE_VERSION}-linux-x64.tar.xz \
-    -o node-${NODE_VERSION}-linux-x64.tar.xz && \
-    tar -xf node-${NODE_VERSION}-linux-x64.tar.xz
-
-ENV PATH=$PATH:/tmp/node-${NODE_VERSION}-linux-x64/bin
-
+COPY common/*.sh /scripts/
 COPY node/*.sh /scripts/
 
 WORKDIR /scripts
+ENV PATH $PATH:/scripts
 
-CMD ['/bin/bash']
+CMD bash

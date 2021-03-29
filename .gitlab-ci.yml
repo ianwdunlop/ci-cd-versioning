@@ -1,146 +1,109 @@
-services:
-  - docker:dind
-
 stages:
-  - build-common
-  - build
   - release
+  - build
+
+release:
+  stage: release
+  image: debian:buster
+  before_script:
+    - apt-get update -yqq && apt-get install -yqq apt-transport-https ca-certificates curl gnupg git bc
+  script:
+    - . ./common/setup-git.sh
+    - PREVIOUS_TAG=$(./common/previous-tag.sh)
+    - GIT_LOG=$(./common/git-log.sh $PREVIOUS_TAG)
+    - BUMP=$(./common/bump.sh $PREVIOUS_TAG)
+    - RELEASE_TAG=$(./common/next-tag.sh $PREVIOUS_TAG $BUMP)
+    - . ./common/version.sh
+    - . ./common/create-release.sh
+    - . ./common/rebase.sh
+  only:
+    - master
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
 default:
-  image: docker:latest
+  tags:
+    - wopr
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
   before_script:
-    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
 
-build-common-master:
-  stage: build-common
+common:
+  stage: build
   script:
-    - docker build --pull -f common/Dockerfile -t "$CI_REGISTRY_IMAGE:common" .
-    - docker push "$CI_REGISTRY_IMAGE:common"
-  rules:
-    - if: $CI_COMMIT_BRANCH == "master"
-      changes:
-        - common/*
-
-release-common:
-  stage: release
-  image: ubuntu:18.04
-  before_script: [""]
-  script:
-    - ./release.sh common
-  rules:
-    - if: $CI_COMMIT_BRANCH == "master"
-      changes:
-        - common/*
-
-tag-common:
-  stage: build-common
-  script:
-    - docker build --pull -f common/Dockerfile -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME" .
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+    - >
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile common/Dockerfile \
+      --destination $CI_REGISTRY_IMAGE:latest \
+      --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
   only:
     refs:
       - tags
     variables:
-      - $CI_COMMIT_REF_NAME =~ /^common-v\d\.\d\.\d$/
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-release-golang:
-  stage: release
-  image: ubuntu:18.04
-  before_script: [""]
-  script:
-    - ./release.sh golang
-  rules:
-    - changes:
-        - common/*
-      when: never
-    - if: $CI_COMMIT_BRANCH == "master"
-      changes:
-        - golang/*
-
-tag-golang:
+golang:
   stage: build
   script:
-    - docker build --pull -f golang/Dockerfile -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME" -t "$CI_REGISTRY_IMAGE:golang" .
-    - docker push "$CI_REGISTRY_IMAGE:golang"
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+    - >
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile Dockerfile/golang \
+      --destination $CI_REGISTRY_IMAGE/golang:latest \
+      --destination $CI_REGISTRY_IMAGE/golang:$CI_COMMIT_REF_NAME
   only:
     refs:
       - tags
     variables:
-      - $CI_COMMIT_REF_NAME =~ /^golang-v\d\.\d\.\d$/
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-release-scala:
-  stage: release
-  image: ubuntu:18.04
-  before_script: [""]
-  script:
-    - ./release.sh scala
-  rules:
-    - changes:
-        - common/*
-      when: never
-    - if: $CI_COMMIT_BRANCH == "master"
-      changes:
-        - scala/*
-
-tag-scala:
+scala:
   stage: build
   script:
-    - docker build --pull -f scala/Dockerfile -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME" -t "$CI_REGISTRY_IMAGE:scala" .
-    - docker push "$CI_REGISTRY_IMAGE:scala"
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+    - >
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile Dockerfile/scala \
+      --destination $CI_REGISTRY_IMAGE/scala:latest \
+      --destination $CI_REGISTRY_IMAGE/scala:$CI_COMMIT_REF_NAME
   only:
     refs:
       - tags
     variables:
-      - $CI_COMMIT_REF_NAME =~ /^scala-v\d\.\d\.\d$/
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-release-python:
-  stage: release
-  image: ubuntu:18.04
-  before_script: [""]
-  script:
-    - ./release.sh python
-  rules:
-    - changes:
-        - common/*
-      when: never
-    - if: $CI_COMMIT_BRANCH == "master"
-      changes:
-        - python/*
-
-tag-python:
+python:
   stage: build
   script:
-    - docker build --pull -f python/Dockerfile -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME" -t "$CI_REGISTRY_IMAGE:python" .
-    - docker push "$CI_REGISTRY_IMAGE:python"
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+    - >
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile Dockerfile/python \
+      --destination $CI_REGISTRY_IMAGE/python:latest \
+      --destination $CI_REGISTRY_IMAGE/python:$CI_COMMIT_REF_NAME
   only:
     refs:
       - tags
     variables:
-      - $CI_COMMIT_REF_NAME =~ /^python-v\d\.\d\.\d$/
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-release-node:
-  stage: release
-  image: ubuntu:18.04
-  before_script: [""]
-  script:
-    - ./release.sh node
-  rules:
-    - changes:
-        - common/*
-      when: never
-    - if: $CI_COMMIT_BRANCH == "master"
-      changes:
-        - node/*
-
-tag-node:
+python3.6:
   stage: build
   script:
-    - docker build --pull -f node/Dockerfile -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME" -t "$CI_REGISTRY_IMAGE:node" .
-    - docker push "$CI_REGISTRY_IMAGE:node"
-    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME"
+    - >
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile Dockerfile/python \
+      --arg TAG=3.6 \
+      --destination $CI_REGISTRY_IMAGE/python:3.6 \
+      --destination $CI_REGISTRY_IMAGE/python:3.6-$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+node:
+  stage: build
+  script:
+    - >
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile Dockerfile/node \
+      --destination $CI_REGISTRY_IMAGE/node:latest \
+      --destination $CI_REGISTRY_IMAGE/node:$CI_COMMIT_REF_NAME
   only:
     refs:
       - tags

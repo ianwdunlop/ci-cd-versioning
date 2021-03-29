@@ -3,14 +3,13 @@ stages:
   - release
   - publish
 
-variables:
-  GIT_SUBMODULE_STRATEGY: recursive
+default:
+  image: registry.mdcatapult.io/informatics/docker-images/ci/node
+  tags:
+    - wopr
 
 test:
   stage: test
-  image: registry.mdcatapult.io/informatics/docker-images/ci:node
-  tags:
-    - wopr
   before_script:
     - npm install
   script:
@@ -39,11 +38,8 @@ publish:
 
 release:
   stage: release
-  image: registry.mdcatapult.io/informatics/docker-images/ci:node
-  tags:
-    - wopr
   script:
-    - /scripts/release.sh
+    - release.sh
   only:
     - master
   except:

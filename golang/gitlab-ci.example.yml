@@ -2,19 +2,28 @@ stages:
   - test
   - release
   - publish
+  - docs
 
-variables:
-  GIT_SUBMODULE_STRATEGY: recursive
+default:
+  image: registry.mdcatapult.io/informatics/docker-images/ci/golang
+  tags:
+    - wopr
+
+lint:
+  stage: test
+  script:
+    - go vet ./...
+    - golangci-lint run
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+  coverage: /total:\s+\(statements\)\s+(\d+.\d+\%)/
 
 test:
   stage: test
-  image: golang:1.13
-  tags:
-    - wopr
   script:
     - go test ./... -coverpkg=./... -coverprofile=cover.out
     - go tool cover -func cover.out
-    - go vet ./...
   except:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
@@ -36,11 +45,8 @@ publish:
 
 release:
   stage: release
-  image: registry.mdcatapult.io/informatics/docker-images/ci:golang
-  tags:
-    - wopr
   script:
-    - /scripts/release.sh
+    - release.sh
   only:
     - master
   except:
@@ -64,3 +70,16 @@ publish-master:
       - tags
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+
+pages:
+  stage: docs
+  script:
+    - /scripts/godoc.sh
+    - mv godoc public
+  artifacts:
+    paths:
+      - public
+  only:
+    refs:
+      - tags
