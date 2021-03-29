@@ -8,13 +8,16 @@ RUN echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.lis
         apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823 && \
         apt-get update -yqq && \
         apt-get install -yqq sbt
+
+WORKDIR /scripts
+ENV PATH $PATH:/scripts
+
 RUN sbt sbtVersion
+ENV SBT_OPTS="-Dsbt.global.base=sbt-cache/.sbtboot -Dsbt.boot.directory=sbt-cache/.boot -Dsbt.ivy.home=sbt-cache/.ivy"
 
 
 COPY common/*.sh /scripts/
 COPY scala/*.sh /scripts/
 
-WORKDIR /scripts
-ENV PATH $PATH:/scripts
 
 CMD bash

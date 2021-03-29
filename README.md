@@ -122,6 +122,7 @@ Does the following:
 Available at `registry.mdcatapult.io/informatics/docker-images/ci/python` and based on `python:latest`. A Python 3.6 version is available at `registry.mdcatapult.io/informatics/docker-images/ci/python:3.6`.
 Scripts in `python` and `common` are copied to `/scripts`.
 Scripts with the same filename are overwritten by the files in `python`.
+The default pip cache is `/root/.cache/pip`. This can be overridden by setting the `PIP_CACHE_DIR` environment variable.
 
 #### `export-env.sh`
 Interprets the command line arguments and git history using scripts from `common` to 
@@ -187,6 +188,8 @@ Does the following:
 Available at `registry.mdcatapult.io/informatics/docker-images/ci/scala` and based on `openjdk:buster`.
 Scripts in `scala` and `common` are copied to `/scripts`.
 Scripts with the same filename are overwritten by the files in `scala`.
+Sbt will cache all scala and java packages under a directory
+called `sbt-cache`, which is local to wherever `sbt` was called from.
 
 #### `export-env.sh`
 Interprets the command line arguments and git history using scripts from `common` to 
