@@ -34,7 +34,7 @@ default:
 common:
   stage: build
   script:
-    - >
+    - |
       /kaniko/executor --context $CI_PROJECT_DIR --dockerfile common/Dockerfile \
       --destination $CI_REGISTRY_IMAGE:latest \
       --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
@@ -47,7 +47,7 @@ common:
 golang:
   stage: build
   script:
-    - >
+    - |
       /kaniko/executor --context $CI_PROJECT_DIR --dockerfile Dockerfile/golang \
       --destination $CI_REGISTRY_IMAGE/golang:latest \
       --destination $CI_REGISTRY_IMAGE/golang:$CI_COMMIT_REF_NAME
@@ -60,7 +60,7 @@ golang:
 scala:
   stage: build
   script:
-    - >
+    - |
       /kaniko/executor --context $CI_PROJECT_DIR --dockerfile Dockerfile/scala \
       --destination $CI_REGISTRY_IMAGE/scala:latest \
       --destination $CI_REGISTRY_IMAGE/scala:$CI_COMMIT_REF_NAME
@@ -73,7 +73,7 @@ scala:
 python:
   stage: build
   script:
-    - >
+    - |
       /kaniko/executor --context $CI_PROJECT_DIR --dockerfile Dockerfile/python \
       --destination $CI_REGISTRY_IMAGE/python:latest \
       --destination $CI_REGISTRY_IMAGE/python:$CI_COMMIT_REF_NAME
@@ -86,9 +86,9 @@ python:
 python3.6:
   stage: build
   script:
-    - >
+    - |
       /kaniko/executor --context $CI_PROJECT_DIR --dockerfile Dockerfile/python \
-      --arg TAG=3.6 \
+      --build-arg TAG=3.6 \
       --destination $CI_REGISTRY_IMAGE/python:3.6 \
       --destination $CI_REGISTRY_IMAGE/python:3.6-$CI_COMMIT_REF_NAME
   only:
@@ -100,7 +100,7 @@ python3.6:
 node:
   stage: build
   script:
-    - >
+    - |
       /kaniko/executor --context $CI_PROJECT_DIR --dockerfile Dockerfile/node \
       --destination $CI_REGISTRY_IMAGE/node:latest \
       --destination $CI_REGISTRY_IMAGE/node:$CI_COMMIT_REF_NAME
