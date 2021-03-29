@@ -8,14 +8,14 @@ release:
   before_script:
     - apt-get update -yqq && apt-get install -yqq apt-transport-https ca-certificates curl gnupg git bc
   script:
-    - ./common/setup-git.sh
+    - . ./common/setup-git.sh
     - PREVIOUS_TAG=$(./common/previous-tag.sh)
     - GIT_LOG=$(./common/git-log.sh $PREVIOUS_TAG)
     - BUMP=$(./common/bump.sh $PREVIOUS_TAG)
     - RELEASE_TAG=$(./common/next-tag.sh $PREVIOUS_TAG $BUMP)
-    - ./common/version.sh
-    - ./common/create-release.sh
-    - ./common/rebase.sh
+    - . ./common/version.sh
+    - . ./common/create-release.sh
+    - . ./common/rebase.sh
   only:
     - master
   except:
