@@ -180,6 +180,17 @@ ensure-python3.6:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
+ensure-python3.7:
+  stage: ensure-build
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.7 --no-push
+  except:
+    refs:
+      - master
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
 ensure-node:
   stage: ensure-build
   script:
