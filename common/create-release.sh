@@ -5,7 +5,7 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 if [[ $NO_RELEASE == "false" ]]; then
   curl --header 'Content-Type: application/json' \
-      --header "PRIVATE-TOKEN: $GIT_RELEASE_TOKEN" \
+      --header "PRIVATE-TOKEN: $CI_TOKEN" \
       --data "{ \"name\": \"$RELEASE_TAG\", \"tag_name\": \"$RELEASE_TAG\", \"description\": \"## Changelog\n\n$GIT_LOG\" }" \
       --request POST "$CI_API_V4_URL/projects/$CI_PROJECT_ID/releases"
   reportError $?
