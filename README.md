@@ -41,10 +41,9 @@ Any remaining arguments are concatenated in a space separated list and exported 
 #### `setup-git.sh`
 Sets up the CI git user to track the `CI_COMMIT_BRANCH`. Requires the following 
 environment variables to be set:
-* `SSH_PRIVATE_KEY`: ssh key configured in gitlab.
-* `GIT_RELEASE_USER`: CI username configured in gitlab.
-* `GIT_RELEASE_EMAIL`: CI user email configured in gitlab (must match email in 
-`SSH_PRIVATE_KEY`).
+* `CI_USER`: CI username configured in gitlab.
+* `CI_USER_EMAIL`: CI user email configured in gitlab.
+* `CI_USER_TOKEN`: CI user api token with read/write access.
 
 #### `previous-tag.sh`
 Returns the previous tag if there is one. Returns `none` otherwise.
@@ -86,7 +85,7 @@ If the rebase fails, this script should error.
 #### `create-release.sh`
 Uses `curl` to create a formatted release in the gitlab project. Requires the 
 following environment variables to be set:
-* `GIT_RELEASE_TOKEN`: gitlab API token configured as a CI variable in gitlab.
+* `CI_TOKEN`: gitlab API token configured as a CI variable in gitlab.
 * `RELEASE_TAG`: the tag being released against. There must be a matching tag in the
 repository.
 * `GIT_LOG`: This can be outputted by `git-log.sh`.
@@ -101,7 +100,7 @@ line arguments. e.g.
 /scripts/upload-files.sh builds/* v1.0.1
 ```
 This script expects the following environment variables to be set:
-* `GIT_RELEASE_TOKEN`: API token configured as a CI variable in gitlab.
+* `CI_TOKEN`: API token configured as a CI variable in gitlab.
 
 #### `version.sh`
 Does the following:
@@ -225,9 +224,4 @@ export the following environment variables:
 * `GIT_LOG`: Prettyfied git log for use in gitlab release.
 
 #### `setup-go-private.sh`
-Sets up the CI git user with credentials to perform `go get` commands against 
-packages defined on the private gitlab instance. Requires the following 
-environment variables to be set:
-* `SSH_PRIVATE_KEY`: ssh key configured in gitlab.
-* `GIT_RELEASE_USER`: CI username configured in gitlab.
-* `GIT_RELEASE_TOKEN`: gitlab API token configured in gitlab.
+Writes a `~/.netrc` file using the `gitlab-ci-token` user and the `$CI_JOB_TOKEN` password. This makes the CI image capable of go getting private modules from gitlab. Note that the permissions of the job token are the same as the user that triggered the job.

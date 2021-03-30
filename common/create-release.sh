@@ -17,4 +17,3 @@ if ! [ -z "$UPLOADS" ]; then
   . "$DIR/upload-files.sh" "$UPLOADS" "$RELEASE_TAG"
   reportError $?
 fi
-

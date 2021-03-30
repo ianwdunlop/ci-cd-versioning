@@ -3,30 +3,22 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # shellcheck source=.
 . "$DIR/utils.sh"
 
-command -v ssh-agent || ( apt-get install -qq openssh-client )
+if [ -z "$CI_USER" ]; then
+    CI_USER="project_${CI_PROJECT_ID}_bot"
+fi
+
+if [ -z "$CI_USER_EMAIL"]; then
+    CI_USER_EMAIL="project${CI_PROJECT_ID}_bot@example.com"
+fi
+
+git remote set-url origin "https://${CI_USER}:${CI_TOKEN}@${CI_SERVER_HOST}/${CI_PROJECT_PATH}.git"
 reportError $?
 
-eval "$(ssh-agent -s)"
+git config user.email "$CI_USER_EMAIL"
 reportError $?
 
-echo "${SSH_PRIVATE_KEY}" | ssh-add -
+git config user.name "$CI_USER"
 reportError $?
-
-mkdir -p ~/.ssh
-reportError $?
-
-[[ -f /.dockerenv ]] && echo -e "Host *\n\tStrictHostKeyChecking no\n\n" > ~/.ssh/config
-reportError $?
-
-git remote set-url origin "git@$CI_SERVER_HOST:$CI_PROJECT_PATH.git"
-reportError $?
-
-git config --global user.email "$GIT_RELEASE_EMAIL"
-reportError $?
-
-git config --global user.name "$GIT_RELEASE_USER"
-reportError $?
-
 
 git fetch --all --tags
 reportError $?

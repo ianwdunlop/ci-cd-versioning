@@ -7,12 +7,6 @@ DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 . "$DIR/write-version.sh" "${RELEASE_VERSION}"
 reportError $?
 
-eval "$(ssh-agent -s)"
-reportError $?
-
-echo "${SSH_PRIVATE_KEY}" | ssh-add -
-reportError $?
-
 git add .
 reportError $?
 

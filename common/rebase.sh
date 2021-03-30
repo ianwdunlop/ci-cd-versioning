@@ -5,12 +5,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 
 function rebase() {
 
-    eval "$(ssh-agent -s)"
-    reportError $?
-
-    echo "${SSH_PRIVATE_KEY}" | ssh-add -
-    reportError $?
-
     echo "Checking out $1..."
     git checkout "$1"
     reportError $?
