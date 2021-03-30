@@ -98,6 +98,20 @@ python3.6:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
+python3.7:
+  stage: build
+  script:
+    - |
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile \
+      --build-arg TAG=3.7 \
+      --destination $CI_REGISTRY_IMAGE/python:3.7 \
+      --destination $CI_REGISTRY_IMAGE/python:3.7-$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
 node:
   stage: build
   script:
