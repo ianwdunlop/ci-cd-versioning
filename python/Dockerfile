@@ -16,5 +16,7 @@ ENV PATH $PATH:/scripts
 COPY /certs/bundle.pem /usr/local/share/ca-certificates
 RUN update-ca-certificates
 
+ENV REQUESTS_CA_BUNDLE /certs/bundle.pem
+RUN pip config set global.trusted-host "nexus.wopr.inf.mdc pypi.org files.pythonhosted.org"
 CMD bash
 

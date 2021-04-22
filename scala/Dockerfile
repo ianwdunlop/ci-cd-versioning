@@ -25,4 +25,6 @@ RUN keytool -cacerts -importcert -alias wopr.crt -noprompt -file /certs/wopr.crt
         keytool -cacerts -importcert -alias ca.crt -noprompt -file /certs/ca.crt -storepass changeit && \
         keytool -cacerts -importcert -alias cisco.crt -noprompt -file /certs/cisco.crt -storepass changeit
 
+RUN echo nexus.wopr.inf.mdc 10.0.24.100 >> /etc/hosts
+
 CMD bash
