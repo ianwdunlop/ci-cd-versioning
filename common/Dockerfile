@@ -10,4 +10,7 @@ COPY certs /certs
 WORKDIR /scripts
 ENV PATH $PATH:/scripts
 
+COPY /certs/bundle.pem /usr/local/share/ca-certificates
+RUN update-ca-certificates
+
 CMD bash
