@@ -6,7 +6,11 @@ RUN git lfs install
 
 COPY common/*.sh /scripts/
 
+COPY certs /certs
 WORKDIR /scripts
 ENV PATH $PATH:/scripts
+
+COPY /certs/* /usr/local/share/ca-certificates
+RUN update-ca-certificates
 
 CMD bash
