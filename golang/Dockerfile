@@ -5,7 +5,7 @@ RUN apt-get update -yqq && apt-get install -yqq build-essential apt-transport-ht
 RUN git lfs install
 
 COPY certs /certs
-COPY /certs/bundle.pem /usr/local/share/ca-certificates
+COPY /certs/* /usr/local/share/ca-certificates
 RUN update-ca-certificates
 
 RUN curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh

@@ -14,7 +14,7 @@ COPY node/*.sh /scripts/
 WORKDIR /scripts
 ENV PATH $PATH:/scripts
 
-COPY /certs/bundle.pem /usr/local/share/ca-certificates
+COPY /certs/* /usr/local/share/ca-certificates
 RUN update-ca-certificates
 
 CMD bash

@@ -18,7 +18,7 @@ COPY certs /certs
 COPY common/*.sh /scripts/
 COPY scala/*.sh /scripts/
 
-COPY /certs/bundle.pem /usr/local/share/ca-certificates
+COPY /certs/* /usr/local/share/ca-certificates
 RUN update-ca-certificates
 
 RUN keytool -cacerts -importcert -alias wopr.crt -noprompt -file /certs/wopr.crt -storepass changeit && \

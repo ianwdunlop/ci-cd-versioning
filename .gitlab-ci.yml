@@ -137,15 +137,9 @@ ensure-common:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
 ensure-golang:
-  image: docker
-  tags: []
-  before_script: []
-  services:
-    - docker:dind
   stage: ensure-build
   script:
-    - docker login $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD
-    - docker build -f golang/Dockerfile -t test .
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile golang/Dockerfile --no-push
   except:
     refs:
       - master
