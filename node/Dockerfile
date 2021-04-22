@@ -7,6 +7,7 @@ RUN git lfs install
 RUN apt-get install -yqq chromium
 ENV CHROME_BIN=/usr/bin/chromium
 
+COPY certs /certs
 COPY common/*.sh /scripts/
 COPY node/*.sh /scripts/
 

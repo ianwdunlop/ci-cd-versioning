@@ -6,6 +6,7 @@ RUN git lfs install
 
 COPY common/*.sh /scripts/
 
+COPY certs /certs
 WORKDIR /scripts
 ENV PATH $PATH:/scripts
 

@@ -6,6 +6,7 @@ RUN git lfs install
 
 RUN pip install wheel twine pipenv
 
+COPY certs /certs
 COPY common/*.sh /scripts/
 COPY python/*.sh /scripts/
 

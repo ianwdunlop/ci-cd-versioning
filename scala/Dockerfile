@@ -14,8 +14,11 @@ ENV PATH $PATH:/scripts
 
 RUN sbt sbtVersion
 
+COPY certs /certs
 COPY common/*.sh /scripts/
 COPY scala/*.sh /scripts/
 
+RUN keytool -cacerts -importcert -alias wopr.crt -noprompt -file /certs/wopr.crt -storepass changeit && \
+        keytool -cacerts -importcert -alias ca.crt -noprompt -file /certs/ca.crt -storepass changeit
 
 CMD bash
