@@ -7,6 +7,4 @@ RUN git lfs install
 WORKDIR /scripts
 ENV PATH $PATH:/scripts
 
-RUN echo nexus.wopr.inf.mdc 10.0.24.100 >> /etc/hosts
-
 CMD bash
