@@ -1,15 +1,10 @@
 ARG TAG=latest
-FROM python:$TAG
+FROM registry.mdcatapult.io/informatics/docker-images/runners/python:$TAG
 
 RUN apt-get update -yqq && apt-get install -yqq build-essential apt-transport-https ca-certificates curl gnupg git bc jq wget git-lfs
 RUN git lfs install
 
-COPY certs /certs
-COPY /certs/* /usr/local/share/ca-certificates
-RUN update-ca-certificates
-
 RUN pip config set global.trusted-host "nexus.wopr.inf.mdc pypi.org files.pythonhosted.org"
-ENV REQUESTS_CA_BUNDLE /certs/bundle.pem
 RUN pip install wheel twine pipenv
 
 COPY common/*.sh /scripts/

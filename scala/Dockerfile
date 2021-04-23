@@ -1,29 +1,11 @@
 ARG TAG=buster
-FROM openjdk:$TAG
+FROM registry.mdcatapult.io/informatics/docker-images/runners/scala:$TAG
 
 RUN apt-get update -yqq && apt-get install -yqq build-essential apt-transport-https ca-certificates curl gnupg git bc jq wget git-lfs
 RUN git lfs install
 
-RUN echo "deb https://dl.bintray.com/sbt/debian /" | tee -a /etc/apt/sources.list.d/sbt.list && \
-        apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 2EE0EA64E40A89B84B2DF73499E82A75642AC823 && \
-        apt-get update -yqq && \
-        apt-get install -yqq sbt
-
 WORKDIR /scripts
 ENV PATH $PATH:/scripts
-
-RUN sbt sbtVersion
-
-COPY certs /certs
-COPY common/*.sh /scripts/
-COPY scala/*.sh /scripts/
-
-COPY /certs/* /usr/local/share/ca-certificates
-RUN update-ca-certificates
-
-RUN keytool -cacerts -importcert -alias wopr.crt -noprompt -file /certs/wopr.crt -storepass changeit && \
-        keytool -cacerts -importcert -alias ca.crt -noprompt -file /certs/ca.crt -storepass changeit && \
-        keytool -cacerts -importcert -alias cisco.crt -noprompt -file /certs/cisco.crt -storepass changeit
 
 RUN echo nexus.wopr.inf.mdc 10.0.24.100 >> /etc/hosts
 
