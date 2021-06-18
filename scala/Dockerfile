@@ -7,4 +7,7 @@ RUN git lfs install
 WORKDIR /scripts
 ENV PATH $PATH:/scripts
 
+COPY common/*.sh /scripts/
+COPY scala/*.sh /scripts/
+
 CMD bash
