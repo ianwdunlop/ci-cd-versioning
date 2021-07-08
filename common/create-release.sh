@@ -4,9 +4,11 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 . "$DIR/utils.sh"
 
 if [[ $NO_RELEASE == "false" ]]; then
+  SANITIZED_LOG=$(echo "$GIT_LOG" | sed 's/&/\&amp;/g; s/</\&lt;/g; s/>/\&gt;/g; s/"/\&quot;/g; s/'"'"'/\&#39;/g')
+
   curl --header 'Content-Type: application/json' \
       --header "PRIVATE-TOKEN: $CI_TOKEN" \
-      --data "{ \"name\": \"$RELEASE_TAG\", \"tag_name\": \"$RELEASE_TAG\", \"description\": \"## Changelog\n\n$GIT_LOG\" }" \
+      --data "{ \"name\": \"$RELEASE_TAG\", \"tag_name\": \"$RELEASE_TAG\", \"description\": \"## Changelog\n\n$SANITIZED_LOG\" }" \
       --request POST "$CI_API_V4_URL/projects/$CI_PROJECT_ID/releases"
   reportError $?
 fi
