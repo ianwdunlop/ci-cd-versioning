@@ -1,7 +1,7 @@
 #!/bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # shellcheck source=.
-. "$DIR/utils.sh"
+. "${DIR}/utils.sh"
 
 if [ $# -ne 1 ]; then
   echo "usage: ./bump.sh [previous tag]" >&2
@@ -31,13 +31,13 @@ fi
 major="${major//\\}"
 minor="${minor//\\}"
 
-if [[ $commit_prefixes =~ $major ]]; then
+if [[ ${commit_prefixes} =~ ${major} ]]; then
   echo "major"
-elif [[ $branch_prefixes =~ $major ]]; then
+elif [[ ${branch_prefixes} =~ ${major} ]]; then
   echo "major"
-elif [[ $commit_prefixes =~ $minor ]]; then
+elif [[ ${commit_prefixes} =~ ${minor} ]]; then
   echo "minor"
-elif [[ $branch_prefixes =~ $minor ]]; then
+elif [[ ${branch_prefixes} =~ ${minor} ]]; then
   echo "minor"
 else
   echo "patch"

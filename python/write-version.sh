@@ -9,7 +9,7 @@ if [ $# -lt 1 ]; then
 fi
 
 version=$1
-file="$VERSION_DIR/version.py"
+file="${VERSION_DIR}/version.py"
 hash=$(git rev-parse --short HEAD)
 reportError $?
 
