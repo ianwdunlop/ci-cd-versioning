@@ -36,13 +36,13 @@ while (( "$#" )); do
       fi
       ;;
     *) # preserve positional arguments
-      PARAMS="$PARAMS $1"
+      PARAMS="${PARAMS} $1"
       shift
       ;;
   esac
 done
 # set positional arguments in their proper place
-eval set -- "$PARAMS"
+eval set -- "${PARAMS}"
 
 export PARAMS
 export REBASE_BRANCH

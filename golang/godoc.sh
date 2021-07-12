@@ -23,11 +23,11 @@ wget    --recursive \
         --page-requisites \
         --adjust-extension \
         --execute=robots=off \
-        --include-directories="/lib,/pkg/$GO_MODULE,/src/$GO_MODULE" \
+        --include-directories="/lib,/pkg/${GO_MODULE},/src/${GO_MODULE}" \
         --exclude-directories="*" \
         --directory-prefix="godoc" \
         --no-host-directories \
-        "http://localhost:6060/pkg/$GO_MODULE/"
+        "http://localhost:6060/pkg/${GO_MODULE}/"
 reportError $?
 
 find godoc -type f -exec sed -i 's|http://localhost:6060|https://pkg.go.dev|g' {} \;

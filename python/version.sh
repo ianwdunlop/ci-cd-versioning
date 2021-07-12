@@ -13,7 +13,7 @@ reportError $?
 git commit -m "Setting version to ${RELEASE_VERSION}"
 reportError $?
 
-git push origin "$CI_COMMIT_BRANCH"
+git push origin "${CI_COMMIT_BRANCH}"
 reportError $?
 
 git tag -a "${RELEASE_TAG}" -m "Setting version to ${RELEASE_TAG}"
@@ -29,5 +29,5 @@ reportError $?
 git commit -am "Setting version to ${NEXT_VERSION}"
 reportError $?
 
-git push origin "$CI_COMMIT_BRANCH"
+git push origin "${CI_COMMIT_BRANCH}"
 reportError $?

@@ -1,7 +1,7 @@
 #! /bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # shellcheck source=.
-. "$DIR/utils.sh"
+. "${DIR}/utils.sh"
 
 if [ $# -lt 1 ]; then
   echo "usage: ./git-log.sh [previous tag]" >&2

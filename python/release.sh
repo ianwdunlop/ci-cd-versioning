@@ -1,7 +1,7 @@
 #! /bin/bash
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 # shellcheck source=.
-. "$DIR/utils.sh"
+. "${DIR}/utils.sh"
 
 if [ $# -lt 1 ]; then
   echo "usage: ./release.sh [source module]"
@@ -9,21 +9,21 @@ if [ $# -lt 1 ]; then
 fi
 
 # shellcheck source=.
-. "$DIR/setup-git.sh"
+. "${DIR}/setup-git.sh"
 reportError $?
 
 # shellcheck source=.
-. "$DIR/export-env.sh" "$@"
+. "${DIR}/export-env.sh" "$@"
 reportError $?
 
 # shellcheck source=.
-. "$DIR/version.sh"
+. "${DIR}/version.sh"
 reportError $?
 
 # shellcheck source=.
-. "$DIR/create-release.sh"
+. "${DIR}/create-release.sh"
 reportError $?
 
 # shellcheck source=.
-. "$DIR/rebase.sh"
+. "${DIR}/rebase.sh"
 reportError $?

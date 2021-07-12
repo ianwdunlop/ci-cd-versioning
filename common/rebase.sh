@@ -9,8 +9,8 @@ function rebase() {
     git checkout "$1"
     reportError $?
 
-    echo "Rebasing $1 onto $CI_COMMIT_BRANCH..."
-    git rebase "$CI_COMMIT_BRANCH"
+    echo "Rebasing $1 onto ${CI_COMMIT_BRANCH}..."
+    git rebase "${CI_COMMIT_BRANCH}"
     reportError $?
 
     echo "Pushing changes to $1..."
@@ -18,8 +18,8 @@ function rebase() {
     reportError $?
 }
 
-if ! [ -z "$REBASE_BRANCH" ]; then
-    rebase "$REBASE_BRANCH"
+if ! [ -z "${REBASE_BRANCH}" ]; then
+    rebase "${REBASE_BRANCH}"
     reportError $?
 elif git show-ref --verify --quiet refs/remotes/origin/develop &> /dev/null; then
     rebase "develop"
