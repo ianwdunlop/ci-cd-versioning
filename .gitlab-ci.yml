@@ -71,6 +71,20 @@ scala:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
+scala-jdk14:
+  stage: build
+  script:
+    - |
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile scala/Dockerfile \
+      --build-arg TAG=jdk14
+      --destination $CI_REGISTRY_IMAGE/scala:jdk14 \
+      --destination $CI_REGISTRY_IMAGE/scala:jdk14-$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
 python:
   stage: build
   script:
@@ -151,6 +165,17 @@ ensure-scala:
   stage: ensure-build
   script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile scala/Dockerfile --no-push
+  except:
+    refs:
+      - master
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+ensure-scala-jdk14:
+  stage: ensure-build
+  script:
+    - /kaniko/executor --build-arg TAG=jdk14 --context $CI_PROJECT_DIR --dockerfile scala/Dockerfile --no-push
   except:
     refs:
       - master
