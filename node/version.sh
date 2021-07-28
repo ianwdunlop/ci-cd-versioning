@@ -12,5 +12,5 @@ reportError $?
 git push origin --tags
 reportError $?
 
-RELEASE_TAG=$("${DIR}/next-tag.sh" "${PREVIOUS_TAG}" "${BUMP}")
+RELEASE_TAG=$("${DIR}/next-tag.sh" "${PREVIOUS_TAG}" "${BUMP}"
 export RELEASE_TAG
