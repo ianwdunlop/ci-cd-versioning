@@ -25,7 +25,7 @@ def get_rebase_branch() -> str:
 
     try:
         git.show_ref("--verify", "--quiet", "refs/remotes/origin/dev")
-        return "develop"
+        return "dev"
     except GitCommandError:
         return None
 
