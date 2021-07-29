@@ -1,19 +1,35 @@
 #! /usr/bin/python3
 
 import os
-import re
 import requests
 from requests.models import HTTPError
 
-if os.getenv("NO_RELEASE") == "false":
-    sanitized_log = re.sub('>', '&gt', re.sub('"', '&quot', re.sub('<', '&lt', re.sub('&', '&amp', os.getenv("GIT_LOG")))))
+def create_release(tag: str, log: str, token: str):
+    
+    # These are gitlab builtin CI variables.
     project_id = os.getenv("CI_PROJECT_ID")
     api_url = os.getenv("CI_API_V4_URL")
+    
     response = requests.post(f"{api_url}/projects/{project_id}/releases", 
-                  json={"name": os.getenv("RELEASE_TAG"), "tag_name": os.getenv("RELEASE_TAG"), "description": f"##Changelog\n\n{sanitized_log}"},
-                  headers={"PRIVATE-TOKEN": os.getenv("CI_TOKEN")})
+                json={"name": tag, "tag_name": tag, "description": f"##Changelog\n\n{log}"},
+                headers={"PRIVATE-TOKEN": token})
     print(response.json())
     if response.status_code >= 400:
         raise HTTPError
 
+if __name__ == "__main__":
+    tag = os.getenv("RELEASE_TAG")
+    if not tag:
+        raise EnvironmentError("missing environment variable RELEASE_TAG")
+
+
+    git_log = os.getenv("GIT_LOG")
+    if not git_log:
+        raise EnvironmentError("missing environment variable GIT_LOG")
+
+
+    ci_token = os.getenv("CI_TOKEN")
+    if not ci_token:
+        raise EnvironmentError("missing environment variable CI_TOKEN")
     
+    create_release(tag, git_log, ci_token)
