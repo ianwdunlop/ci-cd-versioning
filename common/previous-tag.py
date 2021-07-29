@@ -1,9 +1,11 @@
 #! /usr/bin/env python
 
-from git.repo.base import Repo
+from git.cmd import Git
+from git.exc import GitCommandError
+
+git = Git(".")
 
 try:
-    print(Repo().tags[-1].name)
-except IndexError:
+    print(git.describe("--abbrev=0"))
+except GitCommandError:
     print("none")
-

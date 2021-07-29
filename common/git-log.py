@@ -1,9 +1,12 @@
 #! /usr/bin/env python
 
-from git.repo.base import Repo
+from git.cmd import Git
+from argparse import ArgumentParser
 
-repo = Repo()
-last_tag = repo.tags[-1]
-print(f"last_tag: {last_tag.reference}")
+parser = ArgumentParser()
+parser.add_argument('tag')
+args = parser.parse_args()
 
-print(repo.active_branch.commit)
+git = Git(".")
+log = git.log("--oneline", "--no-merges", f"{args.tag}..HEAD")
+print(repr(log).strip("'"))
