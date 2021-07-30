@@ -14,7 +14,7 @@ def bump(tag: str) -> str:
         branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into 'master'", "\1", git.log("--merges", "--oneline"))
     else:
         commit_prefixes = re.sub(fr"\"({major}|{minor}):.*", r"\1", git.log("--no-merges", '--pretty=format:"%s"', f"{tag}..HEAD"))
-        branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into 'master'", r"\1", git.log("--merges", "--oneline", f"{args.tag}..HEAD"))
+        branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into 'master'", r"\1", git.log("--merges", "--oneline", f"{tag}..HEAD"))
 
     if re.match(major, commit_prefixes) or re.match(major, branch_prefixes):
         return "major"

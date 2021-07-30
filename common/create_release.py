@@ -4,7 +4,7 @@ import os
 import requests
 from requests.models import HTTPError
 
-def create_release(tag: str, log: str, token: str):
+def create_release(tag: str, log: str, ci_token: str):
     
     # These are gitlab builtin CI variables.
     project_id = os.getenv("CI_PROJECT_ID")
@@ -12,7 +12,7 @@ def create_release(tag: str, log: str, token: str):
     
     response = requests.post(f"{api_url}/projects/{project_id}/releases", 
                 json={"name": tag, "tag_name": tag, "description": f"##Changelog\n\n{log}"},
-                headers={"PRIVATE-TOKEN": token})
+                headers={"PRIVATE-TOKEN": ci_token})
     print(response.json())
     if response.status_code >= 400:
         raise HTTPError

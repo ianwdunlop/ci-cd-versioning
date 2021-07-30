@@ -5,7 +5,7 @@ import semver
 def next_tag(current_tag: str, bump: str) -> str:
     no_prefix = current_tag.lstrip("v")
     ver = semver.VersionInfo.parse(no_prefix)
-    return ver.next_version(bump)
+    return str(ver.next_version(bump))
 
 if __name__ == "__main__":
 

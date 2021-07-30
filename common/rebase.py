@@ -6,7 +6,12 @@ import sys
 from git.cmd import Git
 from git.exc import GitCommandError
 
-def rebase(branch: str):
+def rebase():
+    branch = get_rebase_branch()
+    if not branch:
+        print("No rebase branch, skipping...", file=sys.stderr)
+        return
+    
     git = Git(".")
     
     print(f"Checking out {branch}", file=sys.stderr)
@@ -20,6 +25,10 @@ def rebase(branch: str):
     git.push("origin", branch)
 
 def get_rebase_branch() -> str:
+    branch = os.getenv("REBASE_BRANCH")
+    if branch:
+        return branch
+    
     git = Git(".")
     branches = ["develop", "dev"]
     for branch in branches:
@@ -31,13 +40,4 @@ def get_rebase_branch() -> str:
     return ""
 
 if __name__ == "__main__":
-    branch = os.getenv("REBASE_BRANCH")
-    if branch:
-        rebase(branch)
-        exit(0)
-    
-    branch = get_rebase_branch()
-    if branch:
-        rebase(branch)
-    else:
-        print("No rebase branch, skipping...", file=sys.stderr)
+    rebase()
