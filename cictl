@@ -1,0 +1,122 @@
+#! /usr/bin/env python
+
+from argparse import ArgumentParser
+from lib.golang import setup_go_private
+
+from lib.common import (
+    RELEASE_TAG,
+    UPLOADS,
+    bump,
+    create_release, 
+    export_env,
+    git_log, 
+    next_tag, 
+    previous_tag, 
+    rebase,
+    release,
+    setup_git,
+    upload_files,
+    version
+)
+
+from lib.node import (
+    version as node_version,
+    release as node_release
+)
+
+
+if __name__ == "__main__":
+    parser = ArgumentParser()
+    parser.add_argument('command')
+    args, unknown = parser.parse_known_args()
+
+
+    if args.command == "bump":
+        parser.add_argument('tag')
+        args = parser.parse_args()
+        print(bump(args.tag))
+    
+
+    elif args.command == "create_release":
+        parser.add_argument('tag')
+        args = parser.parse_args()        
+        create_release(args.tag)
+
+
+    # Usage source <(./cictl export_env)
+    elif args.command == "export_env":
+        env = export_env()
+        for k, v in env.items():
+            print(f"export {k}='{v}'")
+
+    elif args.command == "git_log":
+        parser.add_argument('tag')
+        args = parser.parse_args()
+        print(git_log(args.tag))
+    
+
+    elif args.command == "next_tag":
+        parser.add_argument('tag')
+        parser.add_argument('bump')
+        args = parser.parse_args()
+        print(next_tag(args.tag, args.bump))
+    
+
+    elif args.command == "previous_tag":
+        print(previous_tag())
+
+    
+    elif args.command == "rebase":
+        rebase()
+
+    elif args.command == "release":
+        release()
+    
+
+    elif args.command == "setup_git":
+        setup_git()
+
+
+    elif args.command == "upload_files":
+        parser.add_argument("glob")
+        parser.add_argument("tag")
+        args = parser.parse_args()        
+        upload_files(args.glob, args.tag)
+
+
+    elif args.command == "version":
+        parser.add_argument("tag")
+        args = parser.parse_args()
+        version(args.tag)
+
+    
+    # golang specific commands
+    elif args.command == "golang":
+        parser.add_argument("subcommand")
+        args, _ = parser.parse_known_args()
+        
+        # Usage source <(./cictl golang setup_goprivate)
+        if args.subcommand == "setup_goprivate":
+            setup_go_private()
+
+
+    # node specific commands
+    elif args.command == "node":
+        parser.add_argument("subcommand")
+        args, _ = parser.parse_known_args()
+
+        if args.subcommand == "version":
+            node_version()
+        
+        if args.subcommand == "release":
+            node_release()
+
+    elif args.command == "python":
+        parser.add_argument("subcommand")
+        args, _ = parser.parse_known_args()
+
+        if args.subcommand == "version":
+
+
+
+    
