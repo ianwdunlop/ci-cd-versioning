@@ -225,6 +225,3 @@ export the following environment variables:
 
 #### `setup-go-private.sh`
 Writes a `~/.netrc` file using the `gitlab-ci-token` user and the `$CI_JOB_TOKEN` password. This makes the CI image capable of go getting private modules from gitlab. Note that the permissions of the job token are the same as the user that triggered the job.
-
-#### `export.py`
-`export $(./export.py -r branch -u ./uploads/* -c | xargs -L 1)`
