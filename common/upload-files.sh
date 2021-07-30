@@ -13,8 +13,7 @@ for FILE in $1; do
       --form "file=@${FILE}" "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/uploads" | jq -r '.full_path')"
   reportError $?
 
-  curl --fail \
-       --request POST --header "PRIVATE-TOKEN: ${CI_TOKEN}" \
+  curl --request POST --header "PRIVATE-TOKEN: ${CI_TOKEN}" \
        --data name="$(basename "${FILE}")" --data url="${LINK}" \
        "${CI_API_V4_URL}/projects/${CI_PROJECT_ID}/releases/$2/assets/links"
   reportError $?
