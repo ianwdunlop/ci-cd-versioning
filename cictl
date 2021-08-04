@@ -177,35 +177,4 @@ commands = {
 if __name__ == "__main__":
 
     executor("command", commands)()
-
-    # golang specific commands
-    # if args.command == "golang":
-    #     parser.add_argument("subcommand")
-    #     args, _ = parser.parse_known_args()
-        
-    #     # Usage source <(./cictl golang setup_goprivate)
-    #     if args.subcommand == "setup_goprivate":
-    #         setup_goprivate()
-
-
-    # # node specific commands
-    # elif args.command == "node":
-    #     parser.add_argument("subcommand")
-    #     args, _ = parser.parse_known_args()
-        
-    #     if args.subcommand == "release":
-    #         node_release()
-
-    # # python specific commands
-    # elif args.command == "python":
-    #     parser.add_argument("subcommand")
-    #     args, _ = parser.parse_known_args()
-
-    #     if args.subcommand == "release":
-    #         parser.add_argument("version_dir")
-    #         args = parser.parse_args()
-    #         python_release(args.version_dir)
-            
-
-
     
