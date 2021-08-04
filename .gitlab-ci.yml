@@ -12,7 +12,7 @@ release:
     - . venv/bin/activate
     - pip install -r requirements.txt
   script:
-    - ./cictl exec release python
+    - ./cictl exec release
   only:
     - master
   except:
