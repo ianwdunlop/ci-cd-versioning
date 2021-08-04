@@ -1,122 +1,211 @@
 #! /usr/bin/env python
 
 from argparse import ArgumentParser
-from lib.golang import setup_go_private
+from lib.python import (
+    config_pip,
+    release as python_release,
+    version as python_version
+)
+
+from lib.golang import (
+    env as go_env,
+    config_goprivate,
+    release as go_release
+)
 
 from lib.common import (
-    RELEASE_TAG,
-    UPLOADS,
-    bump,
+    GIT_LOG,
+    increment,
     create_release, 
-    export_env,
+    env,
     git_log, 
     next_tag, 
-    previous_tag, 
+    latest_tag, 
     rebase,
     release,
-    setup_git,
-    upload_files,
+    config_git,
+    short_sha,
+    create_attachment,
     version
 )
 
 from lib.node import (
-    version as node_version,
-    release as node_release
+    release as node_release,
+    version as node_version
 )
 
+from lib.scala import (
+    release as scala_release,
+    version as scala_version
+)
 
-if __name__ == "__main__":
-    parser = ArgumentParser()
-    parser.add_argument('command')
-    args, unknown = parser.parse_known_args()
+import os
+import sys
 
+parser = ArgumentParser()
 
-    if args.command == "bump":
-        parser.add_argument('tag')
-        args = parser.parse_args()
-        print(bump(args.tag))
-    
+def get_increment():
+    parser.add_argument('tag')
+    args = parser.parse_args()
+    print(increment(args.tag))
 
-    elif args.command == "create_release":
-        parser.add_argument('tag')
-        args = parser.parse_args()        
-        create_release(args.tag)
+def create_gitlab_release():
+    parser.add_argument('tag')
+    args = parser.parse_args()
+    log = os.getenv(GIT_LOG)
+    if not log:
+        raise EnvironmentError(f"Missing environment variable {GIT_LOG}")
+    create_release(args.tag, log)
 
+def config_env():
+    parser.add_argument("language", nargs="?")
+    args = parser.parse_args()
+    lang_dict = {
+        "golang": go_env,
+        "go": go_env,
+    }
 
-    # Usage source <(./cictl export_env)
-    elif args.command == "export_env":
-        env = export_env()
-        for k, v in env.items():
-            print(f"export {k}='{v}'")
+    try:
+        e = lang_dict[args.language]()
+    except KeyError:
+        print("warn: called env without a language - using common env setup", file=sys.stderr)
+        e = env()
+    for k, v in e.items():
+        print(f"export {k}='{v}'")
 
-    elif args.command == "git_log":
-        parser.add_argument('tag')
-        args = parser.parse_args()
-        print(git_log(args.tag))
-    
+def get_git_log():
+    parser.add_argument('tag')
+    args = parser.parse_args()
+    print(git_log(args.tag))
 
-    elif args.command == "next_tag":
-        parser.add_argument('tag')
-        parser.add_argument('bump')
-        args = parser.parse_args()
-        print(next_tag(args.tag, args.bump))
-    
+def get_next_tag():
+    parser.add_argument('tag')
+    parser.add_argument('increment')
+    args = parser.parse_args()
+    print(next_tag(args.tag, args.increment))
 
-    elif args.command == "previous_tag":
-        print(previous_tag())
+def get_latest_tag():
+    print(latest_tag())
 
-    
-    elif args.command == "rebase":
-        rebase()
+def get_short_sha():
+    print(short_sha())
 
-    elif args.command == "release":
-        release()
-    
+def create_attach_to_gitlab_release():
+    parser.add_argument("glob")
+    parser.add_argument("tag")
+    args = parser.parse_args()        
+    create_attachment(args.glob, args.tag)
 
-    elif args.command == "setup_git":
-        setup_git()
+def exec_version():
+    parser.add_argument("tag")
+    parser.add_argument("language", nargs="?")
+    args = parser.parse_args()
+    lang_dict = {
+        "node": node_version,
+        "python": python_version,
+        "scala": scala_version,
+    }
 
-
-    elif args.command == "upload_files":
-        parser.add_argument("glob")
-        parser.add_argument("tag")
-        args = parser.parse_args()        
-        upload_files(args.glob, args.tag)
-
-
-    elif args.command == "version":
-        parser.add_argument("tag")
-        args = parser.parse_args()
+    try:
+        lang_dict[args.language](args.tag)
+    except KeyError:
+        print("warn: called version without a language - using common version procedure", file=sys.stderr)
         version(args.tag)
 
+def exec_release():
+    parser.add_argument("language", nargs="?")
+    args = parser.parse_args()
+    lang_dict = {
+        "node": node_release,
+        "python": python_release,
+        "scala": scala_release,
+    }
+
+    try:
+        lang_dict[args.language]()
+    except KeyError:
+        print("warn: called release without a language - using common release procedure", file=sys.stderr)
+        release()
+
     
+
+def executor(argument: str, options: dict):
+    def help():
+        print(f'{argument} not found. Options are:')
+        for opt in options.keys():
+            print(f"\t{opt}")
+    def e():
+        parser.add_argument(argument)
+        args, _ = parser.parse_known_args()
+        cmd = options.get(getattr(args, argument), help)
+        cmd()
+    return e
+
+get_resources = {
+    "increment": get_increment,
+    "latest-tag": get_latest_tag,
+    "git-log": get_git_log,
+    "next-tag": get_next_tag,
+    "short-sha": get_short_sha,
+}
+
+create_resources = {
+    "release": create_gitlab_release,
+    "attachment": create_attach_to_gitlab_release,
+}
+
+config_targets = {
+    "pip": config_pip,
+    "goprivate": config_goprivate,
+    "git": config_git,
+    "env": config_env
+}
+
+exec_targets = {
+    "rebase": rebase,
+    "version": exec_version,
+    "release": exec_release,
+}
+
+commands = {
+    'get': executor("resource", get_resources),
+    'create': executor("resource", create_resources),
+    'config': executor("target", config_targets),
+    'exec': executor("target", exec_targets),
+}
+
+if __name__ == "__main__":
+
+    executor("command", commands)()
+
     # golang specific commands
-    elif args.command == "golang":
-        parser.add_argument("subcommand")
-        args, _ = parser.parse_known_args()
+    # if args.command == "golang":
+    #     parser.add_argument("subcommand")
+    #     args, _ = parser.parse_known_args()
         
-        # Usage source <(./cictl golang setup_goprivate)
-        if args.subcommand == "setup_goprivate":
-            setup_go_private()
+    #     # Usage source <(./cictl golang setup_goprivate)
+    #     if args.subcommand == "setup_goprivate":
+    #         setup_goprivate()
 
 
-    # node specific commands
-    elif args.command == "node":
-        parser.add_argument("subcommand")
-        args, _ = parser.parse_known_args()
-
-        if args.subcommand == "version":
-            node_version()
+    # # node specific commands
+    # elif args.command == "node":
+    #     parser.add_argument("subcommand")
+    #     args, _ = parser.parse_known_args()
         
-        if args.subcommand == "release":
-            node_release()
+    #     if args.subcommand == "release":
+    #         node_release()
 
-    elif args.command == "python":
-        parser.add_argument("subcommand")
-        args, _ = parser.parse_known_args()
+    # # python specific commands
+    # elif args.command == "python":
+    #     parser.add_argument("subcommand")
+    #     args, _ = parser.parse_known_args()
 
-        if args.subcommand == "version":
-
+    #     if args.subcommand == "release":
+    #         parser.add_argument("version_dir")
+    #         args = parser.parse_args()
+    #         python_release(args.version_dir)
+            
 
 
     

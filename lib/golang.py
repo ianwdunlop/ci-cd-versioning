@@ -1,11 +1,45 @@
-from lib.common import ci_server_host, ci_server_port, get_ci_token
+from lib.common import (
+    GIT_LOG,
+    NEXT_TAG,
+    UPLOADS,
+    ci_server_host, 
+    ci_server_port,
+    create_release,
+    env as common_env, 
+    get_ci_token,
+    rebase,
+    config_git,
+    create_attachment,
+    version
+)
 import os
 
-def setup_go_private():
+def config_goprivate():
     with open(f"{os.getenv('HOME')}/.netrc", 'a') as netrc:
         netrc.write(f"""
 machine {ci_server_host}
         login gitlab-ci-token
         password {get_ci_token()}
         """)
-    print(f"export GOPRIVATE={ci_server_host}:{ci_server_port}/*")
+
+def env() -> dict:
+    e = common_env()
+    # Golang requires that semver versions are prefixed with "v".
+    # There is an open issue for this https://github.com/golang/go/issues/32945.
+    # Here we're just getting the value from the dict returned by 'env' and 
+    # prefixing it. Then overriding it in the returned dictionary.
+    tag = "v" + e[NEXT_TAG]
+    e[NEXT_TAG] = tag
+    e["GOPRIVATE"] = f"{ci_server_host}:{ci_server_port}/*"
+    return e
+
+def release():
+    config_git()
+    e = env()
+    tag = e[NEXT_TAG]
+    uploads = e[UPLOADS]
+    log = e[GIT_LOG]
+    version(tag)
+    create_release(tag, log)
+    create_attachment(uploads, tag)
+    rebase()

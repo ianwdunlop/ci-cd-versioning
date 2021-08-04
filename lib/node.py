@@ -1,13 +1,14 @@
 from lib.common import (
     BUMP,
-    RELEASE_TAG,
+    GIT_LOG,
+    NEXT_TAG,
     UPLOADS, 
     ci_commit_branch,
     create_release,
-    export_env,
+    env,
     rebase,
-    setup_git,
-    upload_files
+    config_git,
+    create_attachment
 
 )
 from subprocess import call
@@ -15,17 +16,18 @@ from git.cmd import Git
 import os
 
 def release():
-    setup_git()
-    export_env()
-    tag = os.getenv(RELEASE_TAG)
-    uploads = os.getenv(UPLOADS)
+    config_git()
+    e = env()
+    tag = e[NEXT_TAG]
+    uploads = e[UPLOADS]
+    log = e[GIT_LOG]
     version()
-    create_release(tag)
-    upload_files(uploads, tag)
+    create_release(tag, log)
+    create_attachment(uploads, tag)
     rebase()
 
 def version():
     git = Git(".")
-    call("npm", "version", os.getenv(BUMP), "-m", "Setting version to v%s")
+    call(["npm", "version", os.getenv(BUMP), "-m", "Setting version to v%s"])
     git.push("origin", ci_commit_branch)
     git.push("origin", "--tags")

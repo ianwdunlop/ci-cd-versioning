@@ -5,11 +5,13 @@ RUN apt-get update -yqq && apt-get install -yqq build-essential apt-transport-ht
 RUN git lfs install
 
 RUN pip install pipenv
-
-COPY common/*.sh /scripts/
-COPY python/*.sh /scripts/
+COPY requirements.txt .
+RUN pip install -r requirements.txt
 
 WORKDIR /scripts
+COPY cictl .
+COPY lib ./lib
+
 ENV PATH $PATH:/scripts
 
 CMD bash

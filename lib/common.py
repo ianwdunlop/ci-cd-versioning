@@ -26,8 +26,8 @@ ci_server_port = os.getenv(CI_SERVER_PORT)
 
 # Internal MDC specific environment variables
 GIT_LOG = "GIT_LOG"
-PREVIOUS_TAG = "PREVIOUS_TAG"
-RELEASE_TAG = "RELEASE_TAG"
+LATEST_TAG = "LATEST_TAG"
+NEXT_TAG = "NEXT_TAG"
 BUMP = "BUMP"
 UPLOADS = "UPLOADS"
 REBASE_BRANCH = "REBASE_BRANCH"
@@ -36,6 +36,7 @@ CI_USER = "CI_USER"
 CI_USER_EMAIL = "CI_USER_EMAIL"
 NEXUS_USERNAME = "NEXUS_USERNAME"
 NEXUS_PASSWORD = "NEXUS_PASSWORD"
+NEXUS_HOST = "NEXUS_HOST"
 
 def get_ci_token() -> str:
     ci_token = os.getenv(CI_TOKEN)
@@ -53,19 +54,22 @@ if not ci_user_email:
 
 nexus_username = os.getenv(NEXUS_USERNAME)
 nexus_password = os.getenv(NEXUS_PASSWORD)
+nexus_host = os.getenv(NEXUS_HOST)
+if not nexus_host:
+    nexus_host="nexus.wopr.inf.mdc"
 
-
-def bump(tag: str) -> str:
+def increment(tag: str) -> str:
     major=r"breaking-change|major"
     minor=r"feature|minor"
 
     git = Git(".")
-    if tag == "none":
-        commit_prefixes = re.sub(fr"({major}|{minor}):.*", r"\1", git.log("--no-merges", '--pretty=format:"%s"'))
-        branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch}'", "\1", git.log("--merges", "--oneline"))
-    else:
+    if tag:
         commit_prefixes = re.sub(fr"\"({major}|{minor}):.*", r"\1", git.log("--no-merges", '--pretty=format:"%s"', f"{tag}..HEAD"))
         branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch}'", r"\1", git.log("--merges", "--oneline", f"{tag}..HEAD"))
+    else:
+        commit_prefixes = re.sub(fr"({major}|{minor}):.*", r"\1", git.log("--no-merges", '--pretty=format:"%s"'))
+        branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch}'", "\1", git.log("--merges", "--oneline"))
+        
 
     if re.match(major, commit_prefixes) or re.match(major, branch_prefixes):
         return "major"
@@ -75,11 +79,7 @@ def bump(tag: str) -> str:
         return "patch"
 
 
-def create_release(tag: str):
-    log = os.getenv(GIT_LOG)
-    if not log:
-        raise EnvironmentError(f"Missing environment variable {GIT_LOG}")
-
+def create_release(tag: str, log: str):
     response = requests.post(f"{ci_api_v4_url}/projects/{ci_project_id}/releases", 
                 json={"name": tag, "tag_name": tag, "description": f"##Changelog\n\n{log}"},
                 headers={"PRIVATE-TOKEN": get_ci_token()})
@@ -88,25 +88,22 @@ def create_release(tag: str):
         raise HTTPError
 
 
-def export_env() -> dict:
-    env = parse_common_flags()
+def env() -> dict:
+    e = parse_common_flags()
 
-    tag = previous_tag()
-    env[PREVIOUS_TAG] = tag
+    tag = latest_tag()
+    e[LATEST_TAG] = tag
 
-    bump_amount = bump(tag)
-    env[BUMP] = bump_amount
+    bump_amount = increment(tag)
+    e[BUMP] = bump_amount
 
     release_tag = next_tag(tag, bump_amount)
-    env[RELEASE_TAG] = release_tag
+    e[NEXT_TAG] = release_tag
 
     log = git_log(tag)
-    env[GIT_LOG] = log
+    e[GIT_LOG] = log
 
-    for key, value in env.items():
-        os.environ[key] = value
-
-    return env
+    return e
 
 
 def parse_common_flags() -> dict:
@@ -129,10 +126,9 @@ def parse_common_flags() -> dict:
 
 def next_tag(tag: str, bump: str) -> str:
     if not tag:
-        return "v0.0.1"
+        return "0.0.1"
     ver = semver.VersionInfo.parse(tag.lstrip("v"))
-    return "v" + str(ver.next_version(bump))
-
+    return str(ver.next_version(bump))
 
 def git_log(tag: str) -> str:
     git = Git(".")
@@ -143,11 +139,13 @@ def git_log(tag: str) -> str:
 def sanitize(log: str) -> str:
     sanitized_log = re.sub('&', '&amp', log)
     sanitized_log = re.sub('<', '&lt', sanitized_log)
-    sanitized_log = re.sub('"', '&quot', sanitized_log)
-    return re.sub('>', '&gt', sanitized_log)
+    sanitized_log = re.sub('>', '&gt', sanitized_log)
+    sanitized_log = re.sub('"', '&#34;', sanitized_log)
+    sanitized_log = re.sub("'", "&#39;", sanitized_log)
+    return sanitized_log
 
 
-def previous_tag() -> str:
+def latest_tag() -> str:
     git = Git(".")
     try:
         return git.describe("--abbrev=0")
@@ -190,16 +188,17 @@ def get_rebase_branch() -> str:
 
 
 def release():
-    setup_git()
-    export_env()
-    tag = os.getenv(RELEASE_TAG)
-    uploads = os.getenv(UPLOADS)
+    config_git()
+    e = env()
+    tag = e[NEXT_TAG]
+    uploads = e[UPLOADS]
+    log = e[GIT_LOG]
     version(tag)
-    create_release(tag)
-    upload_files(uploads, tag)
+    create_release(tag, log)
+    create_attachment(uploads, tag)
     rebase()
 
-def setup_git():
+def config_git():
     git = Git(".")
     git.remote("set-url", "origin", f"https://{ci_user}:{get_ci_token()}@{ci_server_host}/{ci_project_path}.git")
     git.config("user.name", ci_user)
@@ -208,7 +207,7 @@ def setup_git():
     git.checkout(ci_commit_branch)
     git.pull("origin", ci_commit_branch)
 
-def upload_files(pattern: str, tag: str):
+def create_attachment(pattern: str, tag: str):
     for file in glob.glob(pattern, recursive=True):
         f = open(file, 'rb')
         response = requests.post(f"{ci_api_v4_url}/projects/{ci_project_id}/uploads", 
@@ -229,3 +228,8 @@ def version(tag: str):
     git.push("origin", ci_commit_branch)
     git.tag("-a", tag, "-m", f"Setting version to {tag}")
     git.push("origin", "--tags")
+
+def short_sha() -> str:
+    git = Git(".")
+    hash = git.rev_parse("--short", "HEAD")
+    return hash
