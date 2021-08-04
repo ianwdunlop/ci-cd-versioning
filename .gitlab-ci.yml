@@ -135,10 +135,10 @@ node:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-ensure-debian:
+debian-dev:
   stage: ensure-build
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile debian/Dockerfile --no-push
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile debian/Dockerfile --destination $CI_REGISTRY_IMAGE/debian:$CI_COMMIT_REF_SLUG
   except:
     refs:
       - master
@@ -146,10 +146,10 @@ ensure-debian:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-ensure-golang:
+golang-dev:
   stage: ensure-build
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile golang/Dockerfile --no-push
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile golang/Dockerfile --destination $CI_REGISTRY_IMAGE/golang:$CI_COMMIT_REF_SLUG
   except:
     refs:
       - master
@@ -157,10 +157,10 @@ ensure-golang:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-ensure-scala:
+scala-dev:
   stage: ensure-build
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile scala/Dockerfile --no-push
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile scala/Dockerfile --destination $CI_REGISTRY_IMAGE/scala:$CI_COMMIT_REF_SLUG
   except:
     refs:
       - master
@@ -168,10 +168,10 @@ ensure-scala:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-ensure-scala-jdk14:
+scala-jdk14-dev:
   stage: ensure-build
   script:
-    - /kaniko/executor --build-arg TAG=jdk14 --context $CI_PROJECT_DIR --dockerfile scala/Dockerfile --no-push
+    - /kaniko/executor --build-arg TAG=jdk14 --context $CI_PROJECT_DIR --dockerfile scala/Dockerfile --destination $CI_REGISTRY_IMAGE/scala:jdk14-$CI_COMMIT_REF_SLUG
   except:
     refs:
       - master
@@ -179,10 +179,10 @@ ensure-scala-jdk14:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-ensure-python:
+python-dev:
   stage: ensure-build
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --no-push
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --destination $CI_REGISTRY_IMAGE/python:$CI_COMMIT_REF_SLUG
   except:
     refs:
       - master
@@ -190,10 +190,10 @@ ensure-python:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-ensure-python3.6:
+python3.6-dev:
   stage: ensure-build
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.6 --no-push
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.6 --destination $CI_REGISTRY_IMAGE/python:3.6-$CI_COMMIT_REF_SLUG
   except:
     refs:
       - master
@@ -201,10 +201,10 @@ ensure-python3.6:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-ensure-python3.7:
+python3.7-dev:
   stage: ensure-build
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.7 --no-push
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.7 --destination $CI_REGISTRY_IMAGE/python:3.7-$CI_COMMIT_REF_SLUG
   except:
     refs:
       - master
@@ -212,10 +212,10 @@ ensure-python3.7:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-ensure-node:
+node-dev:
   stage: ensure-build
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile node/Dockerfile --no-push
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile node/Dockerfile --destination $CI_REGISTRY_IMAGE/node:$CI_COMMIT_REF_SLUG
   except:
     refs:
       - master

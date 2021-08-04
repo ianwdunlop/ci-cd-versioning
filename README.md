@@ -8,7 +8,6 @@ All images:
 * Are based on [debian](https://www.debian.org/).
 * Contain the `cictl` command line interface tool. This is in the `/scripts` folder and on the path.
 * Contain useful scripts in the `/scripts` folder and available on the `PATH`.
-* Are simple to use out of the box. Most CI will need only `release.sh`.
 
 ## Usage
 `cictl` has the following commands:
