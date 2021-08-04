@@ -34,9 +34,9 @@ from lib.node import (
     version as node_version
 )
 
-from lib.scala import (
-    release as scala_release,
-    version as scala_version
+from lib.sbt import (
+    release as sbt_release,
+    version as sbt_version
 )
 
 import os
@@ -103,7 +103,7 @@ def exec_version():
     lang_dict = {
         "node": node_version,
         "python": python_version,
-        "scala": scala_version,
+        "sbt": sbt_version,
     }
 
     try:
@@ -118,7 +118,9 @@ def exec_release():
     lang_dict = {
         "node": node_release,
         "python": python_release,
-        "scala": scala_release,
+        "sbt": sbt_release,
+        "go": go_release,
+        "golang": go_release,
     }
 
     try:

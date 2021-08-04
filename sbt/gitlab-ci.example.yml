@@ -1,0 +1,102 @@
+stages:
+  - test
+  - build
+  - publish
+
+cache:
+  key: "${CI_COMMIT_REF_SLUG}"
+  untracked: false
+  paths:
+    - "sbt-cache/.ivy/cache"
+    - "sbt-cache/.boot"
+    - "sbt-cache/.sbtboot"
+    - "sbt-cache/target"
+
+default:
+  image: registry.mdcatapult.io/informatics/docker-images/ci/sbt
+  tags:
+    - wopr
+
+test:
+  stage: test
+  script:
+    - sbt clean coverage test coverageReport
+  coverage: /Coverage was \[\d+.\d+\%\]/
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+assemble:
+  stage: build
+  script:
+    - sbt assembly
+  artifacts:
+    paths:
+      - target/scala-2.13/consumer.jar
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+publish:
+  stage: publish
+  tags:
+    - wopr
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+  script:
+    - >
+      /kaniko/executor --context $CI_PROJECT_DIR \
+      --build-arg VERSION_HASH=$CI_COMMIT_SHORT_SHA \
+      --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
+  except:
+    refs:
+      - master
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+release:
+  stage: build
+  script:
+    - cictl exec release sbt -u target/scala-2.13/consumer.jar
+  only:
+    - master
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+assemble-master:
+  stage: build
+  script:
+    - sbt assembly
+  artifacts:
+    paths:
+      - target/scala-2.13/consumer.jar
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+publish-master:
+  stage: publish
+  tags:
+    - wopr
+  image:
+    name: gcr.io/kaniko-project/executor:debug
+    entrypoint: [""]
+  before_script:
+    - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
+  script:
+    - >
+      /kaniko/executor --context $CI_PROJECT_DIR \
+      --build-arg VERSION_HASH=$CI_COMMIT_SHORT_SHA \
+      --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME \
+      --destination $CI_REGISTRY_IMAGE
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/

@@ -54,27 +54,27 @@ golang:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-scala:
+sbt:
   stage: build
   script:
     - |
-      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile scala/Dockerfile \
-      --destination $CI_REGISTRY_IMAGE/scala:latest \
-      --destination $CI_REGISTRY_IMAGE/scala:$CI_COMMIT_REF_NAME
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile sbt/Dockerfile \
+      --destination $CI_REGISTRY_IMAGE/sbt:latest \
+      --destination $CI_REGISTRY_IMAGE/sbt:$CI_COMMIT_REF_NAME
   only:
     refs:
       - tags
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-scala-jdk14:
+sbt-jdk14:
   stage: build
   script:
     - |
-      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile scala/Dockerfile \
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile sbt/Dockerfile \
       --build-arg TAG=jdk14 \
-      --destination $CI_REGISTRY_IMAGE/scala:jdk14 \
-      --destination $CI_REGISTRY_IMAGE/scala:jdk14-$CI_COMMIT_REF_NAME
+      --destination $CI_REGISTRY_IMAGE/sbt:jdk14 \
+      --destination $CI_REGISTRY_IMAGE/sbt:jdk14-$CI_COMMIT_REF_NAME
   only:
     refs:
       - tags
@@ -157,10 +157,10 @@ golang-dev:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-scala-dev:
+sbt-dev:
   stage: ensure-build
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile scala/Dockerfile --destination $CI_REGISTRY_IMAGE/scala:$CI_COMMIT_REF_SLUG
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile sbt/Dockerfile --destination $CI_REGISTRY_IMAGE/sbt:$CI_COMMIT_REF_SLUG
   except:
     refs:
       - master
@@ -168,10 +168,10 @@ scala-dev:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-scala-jdk14-dev:
+sbt-jdk14-dev:
   stage: ensure-build
   script:
-    - /kaniko/executor --build-arg TAG=jdk14 --context $CI_PROJECT_DIR --dockerfile scala/Dockerfile --destination $CI_REGISTRY_IMAGE/scala:jdk14-$CI_COMMIT_REF_SLUG
+    - /kaniko/executor --build-arg TAG=jdk14 --context $CI_PROJECT_DIR --dockerfile sbt/Dockerfile --destination $CI_REGISTRY_IMAGE/sbt:jdk14-$CI_COMMIT_REF_SLUG
   except:
     refs:
       - master
