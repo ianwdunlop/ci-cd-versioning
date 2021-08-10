@@ -24,8 +24,8 @@ machine {ci_server_host}
         """)
 
 
-def env() -> dict:
-    e = common_env()
+def env(args: list) -> dict:
+    e = common_env(args)
     # Golang requires that semver versions are prefixed with "v".
     # There is an open issue for this https://github.com/golang/go/issues/32945.
     # Here we're just getting the value from the dict returned by 'env' and 
@@ -36,9 +36,9 @@ def env() -> dict:
     return e
 
 
-def release():
+def release(args: list):
     config_git()
-    e = env()
+    e = env(args)
     tag = e[NEXT_TAG]
     uploads = e[UPLOADS]
     log = e[GIT_LOG]

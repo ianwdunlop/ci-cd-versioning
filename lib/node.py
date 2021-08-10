@@ -16,9 +16,9 @@ from git.cmd import Git
 import os
 
 
-def release():
+def release(args: list):
     config_git()
-    e = env()
+    e = env(args)
     tag = e[NEXT_TAG]
     uploads = e[UPLOADS]
     log = e[GIT_LOG]

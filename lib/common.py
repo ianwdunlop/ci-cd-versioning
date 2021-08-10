@@ -68,12 +68,12 @@ def increment(tag: str) -> str:
     minor = r"feature|minor"
 
     if tag:
-        commit_prefixes = re.sub(fr"\"({major}|{minor}):.*", r"\1",
-                                 git.log("--no-merges", '--pretty=format:"%s"', f"{tag}..HEAD"))
+        commit_prefixes = re.sub(fr"({major}|{minor}):.*", r"\1",
+                                 git.log("--no-merges", '--pretty=format:%s', f"{tag}..HEAD"))
         branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch}'", r"\1",
                                  git.log("--merges", "--oneline", f"{tag}..HEAD"))
     else:
-        commit_prefixes = re.sub(fr"({major}|{minor}):.*", r"\1", git.log("--no-merges", '--pretty=format:"%s"'))
+        commit_prefixes = re.sub(fr"({major}|{minor}):.*", r"\1", git.log("--no-merges", '--pretty=format:%s'))
         branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch}'", "\1",
                                  git.log("--merges", "--oneline"))
 
@@ -94,8 +94,8 @@ def create_release(tag: str, log: str):
         raise HTTPError
 
 
-def env() -> dict:
-    e = parse_common_flags()
+def env(args: list) -> dict:
+    e = parse_common_flags(args)
 
     tag = latest_tag()
     e[LATEST_TAG] = tag
@@ -112,14 +112,14 @@ def env() -> dict:
     return e
 
 
-def parse_common_flags() -> dict:
+def parse_common_flags(args: list) -> dict:
     env_dict = dict()
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--rebase-branch', '-r')
     parser.add_argument('--uploads', '-u')
 
-    args, _ = parser.parse_known_args()
+    args, _ = parser.parse_known_args(args)
 
     if args.rebase_branch:
         env_dict[REBASE_BRANCH] = args.rebase_branch
@@ -139,14 +139,14 @@ def next_tag(tag: str, bump: str) -> str:
 
 def git_log(tag: str) -> str:
     log = git.log("--oneline", "--no-merges", f"{tag}..HEAD")
-    return sanitize(repr(log)).strip("'")
+    return sanitize(repr(log).strip("'"))
 
 
 def sanitize(log: str) -> str:
-    sanitized_log = re.sub('&', '&amp', log)
-    sanitized_log = re.sub('<', '&lt', sanitized_log)
-    sanitized_log = re.sub('>', '&gt', sanitized_log)
-    sanitized_log = re.sub('"', '&#34;', sanitized_log)
+    sanitized_log = re.sub('&', '&amp;', log)
+    sanitized_log = re.sub('<', '&lt;', sanitized_log)
+    sanitized_log = re.sub('>', '&gt;', sanitized_log)
+    sanitized_log = re.sub('"', '&quot;', sanitized_log)
     sanitized_log = re.sub("'", "&#39;", sanitized_log)
     return sanitized_log
 
@@ -170,7 +170,7 @@ def rebase():
     print(f"Rebasing {branch} onto {ci_commit_branch}", file=sys.stderr)
     git.rebase(ci_commit_branch)
 
-    print(f"Pushing changes to $1", file=sys.stderr)
+    print(f"Pushing changes to {branch}", file=sys.stderr)
     git.push("origin", branch)
 
 
@@ -189,9 +189,9 @@ def get_rebase_branch() -> str:
     return ""
 
 
-def release():
+def release(args: list):
     config_git()
-    e = env()
+    e = env(args)
     tag = e[NEXT_TAG]
     uploads = e[UPLOADS]
     log = e[GIT_LOG]

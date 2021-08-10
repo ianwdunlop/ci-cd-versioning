@@ -6,13 +6,13 @@ def version(tag: str, next_version: str):
     call(["sbt", f'"release with-defaults release-version {tag} next-version {next_version}"'])
 
 
-def release():
+def release(args: list):
     config_git()
-    e = env()
+    e = env(args)
     tag = e[NEXT_TAG]
     uploads = e[UPLOADS]
     log = e[GIT_LOG]
-    snapshot = next_tag(tag, "patch") + "SNAPSHOT"
+    snapshot = next_tag(tag, "patch") + "-SNAPSHOT"
     version(tag, snapshot)
     create_release(tag, log)
     create_attachment(uploads, tag)

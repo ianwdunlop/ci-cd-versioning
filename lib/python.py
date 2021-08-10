@@ -28,9 +28,9 @@ def config_pip():
     call(['pip', 'config', 'set', 'global.trusted-host', f'"{nexus_host}"'])
 
 
-def release(version_dir: str):
+def release(args: list, version_dir: str):
     config_git()
-    e = env()
+    e = env(args)
     tag = e[NEXT_TAG]
     uploads = e[UPLOADS]
     log = e[GIT_LOG]
