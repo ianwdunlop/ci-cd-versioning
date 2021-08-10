@@ -1,8 +1,10 @@
 from lib.common import GIT_LOG, NEXT_TAG, UPLOADS, config_git, create_attachment, create_release, env, next_tag, rebase
 from subprocess import call
 
+
 def version(tag: str, next_version: str):
     call(["sbt", f'"release with-defaults release-version {tag} next-version {next_version}"'])
+
 
 def release():
     config_git()

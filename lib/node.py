@@ -2,7 +2,7 @@ from lib.common import (
     BUMP,
     GIT_LOG,
     NEXT_TAG,
-    UPLOADS, 
+    UPLOADS,
     ci_commit_branch,
     create_release,
     env,
@@ -15,6 +15,7 @@ from subprocess import call
 from git.cmd import Git
 import os
 
+
 def release():
     config_git()
     e = env()
@@ -25,6 +26,7 @@ def release():
     create_release(tag, log)
     create_attachment(uploads, tag)
     rebase()
+
 
 def version():
     git = Git(".")

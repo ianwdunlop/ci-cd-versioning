@@ -38,38 +38,44 @@ NEXUS_USERNAME = "NEXUS_USERNAME"
 NEXUS_PASSWORD = "NEXUS_PASSWORD"
 NEXUS_HOST = "NEXUS_HOST"
 
+
 def get_ci_token() -> str:
     ci_token = os.getenv(CI_TOKEN)
     if not ci_token:
         raise EnvironmentError(f"Missing environment variable {CI_TOKEN}")
     return ci_token
 
+
 ci_user = os.getenv(CI_USER)
 if not ci_user:
-    ci_user=f"project_{ci_project_id}_bot"
+    ci_user = f"project_{ci_project_id}_bot"
 
 ci_user_email = os.getenv(CI_USER_EMAIL)
 if not ci_user_email:
-    ci_user_email=f"project{ci_project_id}_bot@example.com"
+    ci_user_email = f"project{ci_project_id}_bot@example.com"
 
 nexus_username = os.getenv(NEXUS_USERNAME)
 nexus_password = os.getenv(NEXUS_PASSWORD)
 nexus_host = os.getenv(NEXUS_HOST)
 if not nexus_host:
-    nexus_host="nexus.wopr.inf.mdc"
+    nexus_host = "nexus.wopr.inf.mdc"
+
+git = Git(".")
+
 
 def increment(tag: str) -> str:
-    major=r"breaking-change|major"
-    minor=r"feature|minor"
+    major = r"breaking-change|major"
+    minor = r"feature|minor"
 
-    git = Git(".")
     if tag:
-        commit_prefixes = re.sub(fr"\"({major}|{minor}):.*", r"\1", git.log("--no-merges", '--pretty=format:"%s"', f"{tag}..HEAD"))
-        branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch}'", r"\1", git.log("--merges", "--oneline", f"{tag}..HEAD"))
+        commit_prefixes = re.sub(fr"\"({major}|{minor}):.*", r"\1",
+                                 git.log("--no-merges", '--pretty=format:"%s"', f"{tag}..HEAD"))
+        branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch}'", r"\1",
+                                 git.log("--merges", "--oneline", f"{tag}..HEAD"))
     else:
         commit_prefixes = re.sub(fr"({major}|{minor}):.*", r"\1", git.log("--no-merges", '--pretty=format:"%s"'))
-        branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch}'", "\1", git.log("--merges", "--oneline"))
-        
+        branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch}'", "\1",
+                                 git.log("--merges", "--oneline"))
 
     if re.match(major, commit_prefixes) or re.match(major, branch_prefixes):
         return "major"
@@ -80,10 +86,10 @@ def increment(tag: str) -> str:
 
 
 def create_release(tag: str, log: str):
-    response = requests.post(f"{ci_api_v4_url}/projects/{ci_project_id}/releases", 
-                json={"name": tag, "tag_name": tag, "description": f"##Changelog\n\n{log}"},
-                headers={"PRIVATE-TOKEN": get_ci_token()})
-    
+    response = requests.post(f"{ci_api_v4_url}/projects/{ci_project_id}/releases",
+                             json={"name": tag, "tag_name": tag, "description": f"##Changelog\n\n{log}"},
+                             headers={"PRIVATE-TOKEN": get_ci_token()})
+
     if response.status_code >= 400:
         raise HTTPError
 
@@ -107,21 +113,21 @@ def env() -> dict:
 
 
 def parse_common_flags() -> dict:
-    env = dict()
+    env_dict = dict()
     parser = argparse.ArgumentParser()
-    
+
     parser.add_argument('--rebase-branch', '-r')
     parser.add_argument('--uploads', '-u')
 
     args, _ = parser.parse_known_args()
 
     if args.rebase_branch:
-        env[REBASE_BRANCH] = args.rebase_branch
+        env_dict[REBASE_BRANCH] = args.rebase_branch
 
     if args.uploads:
-        env[UPLOADS] = args.uploads
-    
-    return env
+        env_dict[UPLOADS] = args.uploads
+
+    return env_dict
 
 
 def next_tag(tag: str, bump: str) -> str:
@@ -130,8 +136,8 @@ def next_tag(tag: str, bump: str) -> str:
     ver = semver.VersionInfo.parse(tag.lstrip("v"))
     return str(ver.next_version(bump))
 
+
 def git_log(tag: str) -> str:
-    git = Git(".")
     log = git.log("--oneline", "--no-merges", f"{tag}..HEAD")
     return sanitize(repr(log)).strip("'")
 
@@ -146,7 +152,6 @@ def sanitize(log: str) -> str:
 
 
 def latest_tag() -> str:
-    git = Git(".")
     try:
         return git.describe("--abbrev=0")
     except GitCommandError:
@@ -158,15 +163,13 @@ def rebase():
     if not branch:
         print("No rebase branch, skipping...", file=sys.stderr)
         return
-    
-    git = Git(".")
-    
+
     print(f"Checking out {branch}", file=sys.stderr)
     git.checkout(branch)
-    
+
     print(f"Rebasing {branch} onto {ci_commit_branch}", file=sys.stderr)
     git.rebase(ci_commit_branch)
-    
+
     print(f"Pushing changes to $1", file=sys.stderr)
     git.push("origin", branch)
 
@@ -175,8 +178,7 @@ def get_rebase_branch() -> str:
     branch = os.getenv(REBASE_BRANCH)
     if branch:
         return branch
-    
-    git = Git(".")
+
     branches = ["develop", "dev"]
     for branch in branches:
         try:
@@ -198,8 +200,8 @@ def release():
     create_attachment(uploads, tag)
     rebase()
 
+
 def config_git():
-    git = Git(".")
     git.remote("set-url", "origin", f"https://{ci_user}:{get_ci_token()}@{ci_server_host}/{ci_project_path}.git")
     git.config("user.name", ci_user)
     git.config("user.email", ci_user_email)
@@ -207,29 +209,31 @@ def config_git():
     git.checkout(ci_commit_branch)
     git.pull("origin", ci_commit_branch)
 
+
 def create_attachment(pattern: str, tag: str):
     for file in glob.glob(pattern, recursive=True):
         f = open(file, 'rb')
-        response = requests.post(f"{ci_api_v4_url}/projects/{ci_project_id}/uploads", 
-                                files={'file': f},
-                                headers={"PRIVATE-TOKEN": get_ci_token()})
+        response = requests.post(f"{ci_api_v4_url}/projects/{ci_project_id}/uploads",
+                                 files={'file': f},
+                                 headers={"PRIVATE-TOKEN": get_ci_token()})
         f.close()
         if response.status_code >= 400:
             raise HTTPError
 
         link = response.json()['full_path']
         response = requests.post(f"{ci_api_v4_url}/projects/{ci_project_id}/releases/{tag}/assets/links",
-                                    data={"name": file, "url": link},
-                                    headers={"PRIVATE-TOKEN": get_ci_token()})
+                                 data={"name": file, "url": link},
+                                 headers={"PRIVATE-TOKEN": get_ci_token()})
+        if response.status_code >= 400:
+            raise HTTPError
+
 
 def version(tag: str):
-    git = Git(".")
     git.commit("--allow-empty", "-am", f'"Setting version to {tag}"')
     git.push("origin", ci_commit_branch)
     git.tag("-a", tag, "-m", f"Setting version to {tag}")
     git.push("origin", "--tags")
 
+
 def short_sha() -> str:
-    git = Git(".")
-    hash = git.rev_parse("--short", "HEAD")
-    return hash
+    return git.rev_parse("--short", "HEAD")

@@ -2,10 +2,10 @@ from lib.common import (
     GIT_LOG,
     NEXT_TAG,
     UPLOADS,
-    ci_server_host, 
+    ci_server_host,
     ci_server_port,
     create_release,
-    env as common_env, 
+    env as common_env,
     get_ci_token,
     rebase,
     config_git,
@@ -14,6 +14,7 @@ from lib.common import (
 )
 import os
 
+
 def config_goprivate():
     with open(f"{os.getenv('HOME')}/.netrc", 'a') as netrc:
         netrc.write(f"""
@@ -21,6 +22,7 @@ machine {ci_server_host}
         login gitlab-ci-token
         password {get_ci_token()}
         """)
+
 
 def env() -> dict:
     e = common_env()
@@ -32,6 +34,7 @@ def env() -> dict:
     e[NEXT_TAG] = tag
     e["GOPRIVATE"] = f"{ci_server_host}:{ci_server_port}/*"
     return e
+
 
 def release():
     config_git()
