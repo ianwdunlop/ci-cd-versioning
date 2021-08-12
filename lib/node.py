@@ -1,3 +1,4 @@
+from subprocess import call
 from lib.common import (
     BUMP,
     GIT_LOG,
@@ -12,7 +13,6 @@ from lib.common import (
     create_attachment,
     git
 )
-from subprocess import call
 
 
 def release(args: list):

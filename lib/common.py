@@ -1,13 +1,13 @@
-from git.cmd import Git
-from git.exc import GitCommandError
 import re
 import os
 import sys
 import argparse
+import glob
 import semver
 import requests
 from requests.models import HTTPError
-import glob
+from git.cmd import Git
+from git.exc import GitCommandError
 
 # General gitlab CI variables
 CI_PROJECT_ID = "CI_PROJECT_ID"
@@ -112,10 +112,9 @@ def increment(tag: str) -> str:
 
     if re.match(major, commit_prefixes) or re.match(major, branch_prefixes):
         return "major"
-    elif re.match(minor, commit_prefixes) or re.match(minor, branch_prefixes):
+    if re.match(minor, commit_prefixes) or re.match(minor, branch_prefixes):
         return "minor"
-    else:
-        return "patch"
+    return "patch"
 
 
 def create_release(tag: str, log: str):
@@ -241,13 +240,13 @@ def config_git():
 
 def create_attachment(pattern: str, tag: str):
     for file in glob.glob(pattern, recursive=True):
-        f = open(file, 'rb')
-        response = requests.post(f"{ci_api_v4_url()}/projects/{ci_project_id()}/uploads",
-                                 files={'file': f},
-                                 headers={"PRIVATE-TOKEN": ci_token()})
-        f.close()
-        if response.status_code >= 400:
-            raise HTTPError(response.status_code)
+        with open(file, 'rb') as f:
+            response = requests.post(f"{ci_api_v4_url()}/projects/{ci_project_id()}/uploads",
+                                     files={'file': f},
+                                     headers={"PRIVATE-TOKEN": ci_token()})
+
+            if response.status_code >= 400:
+                raise HTTPError(response.status_code)
 
         link = response.json()['full_path']
         response = requests.post(f"{ci_api_v4_url()}/projects/{ci_project_id()}/releases/{tag}/assets/links",

@@ -1,3 +1,4 @@
+import os
 from lib.common import (
     GIT_LOG,
     NEXT_TAG,
@@ -13,7 +14,6 @@ from lib.common import (
     create_attachment,
     version
 )
-import os
 
 GOPRIVATE = "GOPRIVATE"
 

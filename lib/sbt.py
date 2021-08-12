@@ -1,3 +1,4 @@
+from subprocess import call
 from lib.common import (GIT_LOG,
                         NEXT_TAG,
                         UPLOADS,
@@ -8,7 +9,6 @@ from lib.common import (GIT_LOG,
                         env,
                         next_tag,
                         rebase)
-from subprocess import call
 
 
 def version(tag: str, next_version: str):

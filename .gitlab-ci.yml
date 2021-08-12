@@ -4,6 +4,15 @@ stages:
   - release
   - build
 
+lint:
+  stage: test
+  image: python:latest
+  before_script:
+    - pip install -r requirements.txt
+    - pip install -r requirements.dev.txt
+  script:
+    - pylint lib cictl
+
 test:
   stage: test
   image: python:latest

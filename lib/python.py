@@ -1,3 +1,4 @@
+from subprocess import call
 from lib.common import (
     GIT_LOG,
     REBASE_BRANCH,
@@ -16,7 +17,6 @@ from lib.common import (
     nexus_host,
     git
 )
-from subprocess import call
 
 
 def config_pip():
@@ -60,5 +60,5 @@ def write_version(tag: str, version_dir: str):
         f.writelines([f"__version__ = \"{tag}\"\n", f"__hash__ = \"{short_sha()}\"\n"])
 
 
-def _version_file(dir: str) -> str:
-    return f"{dir}/version.py"
+def _version_file(version_dir: str) -> str:
+    return f"{version_dir}/version.py"
