@@ -2,11 +2,12 @@ from lib.common import (
     GIT_LOG,
     NEXT_TAG,
     UPLOADS,
+    REBASE_BRANCH,
     ci_server_host,
     ci_server_port,
     create_release,
     env as common_env,
-    get_ci_token,
+    ci_token,
     rebase,
     config_git,
     create_attachment,
@@ -14,14 +15,16 @@ from lib.common import (
 )
 import os
 
+GOPRIVATE = "GOPRIVATE"
+
+
+def netrc_file():
+    return f"\nmachine {ci_server_host()}\n\tlogin gitlab-ci-token\n\tpassword {ci_token()}"
+
 
 def config_goprivate():
     with open(f"{os.getenv('HOME')}/.netrc", 'a') as netrc:
-        netrc.write(f"""
-machine {ci_server_host}
-        login gitlab-ci-token
-        password {get_ci_token()}
-        """)
+        netrc.write(netrc_file())
 
 
 def env(args: list) -> dict:
@@ -32,7 +35,7 @@ def env(args: list) -> dict:
     # prefixing it. Then overriding it in the returned dictionary.
     tag = "v" + e[NEXT_TAG]
     e[NEXT_TAG] = tag
-    e["GOPRIVATE"] = f"{ci_server_host}:{ci_server_port}/*"
+    e[GOPRIVATE] = f"{ci_server_host()}:{ci_server_port()}/*"
     return e
 
 
@@ -42,7 +45,8 @@ def release(args: list):
     tag = e[NEXT_TAG]
     uploads = e[UPLOADS]
     log = e[GIT_LOG]
+    rebase_branch = e[REBASE_BRANCH]
     version(tag)
     create_release(tag, log)
     create_attachment(uploads, tag)
-    rebase()
+    rebase(rebase_branch)

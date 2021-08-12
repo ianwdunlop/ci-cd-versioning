@@ -1,7 +1,18 @@
 stages:
+  - test
   - ensure-build
   - release
   - build
+
+test:
+  stage: test
+  image: python:latest
+  before_script:
+    - pip install -r requirements.txt
+    - pip install -r requirements.dev.txt
+  script:
+    - python -m pytest --cov-report term:skip-covered --cov=lib tests/
+  coverage: '/TOTAL.*\s+(\d+%)$/'
 
 release:
   stage: release

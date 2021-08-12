@@ -1,5 +1,6 @@
+import os
 from lib.common import (
-    get_ci_token,
+    ci_token,
     latest_tag,
     increment,
     parse_common_flags,
@@ -8,17 +9,30 @@ from lib.common import (
     git_log,
     rebase,
     get_rebase_branch,
+    config_git,
+    release,
+    create_release,
+    create_attachment,
+    version,
+    short_sha,
     REBASE_BRANCH,
     UPLOADS,
     LATEST_TAG,
     BUMP,
     GIT_LOG,
     NEXT_TAG,
-    CI_TOKEN
+    CI_TOKEN,
+    CI_PROJECT_ID,
+    CI_API_V4_URL,
+    CI_PROJECT_PATH,
+    CI_SERVER_HOST,
+    CI_SERVER_PORT,
+    CI_COMMIT_BRANCH
 )
-import os
 from unittest import mock
 import pytest
+from requests.models import HTTPError
+from helpers import fake_response
 
 class UnexpectedArgumentException(Exception):
     pass
@@ -29,11 +43,11 @@ class TestCommon:
     @mock.patch.dict(os.environ, {CI_TOKEN: "test_token"})
     def test_get_ci_token(self):
         try:
-            get_ci_token()
+            ci_token()
         except EnvironmentError as e:
             assert str(e) == "Missing environment variable CI_TOKEN"
 
-        token = get_ci_token()
+        token = ci_token()
         assert token == "test_token"
 
     @mock.patch('lib.common.git')
@@ -61,7 +75,7 @@ class TestCommon:
                         log = returns
 
                 if not log:
-                    raise UnexpectedArgumentException("?")
+                    raise UnexpectedArgumentException(str(args))
 
                 return log
 
@@ -150,17 +164,17 @@ class TestCommon:
     def test_git_log(self, mock_git):
         def log(*args):
             return """"<'>&'"""
+
         mock_git.log.side_effect = log
         test_log = git_log("0.0.0")
         # TODO: The backslashes shouldn't be in this. Python is escaping the single quotes.
         # The backslashes aren't in the true output.
         assert test_log == """&quot;&lt;\\&#39;&gt;&amp;\\"""
 
-    @mock.patch.dict(os.environ, {REBASE_BRANCH: "test-develop"})
+    @mock.patch.dict(os.environ, {CI_COMMIT_BRANCH: "test-master"})
     @mock.patch('lib.common.git')
-    @mock.patch('lib.common.ci_commit_branch', new="test-master")
     def test_rebase(self, mock_git):
-        rebase()
+        rebase("test-develop")
         mock_git.checkout.assert_called_with("test-develop")
         mock_git.rebase.assert_called_with("test-master")
         mock_git.push.assert_called_with("origin", "test-develop")
@@ -192,18 +206,78 @@ class TestCommon:
         branch = get_rebase_branch()
         assert branch == ""
 
+    @mock.patch.dict(os.environ, {CI_TOKEN: "token"})
+    @mock.patch('lib.common.requests')
     @mock.patch('lib.common.git')
-    def test_release(self, mock_git):
-        pass
+    def test_release(self, mock_git, mock_requests):
+        def log(*args):
+            return ""
 
-    def test_config_git(self):
-        pass
+        def describe(*args):
+            return "0.0.0"
 
-    def test_create_attachment(self):
-        pass
+        mock_git.log.side_effect = log
+        mock_git.describe.side_effect = describe
+        mock_requests.post.side_effect = fake_response(200)
+        release([])
 
-    def test_version(self):
-        pass
+    @mock.patch.dict(os.environ, {CI_TOKEN: "test-token", CI_PROJECT_ID: "1",
+                                  CI_SERVER_HOST: "gitlab.example.com", CI_PROJECT_PATH: "project/path",
+                                  CI_COMMIT_BRANCH: "test-develop"})
+    @mock.patch("lib.common.git")
+    def test_config_git(self, mock_git):
+        config_git()
+        mock_git.remote.assert_called_with("set-url", "origin", "https://project_1_bot:test-token@gitlab.example.com/project/path.git")
+        mock_git.config.assert_any_call("user.name", "project_1_bot")
+        mock_git.config.assert_called_with("user.email", "project1_bot@example.com")
+        mock_git.fetch.assert_called_with("--all", "--tags")
+        mock_git.checkout.assert_called_with("test-develop")
+        mock_git.pull.assert_called_with("origin", "test-develop")
 
-    def test_short_sha(self):
-        pass
+    @mock.patch.dict(os.environ, {CI_TOKEN: "test-token", CI_PROJECT_ID: "1", CI_API_V4_URL: "https://gitlab.example.com/api/v4"})
+    @mock.patch('lib.common.requests')
+    def test_create_release(self, mock_requests):
+        mock_requests.post.side_effect = fake_response(200)
+        create_release("0.0.0", "my log")
+        mock_requests.post.assert_called_with(f"https://gitlab.example.com/api/v4/projects/1/releases",
+                                                       json={"name": "0.0.0", "tag_name": "0.0.0", "description": f"##Changelog\n\nmy log"},
+                                                       headers={"PRIVATE-TOKEN": "test-token"})
+
+        mock_requests.post.side_effect = fake_response(400)
+        with pytest.raises(HTTPError):
+            create_release("0.0.0", "my log")
+
+    @mock.patch.dict(os.environ, {CI_TOKEN: "test-token", CI_PROJECT_ID: "1", CI_API_V4_URL: "https://gitlab.example.com/api/v4"})
+    @mock.patch('lib.common.requests')
+    @mock.patch('lib.common.glob')
+    @mock.patch('builtins.open', read_data="data")
+    def test_create_attachment(self, mock_open, mock_glob, mock_requests):
+        def glob(*args, **kwargs):
+            return ["my-upload.txt"]
+        mock_requests.post.side_effect = fake_response(200, {
+            "alt": "my-upload",
+            "url": "/uploads/66dbcd21ec5d24ed6ea225176098d52b/my-upload.txt",
+            "full_path": "/namespace1/project1/uploads/66dbcd21ec5d24ed6ea225176098d52b/my-upload.txt",
+            "markdown": "![my-upload](/uploads/66dbcd21ec5d24ed6ea225176098d52b/my-upload.txt)"
+        })
+        mock_glob.glob.side_effect = glob
+        create_attachment("*", "0.0.0")
+        mock_glob.glob.assert_called_with("*", recursive=True)
+        mock_open.assert_called_with("my-upload.txt", "rb")
+        mock_requests.post.assert_called_with("https://gitlab.example.com/api/v4/projects/1/releases/0.0.0/assets/links",
+                                                       data={"name": "my-upload.txt", "url": "/namespace1/project1/uploads/66dbcd21ec5d24ed6ea225176098d52b/my-upload.txt"},
+                                                       headers={"PRIVATE-TOKEN": "test-token"})
+
+    @mock.patch.dict(os.environ, {CI_TOKEN: "test-token", CI_COMMIT_BRANCH: "test-master"})
+    @mock.patch("lib.common.git")
+    def test_version(self, mock_git):
+        version("0.0.0")
+        mock_git.commit.assert_called_with("--allow-empty", "-am", '"Setting version to 0.0.0"')
+        mock_git.push.assert_any_call("origin", "test-master")
+        mock_git.tag.assert_called_with("-a", "0.0.0", "-m", '"Setting version to 0.0.0"')
+        mock_git.push.assert_called_with("origin", "--tags")
+
+    @mock.patch("lib.common.git")
+    def test_short_sha(self, mock_git):
+        short_sha()
+        mock_git.rev_parse.assert_called_once_with("--short", "HEAD")

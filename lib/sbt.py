@@ -1,4 +1,13 @@
-from lib.common import GIT_LOG, NEXT_TAG, UPLOADS, config_git, create_attachment, create_release, env, next_tag, rebase
+from lib.common import (GIT_LOG,
+                        NEXT_TAG,
+                        UPLOADS,
+                        REBASE_BRANCH,
+                        config_git,
+                        create_attachment,
+                        create_release,
+                        env,
+                        next_tag,
+                        rebase)
 from subprocess import call
 
 
@@ -12,8 +21,9 @@ def release(args: list):
     tag = e[NEXT_TAG]
     uploads = e[UPLOADS]
     log = e[GIT_LOG]
+    rebase_branch = e[REBASE_BRANCH]
     snapshot = next_tag(tag, "patch") + "-SNAPSHOT"
     version(tag, snapshot)
     create_release(tag, log)
     create_attachment(uploads, tag)
-    rebase()
+    rebase(rebase_branch)

@@ -17,12 +17,30 @@ CI_PROJECT_PATH = "CI_PROJECT_PATH"
 CI_SERVER_HOST = "CI_SERVER_HOST"
 CI_SERVER_PORT = "CI_SERVER_PORT"
 
-ci_project_id = os.getenv(CI_PROJECT_ID)
-ci_api_v4_url = os.getenv(CI_API_V4_URL)
-ci_commit_branch = os.getenv(CI_COMMIT_BRANCH)
-ci_project_path = os.getenv(CI_PROJECT_PATH)
-ci_server_host = os.getenv(CI_SERVER_HOST)
-ci_server_port = os.getenv(CI_SERVER_PORT)
+
+def ci_project_id() -> str:
+    return os.getenv(CI_PROJECT_ID)
+
+
+def ci_api_v4_url() -> str:
+    return os.getenv(CI_API_V4_URL)
+
+
+def ci_commit_branch() -> str:
+    return os.getenv(CI_COMMIT_BRANCH)
+
+
+def ci_project_path() -> str:
+    return os.getenv(CI_PROJECT_PATH)
+
+
+def ci_server_host() -> str:
+    return os.getenv(CI_SERVER_HOST)
+
+
+def ci_server_port() -> str:
+    return os.getenv(CI_SERVER_PORT)
+
 
 # Internal MDC specific environment variables
 GIT_LOG = "GIT_LOG"
@@ -39,26 +57,41 @@ NEXUS_PASSWORD = "NEXUS_PASSWORD"
 NEXUS_HOST = "NEXUS_HOST"
 
 
-def get_ci_token() -> str:
-    ci_token = os.getenv(CI_TOKEN)
-    if not ci_token:
+def ci_token() -> str:
+    token = os.getenv(CI_TOKEN)
+    if not token:
         raise EnvironmentError(f"Missing environment variable {CI_TOKEN}")
-    return ci_token
+    return token
 
 
-ci_user = os.getenv(CI_USER)
-if not ci_user:
-    ci_user = f"project_{ci_project_id}_bot"
+def ci_user() -> str:
+    user = os.getenv(CI_USER)
+    if not user:
+        user = f"project_{ci_project_id()}_bot"
+    return user
 
-ci_user_email = os.getenv(CI_USER_EMAIL)
-if not ci_user_email:
-    ci_user_email = f"project{ci_project_id}_bot@example.com"
 
-nexus_username = os.getenv(NEXUS_USERNAME)
-nexus_password = os.getenv(NEXUS_PASSWORD)
-nexus_host = os.getenv(NEXUS_HOST)
-if not nexus_host:
-    nexus_host = "nexus.wopr.inf.mdc"
+def ci_user_email() -> str:
+    email = os.getenv(CI_USER_EMAIL)
+    if not email:
+        email = f"project{ci_project_id()}_bot@example.com"
+    return email
+
+
+def nexus_username() -> str:
+    return os.getenv(NEXUS_USERNAME)
+
+
+def nexus_password() -> str:
+    return os.getenv(NEXUS_PASSWORD)
+
+
+def nexus_host() -> str:
+    host = os.getenv(NEXUS_HOST)
+    if not host:
+        host = "nexus.wopr.inf.mdc"
+    return host
+
 
 git = Git(".")
 
@@ -70,11 +103,11 @@ def increment(tag: str) -> str:
     if tag:
         commit_prefixes = re.sub(fr"({major}|{minor}):.*", r"\1",
                                  git.log("--no-merges", '--pretty=format:%s', f"{tag}..HEAD"))
-        branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch}'", r"\1",
+        branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch()}'", r"\1",
                                  git.log("--merges", "--oneline", f"{tag}..HEAD"))
     else:
         commit_prefixes = re.sub(fr"({major}|{minor}):.*", r"\1", git.log("--no-merges", '--pretty=format:%s'))
-        branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch}'", "\1",
+        branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch()}'", "\1",
                                  git.log("--merges", "--oneline"))
 
     if re.match(major, commit_prefixes) or re.match(major, branch_prefixes):
@@ -86,12 +119,12 @@ def increment(tag: str) -> str:
 
 
 def create_release(tag: str, log: str):
-    response = requests.post(f"{ci_api_v4_url}/projects/{ci_project_id}/releases",
+    response = requests.post(f"{ci_api_v4_url()}/projects/{ci_project_id()}/releases",
                              json={"name": tag, "tag_name": tag, "description": f"##Changelog\n\n{log}"},
-                             headers={"PRIVATE-TOKEN": get_ci_token()})
+                             headers={"PRIVATE-TOKEN": ci_token()})
 
     if response.status_code >= 400:
-        raise HTTPError
+        raise HTTPError(response.status_code)
 
 
 def env(args: list) -> dict:
@@ -121,11 +154,8 @@ def parse_common_flags(args: list) -> dict:
 
     args, _ = parser.parse_known_args(args)
 
-    if args.rebase_branch:
-        env_dict[REBASE_BRANCH] = args.rebase_branch
-
-    if args.uploads:
-        env_dict[UPLOADS] = args.uploads
+    env_dict[REBASE_BRANCH] = args.rebase_branch or ""
+    env_dict[UPLOADS] = args.uploads or ""
 
     return env_dict
 
@@ -158,8 +188,10 @@ def latest_tag() -> str:
         return ""
 
 
-def rebase():
-    branch = get_rebase_branch()
+def rebase(branch=None):
+    if not branch:
+        branch = get_rebase_branch()
+
     if not branch:
         print("No rebase branch, skipping...", file=sys.stderr)
         return
@@ -167,18 +199,14 @@ def rebase():
     print(f"Checking out {branch}", file=sys.stderr)
     git.checkout(branch)
 
-    print(f"Rebasing {branch} onto {ci_commit_branch}", file=sys.stderr)
-    git.rebase(ci_commit_branch)
+    print(f"Rebasing {branch} onto {ci_commit_branch()}", file=sys.stderr)
+    git.rebase(ci_commit_branch())
 
     print(f"Pushing changes to {branch}", file=sys.stderr)
     git.push("origin", branch)
 
 
 def get_rebase_branch() -> str:
-    branch = os.getenv(REBASE_BRANCH)
-    if branch:
-        return branch
-
     branches = ["develop", "dev"]
     for branch in branches:
         try:
@@ -195,43 +223,44 @@ def release(args: list):
     tag = e[NEXT_TAG]
     uploads = e[UPLOADS]
     log = e[GIT_LOG]
+    rebase_branch = e[REBASE_BRANCH]
     version(tag)
     create_release(tag, log)
     create_attachment(uploads, tag)
-    rebase()
+    rebase(rebase_branch)
 
 
 def config_git():
-    git.remote("set-url", "origin", f"https://{ci_user}:{get_ci_token()}@{ci_server_host}/{ci_project_path}.git")
-    git.config("user.name", ci_user)
-    git.config("user.email", ci_user_email)
+    git.remote("set-url", "origin", f"https://{ci_user()}:{ci_token()}@{ci_server_host()}/{ci_project_path()}.git")
+    git.config("user.name", ci_user())
+    git.config("user.email", ci_user_email())
     git.fetch("--all", "--tags")
-    git.checkout(ci_commit_branch)
-    git.pull("origin", ci_commit_branch)
+    git.checkout(ci_commit_branch())
+    git.pull("origin", ci_commit_branch())
 
 
 def create_attachment(pattern: str, tag: str):
     for file in glob.glob(pattern, recursive=True):
         f = open(file, 'rb')
-        response = requests.post(f"{ci_api_v4_url}/projects/{ci_project_id}/uploads",
+        response = requests.post(f"{ci_api_v4_url()}/projects/{ci_project_id()}/uploads",
                                  files={'file': f},
-                                 headers={"PRIVATE-TOKEN": get_ci_token()})
+                                 headers={"PRIVATE-TOKEN": ci_token()})
         f.close()
         if response.status_code >= 400:
-            raise HTTPError
+            raise HTTPError(response.status_code)
 
         link = response.json()['full_path']
-        response = requests.post(f"{ci_api_v4_url}/projects/{ci_project_id}/releases/{tag}/assets/links",
+        response = requests.post(f"{ci_api_v4_url()}/projects/{ci_project_id()}/releases/{tag}/assets/links",
                                  data={"name": file, "url": link},
-                                 headers={"PRIVATE-TOKEN": get_ci_token()})
+                                 headers={"PRIVATE-TOKEN": ci_token()})
         if response.status_code >= 400:
-            raise HTTPError
+            raise HTTPError(response.status_code)
 
 
 def version(tag: str):
     git.commit("--allow-empty", "-am", f'"Setting version to {tag}"')
-    git.push("origin", ci_commit_branch)
-    git.tag("-a", tag, "-m", f"Setting version to {tag}")
+    git.push("origin", ci_commit_branch())
+    git.tag("-a", tag, "-m", f'"Setting version to {tag}"')
     git.push("origin", "--tags")
 
 
