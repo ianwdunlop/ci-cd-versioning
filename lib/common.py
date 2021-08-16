@@ -3,6 +3,7 @@ import os
 import sys
 import argparse
 import glob
+import json
 import semver
 import requests
 from requests.models import HTTPError
@@ -118,9 +119,10 @@ def increment(tag: str) -> str:
 
 
 def create_release(tag: str, log: str):
+    data = {"name": tag, "tag_name": tag, "description": f"## Changelog\n\n{log}"}
     response = requests.post(f"{ci_api_v4_url()}/projects/{ci_project_id()}/releases",
-                             json={"name": tag, "tag_name": tag, "description": f"##Changelog\n\n{log}"},
-                             headers={"PRIVATE-TOKEN": ci_token()})
+                             data=json.dumps(data).replace(r'\\n', r'<br/>'),
+                             headers={"PRIVATE-TOKEN": ci_token(), "Content-Type": "application/json"})
 
     if response.status_code >= 400:
         raise HTTPError(response.status_code)
