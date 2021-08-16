@@ -41,20 +41,27 @@ All images:
 Additionally, the golang image contains a script to obtain the raw html required to make godocs. This is located under `/scripts` as `godoc.sh`.
 
 ## Development
-Requires python3.6+, virtualenv and docker.
+Requires python3.6+, virtualenv and docker. The `example.env` file contains all the gitlab builtin environment variables that these scripts make use of. They have been set to values suitable for testing against the [CI Test repository](https://gitlab.mdcatapult.io/informatics/software-engineering/ci-test).
 ```bash
-# environment
+# environment:
 git clone git@gitlab.mdcatapult.io:informatics/docker-images/ci.git
 cd ci
 virtualenv venv
 . venv/bin/activate
 
-# building & pushing test images
+# testing the commands directly:
+# (fill out the .env file first)
+cp example.env .env
+set -a; source .env; set +a
+source <(./cictl config env)
+./cictl create release $NEXT_TAG 
+
+# building & pushing test images:
 docker build --pull -f debian/Dockerfile -t registry.mdcatapult.io/informatics/docker-images/ci/debian:test .
 docker push registry.mdcatapult.io/informatics/docker-images/ci/debian:test
 
-# testing images with a local repo
-# fill out the .env file first
+# testing images with a local repo:
+# (fill out the .env file first)
 cp example.env .env
 docker run -it -v $LOCAL_REPO:/repo -w /repo --env-file .env test-image
 ```
