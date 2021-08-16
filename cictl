@@ -79,8 +79,8 @@ def config_env():
 
 
 def get_git_log():
-    parser.add_argument('tag')
-    args = parser.parse_args()
+    parser.add_argument('tag', nargs="?")
+    args, _ = parser.parse_known_args()
     print(git_log(args.tag))
 
 

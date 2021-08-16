@@ -166,8 +166,11 @@ def next_tag(tag: str, bump: str) -> str:
     return str(ver.next_version(bump))
 
 
-def git_log(tag: str) -> str:
-    log = git.log("--oneline", "--no-merges", f"{tag}..HEAD")
+def git_log(tag: str = None) -> str:
+    if tag:
+        log = git.log("--oneline", "--no-merges", f"{tag}..HEAD")
+    else:
+        log = git.log("--oneline", "--no-merges")
     return sanitize(repr(log).strip("'"))
 
 
@@ -257,9 +260,9 @@ def create_attachment(pattern: str, tag: str):
 
 
 def version(tag: str):
-    git.commit("--allow-empty", "-am", f'"Setting version to {tag}"')
+    git.commit("--allow-empty", "-am", f'Setting version to {tag}')
     git.push("origin", ci_commit_branch())
-    git.tag("-a", tag, "-m", f'"Setting version to {tag}"')
+    git.tag("-a", tag, "-m", f'Setting version to {tag}')
     git.push("origin", "--tags")
 
 

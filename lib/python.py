@@ -23,9 +23,9 @@ def config_pip():
     index_path = "repository/pypi-all/pypi"
     index_url_path = "repository/pypi-all/simple"
     check_call(["pip", "config", "set", "global.index",
-          f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_path}"])
+                f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_path}"])
     check_call(["pip", "config", "set", "global.index-url",
-          f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_url_path}"])
+                f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_url_path}"])
     check_call(['pip', 'config', 'set', 'global.trusted-host', f'{nexus_host()}'])
 
 

@@ -9,7 +9,7 @@ class TestSbt:
     @mock.patch('lib.sbt.check_call')
     def test_version(self, mock_call):
         version("0.0.0", "0.0.1-SNAPSHOT")
-        mock_call.assert_called_with(["sbt", f'"release with-defaults release-version 0.0.0 next-version 0.0.1-SNAPSHOT"'])
+        mock_call.assert_called_with(["sbt", f'release with-defaults release-version 0.0.0 next-version 0.0.1-SNAPSHOT'])
 
     @mock.patch.dict(os.environ, {CI_TOKEN: "token"})
     @mock.patch('lib.sbt.version')
