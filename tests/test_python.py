@@ -7,7 +7,7 @@ from helpers import fake_response
 
 class TestPython:
     @mock.patch.dict(os.environ, {NEXUS_USERNAME: "user", NEXUS_PASSWORD: "pass"})
-    @mock.patch("lib.python.call")
+    @mock.patch("lib.python.check_call")
     def test_config_pip(self, mock_call):
         config_pip()
         mock_call.assert_any_call(["pip", "config", "set", "global.index",

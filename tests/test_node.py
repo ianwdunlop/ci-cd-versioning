@@ -9,7 +9,7 @@ class TestNode:
 
     @mock.patch.dict(os.environ, {CI_TOKEN: "token", CI_COMMIT_BRANCH: "test-master"})
     @mock.patch('lib.node.git')
-    @mock.patch('lib.node.call')
+    @mock.patch('lib.node.check_call')
     @mock.patch('lib.common.requests')
     @mock.patch('lib.common.git')
     def test_release(self, mock_git, mock_requests, mock_call, mock_node_git):
@@ -28,7 +28,7 @@ class TestNode:
         mock_node_git.push.assert_called_with("origin", "--tags")
 
     @mock.patch.dict(os.environ, {CI_COMMIT_BRANCH: "test-master"})
-    @mock.patch('lib.node.call')
+    @mock.patch('lib.node.check_call')
     @mock.patch('lib.node.git')
     def test_version(self, mock_git, mock_call):
         version("major")

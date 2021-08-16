@@ -1,4 +1,4 @@
-from subprocess import call
+from subprocess import check_call
 from lib.common import (GIT_LOG,
                         NEXT_TAG,
                         UPLOADS,
@@ -12,7 +12,7 @@ from lib.common import (GIT_LOG,
 
 
 def version(tag: str, next_version: str):
-    call(["sbt", f'"release with-defaults release-version {tag} next-version {next_version}"'])
+    check_call(["sbt", f'"release with-defaults release-version {tag} next-version {next_version}"'])
 
 
 def release(args: list):

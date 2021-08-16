@@ -1,4 +1,4 @@
-from subprocess import call
+from subprocess import check_call
 from lib.common import (
     BUMP,
     GIT_LOG,
@@ -30,6 +30,6 @@ def release(args: list):
 
 
 def version(bump: str):
-    call(["npm", "version", bump, "-m", "Setting version to v%s"])
+    check_call(["npm", "version", bump, "-m", "Setting version to v%s"])
     git.push("origin", ci_commit_branch())
     git.push("origin", "--tags")

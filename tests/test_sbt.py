@@ -6,7 +6,7 @@ from helpers import fake_response
 
 
 class TestSbt:
-    @mock.patch('lib.sbt.call')
+    @mock.patch('lib.sbt.check_call')
     def test_version(self, mock_call):
         version("0.0.0", "0.0.1-SNAPSHOT")
         mock_call.assert_called_with(["sbt", f'"release with-defaults release-version 0.0.0 next-version 0.0.1-SNAPSHOT"'])

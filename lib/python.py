@@ -1,4 +1,4 @@
-from subprocess import call
+from subprocess import check_call
 from lib.common import (
     GIT_LOG,
     REBASE_BRANCH,
@@ -22,11 +22,11 @@ from lib.common import (
 def config_pip():
     index_path = "repository/pypi-all/pypi"
     index_url_path = "repository/pypi-all/simple"
-    call(["pip", "config", "set", "global.index",
+    check_call(["pip", "config", "set", "global.index",
           f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_path}"])
-    call(["pip", "config", "set", "global.index-url",
+    check_call(["pip", "config", "set", "global.index-url",
           f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_url_path}"])
-    call(['pip', 'config', 'set', 'global.trusted-host', f'{nexus_host()}'])
+    check_call(['pip', 'config', 'set', 'global.trusted-host', f'{nexus_host()}'])
 
 
 def release(args: list, version_dir: str):
