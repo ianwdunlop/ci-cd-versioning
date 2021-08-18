@@ -8,7 +8,8 @@ from lib.common import (
     ci_server_port,
     create_release,
     env as common_env,
-    ci_token,
+    ci_readonly_token,
+    ci_readonly_user,
     rebase,
     config_git,
     create_attachment,
@@ -19,7 +20,7 @@ GOPRIVATE = "GOPRIVATE"
 
 
 def netrc_file():
-    return f"\nmachine {ci_server_host()}\n\tlogin gitlab-ci-token\n\tpassword {ci_token()}"
+    return f"\nmachine {ci_server_host()}\n\tlogin {ci_readonly_user()}\n\tpassword {ci_readonly_token()}"
 
 
 def config_goprivate():

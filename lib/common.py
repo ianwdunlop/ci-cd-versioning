@@ -53,6 +53,8 @@ REBASE_BRANCH = "REBASE_BRANCH"
 CI_TOKEN = "CI_TOKEN"
 CI_USER = "CI_USER"
 CI_USER_EMAIL = "CI_USER_EMAIL"
+CI_READONLY_TOKEN = "CI_READONLY_TOKEN"
+CI_READONLY_USER = "CI_READONLY_USER"
 NEXUS_USERNAME = "NEXUS_USERNAME"
 NEXUS_PASSWORD = "NEXUS_PASSWORD"
 NEXUS_HOST = "NEXUS_HOST"
@@ -77,6 +79,20 @@ def ci_user_email() -> str:
     if not email:
         email = f"project{ci_project_id()}_bot@example.com"
     return email
+
+
+def ci_readonly_token() -> str:
+    token = os.getenv(CI_READONLY_TOKEN)
+    if not token:
+        return ci_token()
+    return token
+
+
+def ci_readonly_user() -> str:
+    user = os.getenv(CI_READONLY_USER)
+    if not user:
+        return ci_user()
+    return user
 
 
 def nexus_username() -> str:
