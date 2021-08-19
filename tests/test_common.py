@@ -26,7 +26,6 @@ from lib.common import (
     CI_API_V4_URL,
     CI_PROJECT_PATH,
     CI_SERVER_HOST,
-    CI_SERVER_PORT,
     CI_COMMIT_BRANCH
 )
 from unittest import mock
