@@ -238,9 +238,9 @@ class TestCommon:
     def test_create_release(self, mock_requests):
         mock_requests.post.side_effect = fake_response(200)
         create_release("0.0.0", "my log")
-        mock_requests.post.assert_called_with(f"https://gitlab.example.com/api/v4/projects/1/releases",
-                                                       json={"name": "0.0.0", "tag_name": "0.0.0", "description": f"##Changelog\n\nmy log"},
-                                                       headers={"PRIVATE-TOKEN": "test-token"})
+        mock_requests.post.assert_called_with("https://gitlab.example.com/api/v4/projects/1/releases",
+                                                       data='{"name": "0.0.0", "tag_name": "0.0.0", "description": "## Changelog<br/><br/>my log"}',
+                                                       headers={"PRIVATE-TOKEN": "test-token",  'Content-Type': 'application/json'})
 
         mock_requests.post.side_effect = fake_response(400)
         with pytest.raises(HTTPError):
@@ -271,9 +271,9 @@ class TestCommon:
     @mock.patch("lib.common.git")
     def test_version(self, mock_git):
         version("0.0.0")
-        mock_git.commit.assert_called_with("--allow-empty", "-am", '"Setting version to 0.0.0"')
+        mock_git.commit.assert_called_with("--allow-empty", "-am", 'Setting version to 0.0.0')
         mock_git.push.assert_any_call("origin", "test-master")
-        mock_git.tag.assert_called_with("-a", "0.0.0", "-m", '"Setting version to 0.0.0"')
+        mock_git.tag.assert_called_with("-a", "0.0.0", "-m", 'Setting version to 0.0.0')
         mock_git.push.assert_called_with("origin", "--tags")
 
     @mock.patch("lib.common.git")

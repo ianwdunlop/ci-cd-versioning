@@ -1,6 +1,6 @@
 from unittest import mock
 from lib.golang import env, GOPRIVATE, release, netrc_file
-from lib.common import NEXT_TAG, GIT_LOG, BUMP, LATEST_TAG, UPLOADS, REBASE_BRANCH, CI_SERVER_HOST, CI_SERVER_PORT, CI_TOKEN
+from lib.common import NEXT_TAG, GIT_LOG, BUMP, LATEST_TAG, UPLOADS, REBASE_BRANCH, CI_SERVER_HOST, CI_SERVER_PORT, CI_TOKEN, CI_READONLY_TOKEN, CI_READONLY_USER
 from helpers import fake_response
 import os
 
@@ -36,7 +36,7 @@ class TestGolang:
         mock_requests.post.side_effect = fake_response(200)
         release([])
 
-    @mock.patch.dict(os.environ, {CI_TOKEN: "test-token", CI_SERVER_HOST: "gitlab.example.com"})
+    @mock.patch.dict(os.environ, {CI_READONLY_TOKEN: "daves-token", CI_READONLY_USER: "dave", CI_SERVER_HOST: "gitlab.example.com"})
     def test_netrc(self):
         netrc = netrc_file()
-        assert netrc == "\nmachine gitlab.example.com\n\tlogin gitlab-ci-token\n\tpassword test-token"
+        assert netrc == "\nmachine gitlab.example.com\n\tlogin dave\n\tpassword daves-token"
