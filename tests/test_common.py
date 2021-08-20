@@ -237,9 +237,9 @@ class TestCommon:
     @mock.patch('lib.common.requests')
     def test_create_release(self, mock_requests):
         mock_requests.post.side_effect = fake_response(200)
-        create_release("0.0.0", "my log")
+        create_release("0.0.0", "afawef my log<br/>fw44g53 my second log")
         mock_requests.post.assert_called_with("https://gitlab.example.com/api/v4/projects/1/releases",
-                                                       data='{"name": "0.0.0", "tag_name": "0.0.0", "description": "## Changelog<br/><br/>my log"}',
+                                                       json={"name": "0.0.0", "tag_name": "0.0.0", "description": "## Changelog\n\nafawef my log<br/>fw44g53 my second log"},
                                                        headers={"PRIVATE-TOKEN": "test-token",  'Content-Type': 'application/json'})
 
         mock_requests.post.side_effect = fake_response(400)

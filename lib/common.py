@@ -135,9 +135,8 @@ def increment(tag: str) -> str:
 
 
 def create_release(tag: str, log: str):
-    body = {"name": tag, "tag_name": tag, "description": f"## Changelog\n\n{log}"}
     response = requests.post(f"{ci_api_v4_url()}/projects/{ci_project_id()}/releases",
-                             data=json.dumps(body).replace(r'\n', r'<br/>'),
+                             json={"name": tag, "tag_name": tag, "description": f"""## Changelog\n\n{log}"""},
                              headers={"PRIVATE-TOKEN": ci_token(), "Content-Type": "application/json"})
 
     if response.status_code >= 400:
@@ -198,6 +197,7 @@ def sanitize(log: str) -> str:
     sanitized_log = re.sub('>', '&gt;', sanitized_log)
     sanitized_log = re.sub('"', '&quot;', sanitized_log)
     sanitized_log = re.sub("'", "&#39;", sanitized_log)
+    sanitized_log = re.sub(r'\\n', r'<br/>', sanitized_log)
     return sanitized_log
 
 
