@@ -1,3 +1,4 @@
+import argparse
 from subprocess import check_call
 from lib.common import (
     GIT_LOG,
@@ -29,7 +30,13 @@ def config_pip():
     check_call(['pip', 'config', 'set', 'global.trusted-host', f'{nexus_host()}'])
 
 
-def release(args: list, version_dir: str):
+def release(args: list):
+    parser = argparse.ArgumentParser()
+    parser.add_argument("dir", nargs="?")
+    a, _ = parser.parse_known_args(args)
+    version_dir = "src"
+    if a.dir:
+        version_dir = a.dir
     config_git()
     e = env(args)
     tag = e[NEXT_TAG]
@@ -46,12 +53,12 @@ def release(args: list, version_dir: str):
 def version(tag: str, next_version: str, version_dir: str):
     write_version(tag, version_dir)
     git.add(_version_file(version_dir))
-    git.commit("-m", f'"Setting version to {tag}"')
+    git.commit("-m", f'Setting version to {tag}')
     git.push("origin", ci_commit_branch())
-    git.tag("-a", tag, "-m", f'"Setting version to {tag}"')
+    git.tag("-a", tag, "-m", f'Setting version to {tag}')
     git.push("origin", "--tags")
     write_version(next_version, version_dir)
-    git.commit("-am", f'"Setting version to {next_version}"')
+    git.commit("-am", f'Setting version to {next_version}')
     git.push("origin", ci_commit_branch())
 
 

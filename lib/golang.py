@@ -26,7 +26,7 @@ def netrc_file():
 def config_goprivate():
     with open(f"{os.getenv('HOME')}/.netrc", 'a') as netrc:
         netrc.write(netrc_file())
-
+    print(f"export GOPRIVATE={ci_server_host()}:{ci_server_port()}/*")
 
 def env(args: list) -> dict:
     e = common_env(args)

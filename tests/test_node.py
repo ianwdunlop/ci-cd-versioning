@@ -23,7 +23,7 @@ class TestNode:
         mock_git.describe.side_effect = describe
         mock_requests.post.side_effect = fake_response(200)
         release([])
-        mock_call.assert_called_once_with(["npm", "version", "patch", "-m", "Setting version to v%s"])
+        mock_call.assert_called_once_with(["npm", "version", "0.0.1", "-m", "Setting version to %s"])
         mock_node_git.push.assert_any_call("origin", "test-master")
         mock_node_git.push.assert_called_with("origin", "--tags")
 
@@ -32,6 +32,6 @@ class TestNode:
     @mock.patch('lib.node.git')
     def test_version(self, mock_git, mock_call):
         version("major")
-        mock_call.assert_called_once_with(["npm", "version", "major", "-m", "Setting version to v%s"])
+        mock_call.assert_called_once_with(["npm", "version", "major", "-m", "Setting version to %s"])
         mock_git.push.assert_any_call("origin", "test-master")
         mock_git.push.assert_called_with("origin", "--tags")

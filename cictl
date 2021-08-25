@@ -70,10 +70,10 @@ def config_env():
     }
 
     try:
-        e = lang_dict[args.language](sys.argv[1:])
+        e = lang_dict[args.language](sys.argv[4:])
     except KeyError:
         print("warn: called env without a language - using common env setup", file=sys.stderr)
-        e = env(sys.argv[1:])
+        e = env(sys.argv[3:])
     for k, v in e.items():
         print(f"export {k}='{v}'")
 
@@ -135,10 +135,19 @@ def exec_release():
     }
 
     try:
-        lang_dict[args.language](sys.argv[1:])
+        lang_dict[args.language](sys.argv[4:])
     except KeyError:
         print("warn: called release without a language - using common release procedure", file=sys.stderr)
-        release(sys.argv[1:])
+        release(sys.argv[3:])
+
+
+def exec_rebase():
+    parser.add_argument("branch", nargs="?")
+    args, _ = parser.parse_known_args()
+    if args.branch:
+        rebase(args.branch)
+    else:
+        rebase()
 
 
 def executor(argument: str, options: dict):
@@ -177,7 +186,7 @@ config_targets = {
 }
 
 exec_targets = {
-    "rebase": rebase,
+    "rebase": exec_rebase,
     "version": exec_version,
     "release": exec_release,
 }

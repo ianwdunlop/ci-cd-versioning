@@ -18,5 +18,6 @@ COPY lib ./lib
 COPY golang/*.sh .
 
 ENV PATH $PATH:/scripts
+ENV GIT_PYTHON_TRACE full
 
 CMD bash

@@ -10,7 +10,7 @@ class TestGolang:
     @mock.patch.dict(os.environ, {CI_SERVER_HOST: "gitlab.example.com", CI_SERVER_PORT: "443"})
     @mock.patch("lib.common.git")
     def test_env(self, mock_git):
-        mock_git.describe.side_effect = lambda x: "v0.0.0"
+        mock_git.describe.side_effect = lambda x, y: "v0.0.0"
         mock_git.log.side_effect = lambda x, y, z: "hello"
         e = env([])
         assert e[NEXT_TAG] == "v0.0.1"

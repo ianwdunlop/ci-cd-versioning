@@ -13,5 +13,6 @@ COPY cictl .
 COPY lib ./lib
 
 ENV PATH $PATH:/scripts
+ENV GIT_PYTHON_TRACE full
 
 CMD bash

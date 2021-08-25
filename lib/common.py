@@ -3,11 +3,14 @@ import os
 import sys
 import argparse
 import glob
+import logging
 import semver
 import requests
 from requests.models import HTTPError
 from git.cmd import Git
 from git.exc import GitCommandError
+logging.basicConfig()
+logging.root.setLevel(logging.INFO)
 
 # General gitlab CI variables
 CI_PROJECT_ID = "CI_PROJECT_ID"
@@ -139,6 +142,7 @@ def create_release(tag: str, log: str):
                              headers={"PRIVATE-TOKEN": ci_token(), "Content-Type": "application/json"})
 
     if response.status_code >= 400:
+        print(str(response.content))
         raise HTTPError(response.status_code)
 
 
@@ -202,7 +206,7 @@ def sanitize(log: str) -> str:
 
 def latest_tag() -> str:
     try:
-        return git.describe("--abbrev=0")
+        return git.describe("--tags", git.rev_list("--tags", "--max-count=1"))
     except GitCommandError:
         return ""
 
@@ -266,6 +270,7 @@ def create_attachment(pattern: str, tag: str):
                                      headers={"PRIVATE-TOKEN": ci_token()})
 
             if response.status_code >= 400:
+                print(str(response.content))
                 raise HTTPError(response.status_code)
 
         link = response.json()['full_path']
@@ -273,6 +278,7 @@ def create_attachment(pattern: str, tag: str):
                                  data={"name": file, "url": link},
                                  headers={"PRIVATE-TOKEN": ci_token()})
         if response.status_code >= 400:
+            print(str(response.content))
             raise HTTPError(response.status_code)
 
 
