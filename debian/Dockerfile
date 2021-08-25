@@ -11,6 +11,7 @@ RUN pip3 install -r requirements.txt
 
 COPY cictl .
 COPY lib ./lib
+COPY debian/*.sh .
 
 ENV PATH $PATH:/scripts
 ENV GIT_PYTHON_TRACE full
