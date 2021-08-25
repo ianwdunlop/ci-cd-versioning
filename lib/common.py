@@ -165,7 +165,7 @@ def env(args: list) -> dict:
 
 
 def parse_common_flags(args: list) -> dict:
-    env_dict = dict()
+    env_dict = {}
     parser = argparse.ArgumentParser()
 
     parser.add_argument('--rebase-branch', '-r')
