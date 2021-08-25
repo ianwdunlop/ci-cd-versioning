@@ -28,17 +28,11 @@ def release(args: list):
 
 
 def version(tag: str):
-    # The following npm command is behaving very strangely. 
-    # It is supposed to commit the updated package.json and then
-    # tag that commit with the new version. It does this fine when 
-    # invoked with bash. When invoked with python, it seems to only 
-    # update the package.json file. This is why there are additional 
-    # commit and push commands below.
-    check_call(["npm", "version", tag, "-m", "Setting version to %s"])
+    # Call with --no-git-tag-version then commit and tag manually
+    # afterwards. Otherwise this will fail if the npm project is
+    # located in a subfolder.
+    check_call(["npm", "--no-git-tag-version", "version", tag])
     
-    # NOTE: The git commit command will fail if the commit is empty,
-    # meaning that if this npm behaviour is fixed, this function will break.
-    # In this event, just remove the commit and tag commands.
     git.commit("-am", f'Setting version to {tag}')
     git.push("origin", ci_commit_branch())
     git.tag("-a", tag, "-m", f'Setting version to {tag}')

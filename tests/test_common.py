@@ -51,7 +51,6 @@ class TestCommon:
 
     @mock.patch('lib.common.git')
     def test_latest_tag(self, mock_git):
-        # git.describe("--tags", git.rev_list("--tags", "--max-count=1"))
         mock_git.rev_list.side_effect = lambda x,y : 'oraoianroin'
         latest_tag()
         mock_git.rev_list.assert_called_once_with("--tags", "--max-count=1")
