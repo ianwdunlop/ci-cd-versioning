@@ -1,6 +1,7 @@
 import os
 from lib.common import (
     ci_token,
+    fetch_all_and_checkout_latest,
     latest_tag,
     increment,
     parse_common_flags,
@@ -9,7 +10,7 @@ from lib.common import (
     git_log,
     rebase,
     get_rebase_branch,
-    config_git,
+    set_git_config,
     release,
     create_release,
     create_attachment,
@@ -226,14 +227,20 @@ class TestCommon:
                                   CI_SERVER_HOST: "gitlab.example.com", CI_PROJECT_PATH: "project/path",
                                   CI_COMMIT_BRANCH: "test-develop"})
     @mock.patch("lib.common.git")
-    def test_config_git(self, mock_git):
-        config_git()
+    def test_set_git_config(self, mock_git):
+        set_git_config()
         mock_git.remote.assert_called_with("set-url", "origin", "https://project_1_bot:test-token@gitlab.example.com/project/path.git")
         mock_git.config.assert_any_call("user.name", "project_1_bot")
         mock_git.config.assert_called_with("user.email", "project1_bot@example.com")
+
+    @mock.patch.dict(os.environ, {CI_COMMIT_BRANCH: "test-develop"})
+    @mock.patch("lib.common.git")
+    def test_fetch_all_and_checkout_latest(self, mock_git):
+        fetch_all_and_checkout_latest()
         mock_git.fetch.assert_called_with("--all", "--tags")
         mock_git.checkout.assert_called_with("test-develop")
         mock_git.pull.assert_called_with("origin", "test-develop")
+
 
     @mock.patch.dict(os.environ, {CI_TOKEN: "test-token", CI_PROJECT_ID: "1", CI_API_V4_URL: "https://gitlab.example.com/api/v4"})
     @mock.patch('lib.common.requests')

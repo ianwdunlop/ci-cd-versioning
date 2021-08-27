@@ -11,7 +11,8 @@ from lib.common import (
     ci_readonly_token,
     ci_readonly_user,
     rebase,
-    config_git,
+    set_git_config,
+    fetch_all_and_checkout_latest,
     create_attachment,
     version
 )
@@ -41,7 +42,8 @@ def env(args: list) -> dict:
 
 
 def release(args: list):
-    config_git()
+    set_git_config()
+    fetch_all_and_checkout_latest()
     e = env(args)
     tag = e[NEXT_TAG]
     uploads = e[UPLOADS]

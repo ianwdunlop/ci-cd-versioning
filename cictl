@@ -26,7 +26,8 @@ from lib.common import (
     latest_tag,
     rebase,
     release,
-    config_git,
+    set_git_config,
+    fetch_all_and_checkout_latest,
     short_sha,
     create_attachment,
     version
@@ -77,6 +78,10 @@ def config_env():
     for k, v in e.items():
         print(f"export {k}='{v}'")
 
+
+def config_git():
+    set_git_config()
+    fetch_all_and_checkout_latest()
 
 def get_git_log():
     parser.add_argument('tag', nargs="?")

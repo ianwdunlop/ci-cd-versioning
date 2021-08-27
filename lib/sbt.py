@@ -3,7 +3,8 @@ from lib.common import (GIT_LOG,
                         NEXT_TAG,
                         UPLOADS,
                         REBASE_BRANCH,
-                        config_git,
+                        set_git_config,
+                        fetch_all_and_checkout_latest,
                         create_attachment,
                         create_release,
                         env,
@@ -16,7 +17,8 @@ def version(tag: str, next_version: str):
 
 
 def release(args: list):
-    config_git()
+    set_git_config()
+    fetch_all_and_checkout_latest()
     e = env(args)
 
     # next_version has no "v" prefix

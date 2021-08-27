@@ -245,7 +245,8 @@ def get_rebase_branch() -> str:
 
 
 def release(args: list):
-    config_git()
+    set_git_config()
+    fetch_all_and_checkout_latest()
     e = env(args)
     tag = e[NEXT_TAG]
     uploads = e[UPLOADS]
@@ -257,10 +258,13 @@ def release(args: list):
     rebase(rebase_branch)
 
 
-def config_git():
+def set_git_config():
     git.remote("set-url", "origin", f"https://{ci_user()}:{ci_token()}@{ci_server_host()}/{ci_project_path()}.git")
     git.config("user.name", ci_user())
     git.config("user.email", ci_user_email())
+
+
+def fetch_all_and_checkout_latest():
     git.fetch("--all", "--tags")
     git.checkout(ci_commit_branch())
     git.pull("origin", ci_commit_branch())

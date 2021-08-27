@@ -8,14 +8,16 @@ from lib.common import (
     create_release,
     env,
     rebase,
-    config_git,
+    set_git_config,
+    fetch_all_and_checkout_latest,
     create_attachment,
     git
 )
 
 
 def release(args: list):
-    config_git()
+    set_git_config()
+    fetch_all_and_checkout_latest()
     e = env(args)
     tag = e[NEXT_TAG]
     uploads = e[UPLOADS]

@@ -7,7 +7,8 @@ from lib.common import (
     env,
     next_tag,
     rebase,
-    config_git,
+    set_git_config,
+    fetch_all_and_checkout_latest,
     NEXT_TAG,
     UPLOADS,
     short_sha,
@@ -37,7 +38,8 @@ def release(args: list):
     version_dir = "src"
     if a.dir:
         version_dir = a.dir
-    config_git()
+    set_git_config()
+    fetch_all_and_checkout_latest()
     e = env(args)
     tag = e[NEXT_TAG]
     uploads = e[UPLOADS]
