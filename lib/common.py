@@ -133,6 +133,7 @@ def increment(tag: str) -> str:
         return "major"
     if re.match(minor, commit_prefixes) or re.match(minor, branch_prefixes):
         return "minor"
+    
     return "patch"
 
 
@@ -182,6 +183,7 @@ def parse_common_flags(args: list) -> dict:
 def next_tag(tag: str, bump: str) -> str:
     if not tag:
         return "0.0.1"
+
     ver = semver.VersionInfo.parse(tag.lstrip("v"))
     return str(ver.next_version(bump))
 
@@ -191,6 +193,7 @@ def git_log(tag: str = None) -> str:
         log = git.log("--oneline", "--no-merges", f"{tag}..HEAD")
     else:
         log = git.log("--oneline", "--no-merges")
+
     return sanitize(repr(log).strip("'"))
 
 
@@ -237,6 +240,7 @@ def get_rebase_branch() -> str:
             return branch
         except GitCommandError:
             pass
+    
     return ""
 
 
