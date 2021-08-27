@@ -147,21 +147,21 @@ def create_release(tag: str, log: str):
 
 
 def env(args: list) -> dict:
-    e = parse_common_flags(args)
+    env_dict = parse_common_flags(args)
 
     tag = latest_tag()
-    e[LATEST_TAG] = tag
+    env_dict[LATEST_TAG] = tag
 
     bump_amount = increment(tag)
-    e[BUMP] = bump_amount
+    env_dict[BUMP] = bump_amount
 
     release_tag = next_tag(tag, bump_amount)
-    e[NEXT_TAG] = release_tag
+    env_dict[NEXT_TAG] = release_tag
 
     log = git_log(tag)
-    e[GIT_LOG] = log
+    env_dict[GIT_LOG] = log
 
-    return e
+    return env_dict
 
 
 def parse_common_flags(args: list) -> dict:
