@@ -13,7 +13,7 @@ cache:
     - "sbt-cache/target"
 
 default:
-  image: registry.mdcatapult.io/informatics/docker-images/ci/scala
+  image: registry.mdcatapult.io/informatics/docker-images/ci/sbt
   tags:
     - wopr
 
@@ -60,7 +60,7 @@ publish:
 release:
   stage: build
   script:
-    - release.sh -u target/scala-2.13/consumer.jar
+    - cictl exec release sbt -u target/scala-2.13/consumer.jar
   only:
     - master
   except:

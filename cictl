@@ -1,0 +1,207 @@
+#! /usr/bin/env python3
+
+from argparse import ArgumentParser
+import os
+import sys
+
+from lib.python import (
+    config_pip,
+    release as python_release,
+    version as python_version
+)
+
+from lib.golang import (
+    env as go_env,
+    config_goprivate,
+    release as go_release
+)
+
+from lib.common import (
+    GIT_LOG,
+    increment,
+    create_release,
+    env,
+    git_log,
+    next_tag,
+    latest_tag,
+    rebase,
+    release,
+    set_git_config,
+    fetch_all_and_checkout_latest,
+    short_sha,
+    create_attachment,
+    version
+)
+
+from lib.node import (
+    release as node_release,
+    version as node_version
+)
+
+from lib.sbt import (
+    release as sbt_release,
+    version as sbt_version
+)
+
+
+parser = ArgumentParser()
+
+
+def get_increment():
+    parser.add_argument('tag')
+    args = parser.parse_args()
+    print(increment(args.tag))
+
+
+def create_gitlab_release():
+    parser.add_argument('tag')
+    args = parser.parse_args()
+    log = os.getenv(GIT_LOG)
+    if not log:
+        raise EnvironmentError(f"Missing environment variable {GIT_LOG}")
+    create_release(args.tag, log)
+
+
+def config_env():
+    parser.add_argument("language", nargs="?")
+    args, _ = parser.parse_known_args()
+    lang_dict = {
+        "golang": go_env,
+        "go": go_env,
+    }
+
+    try:
+        e = lang_dict[args.language](sys.argv[4:])
+    except KeyError:
+        print("warn: called env without a language - using common env setup", file=sys.stderr)
+        e = env(sys.argv[3:])
+    for k, v in e.items():
+        print(f"export {k}='{v}'")
+
+
+def config_git():
+    set_git_config()
+    fetch_all_and_checkout_latest()
+
+def get_git_log():
+    parser.add_argument('tag', nargs="?")
+    args, _ = parser.parse_known_args()
+    print(git_log(args.tag))
+
+
+def get_next_tag():
+    parser.add_argument('tag')
+    parser.add_argument('increment')
+    args = parser.parse_args()
+    print(next_tag(args.tag, args.increment))
+
+
+def get_latest_tag():
+    print(latest_tag())
+
+
+def get_short_sha():
+    print(short_sha())
+
+
+def create_attach_to_gitlab_release():
+    parser.add_argument("glob")
+    parser.add_argument("tag")
+    args = parser.parse_args()
+    create_attachment(args.glob, args.tag)
+
+
+def exec_version():
+    parser.add_argument("tag")
+    parser.add_argument("language", nargs="?")
+    args, _ = parser.parse_known_args()
+    lang_dict = {
+        "node": node_version,
+        "python": python_version,
+        "sbt": sbt_version,
+    }
+
+    try:
+        lang_dict[args.language](args.tag)
+    except KeyError:
+        print("warn: called version without a language - using common version procedure", file=sys.stderr)
+        version(args.tag)
+
+
+def exec_release():
+    parser.add_argument("language", nargs="?")
+    args, _ = parser.parse_known_args()
+    lang_dict = {
+        "node": node_release,
+        "python": python_release,
+        "sbt": sbt_release,
+        "go": go_release,
+        "golang": go_release,
+    }
+
+    try:
+        lang_dict[args.language](sys.argv[4:])
+    except KeyError:
+        print("warn: called release without a language - using common release procedure", file=sys.stderr)
+        release(sys.argv[3:])
+
+
+def exec_rebase():
+    parser.add_argument("branch", nargs="?")
+    args, _ = parser.parse_known_args()
+    if args.branch:
+        rebase(args.branch)
+    else:
+        rebase()
+
+
+def executor(argument: str, options: dict):
+    def h():
+        print(f'{argument} not found. Options are:')
+        for opt in options.keys():
+            print(f"\t{opt}")
+
+    def e():
+        parser.add_argument(argument)
+        args, _ = parser.parse_known_args()
+        cmd = options.get(getattr(args, argument), h)
+        cmd()
+
+    return e
+
+
+get_resources = {
+    "increment": get_increment,
+    "latest-tag": get_latest_tag,
+    "git-log": get_git_log,
+    "next-tag": get_next_tag,
+    "short-sha": get_short_sha,
+}
+
+create_resources = {
+    "release": create_gitlab_release,
+    "attachment": create_attach_to_gitlab_release,
+}
+
+config_targets = {
+    "pip": config_pip,
+    "goprivate": config_goprivate,
+    "git": config_git,
+    "env": config_env
+}
+
+exec_targets = {
+    "rebase": exec_rebase,
+    "version": exec_version,
+    "release": exec_release,
+}
+
+commands = {
+    'get': executor("resource", get_resources),
+    'create': executor("resource", create_resources),
+    'config': executor("target", config_targets),
+    'exec': executor("target", exec_targets),
+}
+
+if __name__ == "__main__":
+    executor("command", commands)()

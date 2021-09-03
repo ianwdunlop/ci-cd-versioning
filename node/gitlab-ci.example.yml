@@ -39,7 +39,7 @@ publish:
 release:
   stage: release
   script:
-    - release.sh
+    - cictl exec release node
   only:
     - master
   except:
