@@ -46,7 +46,7 @@ publish:
 release:
   stage: release
   script:
-    - release.sh
+    - cictl exec release golang
   only:
     - master
   except:
@@ -75,7 +75,7 @@ publish-master:
 pages:
   stage: docs
   script:
-    - /scripts/godoc.sh
+    - godoc.sh
     - mv godoc public
   artifacts:
     paths:

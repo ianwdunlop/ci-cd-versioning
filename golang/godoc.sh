@@ -1,12 +1,8 @@
 #! /bin/bash
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
-# shellcheck source=.
-. "$DIR/utils.sh"
 
 set -m
 
 GO_MODULE=$(head -n 1 go.mod | cut -f 2 -d ' ')
-reportError $?
 
 godoc &
 PID=$!
@@ -28,9 +24,7 @@ wget    --recursive \
         --directory-prefix="godoc" \
         --no-host-directories \
         "http://localhost:6060/pkg/${GO_MODULE}/"
-reportError $?
 
 find godoc -type f -exec sed -i 's|http://localhost:6060|https://pkg.go.dev|g' {} \;
-reportError $?
 
 kill $PID

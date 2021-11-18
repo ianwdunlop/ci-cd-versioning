@@ -11,9 +11,9 @@ stages:
   - publish
 
 default:
-  image: registry.mdcatapult.io/informatics/docker-images/ci/python:3.6
+  image: registry.mdcatapult.io/informatics/docker-images/ci/python
   before_script:
-    - configure-pip.sh
+    - cictl config pip
 
 lint:
   stage: test
@@ -68,7 +68,7 @@ release:
   tags:
     - wopr
   script:
-    - /scripts/release.sh src
+    - cictl exec release python src
   only:
     - master
   except:
