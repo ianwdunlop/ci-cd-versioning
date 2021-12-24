@@ -91,6 +91,10 @@ class TestCommon:
         inc = increment("0.0.0")
         assert inc == "major"
 
+        mock_git.log.side_effect = new_mock_log("Merge branch 'breaking-change/1234/something' into 'develop'", "0.0.0")
+        inc = increment("0.0.0")
+        assert inc == "major"
+
         mock_git.log.side_effect = new_mock_log("breaking-change:", "0.0.0")
         inc = increment("0.0.0")
         assert inc == "major"
@@ -104,6 +108,10 @@ class TestCommon:
         assert inc == "major"
 
         mock_git.log.side_effect = new_mock_log("feature/", "0.0.0")
+        inc = increment("0.0.0")
+        assert inc == "minor"
+
+        mock_git.log.side_effect = new_mock_log("Merge branch 'feature/1234/something' into 'develop'", "0.0.0")
         inc = increment("0.0.0")
         assert inc == "minor"
 

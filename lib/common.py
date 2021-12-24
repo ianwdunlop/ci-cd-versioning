@@ -120,12 +120,12 @@ def increment(tag: str) -> str:
     minor = r"feature|minor"
 
     if tag:
-        commit_prefixes = re.sub(fr"({major}|{minor}):.*", r"\1",
+        commit_prefixes = re.sub(fr".*({major}|{minor}).*", r"\1",
                                  git.log("--no-merges", '--pretty=format:%s', f"{tag}..HEAD"))
         branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch()}'", r"\1",
                                  git.log("--merges", "--oneline", f"{tag}..HEAD"))
     else:
-        commit_prefixes = re.sub(fr"({major}|{minor}):.*", r"\1", git.log("--no-merges", '--pretty=format:%s'))
+        commit_prefixes = re.sub(fr".*({major}|{minor}).*", r"\1", git.log("--no-merges", '--pretty=format:%s'))
         branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch()}'", "\1",
                                  git.log("--merges", "--oneline"))
 
