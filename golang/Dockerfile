@@ -6,7 +6,10 @@ RUN git lfs install
 
 WORKDIR /scripts
 
-RUN curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
+RUN echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | tee /etc/apt/sources.list.d/goreleaser.list
+RUN apt update
+RUN apt install goreleaser
+#RUN curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
 RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.38.0
 RUN go get -u golang.org/x/tools/...
 
