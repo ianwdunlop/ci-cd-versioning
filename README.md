@@ -46,8 +46,10 @@ Requires python3.6+, virtualenv and docker. The `example.env` file contains all 
 # environment:
 git clone git@gitlab.mdcatapult.io:informatics/docker-images/ci.git
 cd ci
-virtualenv venv
-. venv/bin/activate
+virtualenv -p python3.7 venv
+source venv/bin/activate
+echo -e "[global]\nindex = https://nexus.wopr.inf.mdc/repository/pypi-all/pypi\nindex-url = https://nexus.wopr.inf.mdc/repository/pypi-all/simple" > venv/pip.conf
+pip install -r requirements.txt
 
 # testing the commands directly:
 # (fill out the .env file first)
