@@ -280,9 +280,8 @@ def create_attachment(pattern: str, tag: str):
             if response.status_code >= 400:
                 print(str(response.content))
                 raise HTTPError(response.status_code)
-        print(f"Response is {response.json()}")
-        link = response.json()['full_path']
-        print(f"links url is {link}")
+        # Full URL path not just absolute path to file, see https://docs.gitlab.com/ee/user/project/releases/#links
+        link = f"https://{ci_server_host()}{response.json()['full_path']}"
         response = requests.post(f"{ci_api_v4_url()}/projects/{ci_project_id()}/releases/{tag}/assets/links",
                                  data={"name": file, "url": link},
                                  headers={"PRIVATE-TOKEN": ci_token()})
