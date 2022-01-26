@@ -263,7 +263,7 @@ class TestCommon:
         with pytest.raises(HTTPError):
             create_release("0.0.0", "my log")
 
-    @mock.patch.dict(os.environ, {CI_TOKEN: "test-token", CI_PROJECT_ID: "1", CI_API_V4_URL: "https://gitlab.example.com/api/v4"})
+    @mock.patch.dict(os.environ, {CI_TOKEN: "test-token", CI_PROJECT_ID: "1", CI_API_V4_URL: "https://gitlab.example.com/api/v4", CI_SERVER_HOST: "gitlab.example.com"})
     @mock.patch('lib.common.requests')
     @mock.patch('lib.common.glob')
     @mock.patch('builtins.open', read_data="data")
@@ -281,7 +281,7 @@ class TestCommon:
         mock_glob.glob.assert_called_with("*", recursive=True)
         mock_open.assert_called_with("my-upload.txt", "rb")
         mock_requests.post.assert_called_with("https://gitlab.example.com/api/v4/projects/1/releases/0.0.0/assets/links",
-                                                       data={"name": "my-upload.txt", "url": "/namespace1/project1/uploads/66dbcd21ec5d24ed6ea225176098d52b/my-upload.txt"},
+                                                       data={"name": "my-upload.txt", "url": "https://gitlab.example.com/namespace1/project1/uploads/66dbcd21ec5d24ed6ea225176098d52b/my-upload.txt"},
                                                        headers={"PRIVATE-TOKEN": "test-token"})
 
     @mock.patch.dict(os.environ, {CI_TOKEN: "test-token", CI_COMMIT_BRANCH: "test-master"})
