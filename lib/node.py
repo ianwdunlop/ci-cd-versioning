@@ -49,9 +49,9 @@ def create_multiple_releases(args: list, tag, log):
         if '--release-path-2' in arg:
             release_path_2 = arg.split('=')[1]
 
-    for release in [[release_tag_1, release_path_1], [release_tag_2, release_path_2]]:
+    for release_params in [[release_tag_1, release_path_1], [release_tag_2, release_path_2]]:
 
-        [release_tag, release_path] = release
+        [release_tag, release_path] = release_params
 
         version(release_tag)
         create_release(release_tag, log)
