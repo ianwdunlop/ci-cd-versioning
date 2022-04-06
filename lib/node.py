@@ -24,8 +24,6 @@ def release(args: list):
     log = e[GIT_LOG]
     rebase_branch = e[REBASE_BRANCH]
 
-    print('ARGS:', args)
-    print('about to check create multiple releases')
     for arg in args: 
         if '--release-path-1' in arg:
             create_multiple_releases(args, tag, log)
