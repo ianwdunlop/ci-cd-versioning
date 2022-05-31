@@ -9,7 +9,7 @@ WORKDIR /scripts
 RUN echo 'deb [trusted=yes] https://repo.goreleaser.com/apt/ /' | tee /etc/apt/sources.list.d/goreleaser.list
 RUN apt-get update -yqq && apt-get install goreleaser -yqq
 #RUN curl -sfL https://install.goreleaser.com/github.com/goreleaser/goreleaser.sh | sh
-RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.38.0
+RUN curl -sSfL https://raw.githubusercontent.com/golangci/golangci-lint/master/install.sh | sh -s -- -b $(go env GOPATH)/bin v1.46.2
 RUN go install golang.org/x/tools/...@latest
 
 COPY requirements.txt .
