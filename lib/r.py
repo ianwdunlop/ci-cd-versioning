@@ -77,3 +77,12 @@ def write_version(tag: str, version_dir: str):
 
 def _version_file(version_dir: str) -> str:
     return f"{version_dir}/DESCRIPTION"
+
+# Use curl to upload R package to repository
+# tag = latest semantic version (before bumping version)
+# name = the name of the built package eg mdcworld
+def upload_package(tag, name):
+    # Use curl to upload package to repo
+    # Maybe we do it all from the ci yaml directly with curl? All the vars should be available for use
+    # curl -v --user 'username:password' --upload-file package.tar.gz https://nexus.wopr.inf.mdc/repository/r-hosted/src/contrib/package.tar.gz
+    return "success"

@@ -37,7 +37,7 @@ publish-stable:
     - R -e "BiocManager::install('rols')"
     - R -e "devtools::install_deps(dependencies = TRUE)"
     - R CMD build . --no-build-vignettes --no-manual
-    - curl -v --user 'username:password' --upload-file package.tar.gz https://nexus.wopr.inf.mdc/repository/r-hosted/src/contrib/package.tar.gz
+    - cictl exec publish r $NEXT_TAG "package_name"
   only:
     refs:
       - tags
