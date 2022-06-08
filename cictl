@@ -4,6 +4,11 @@ from argparse import ArgumentParser
 import os
 import sys
 
+from lib.r import {
+    release as r_release,
+    version as r_version
+}
+
 from lib.python import (
     config_pip,
     release as python_release,
