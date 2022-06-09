@@ -37,7 +37,9 @@ publish-stable:
     - R -e "BiocManager::install('rols')"
     - R -e "devtools::install_deps(dependencies = TRUE)"
     - R CMD build . --no-build-vignettes --no-manual
-    - cictl exec publish r $NEXT_TAG "package_name"
+    - PACKAGE_NAME="mdcworld_$NEXT_TAG.tar.gz"
+    - PACKAGE_URL="https://nexus.wopr.inf.mdc/repository/r-hosted/src/contrib/$PACKAGE_NAME"
+    - curl -v -u $NEXUS_USERNAME:$NEXUS_PASSWORD --upload-file $PACKAGE_NAME $PACKAGE_URL
   only:
     refs:
       - tags

@@ -12,6 +12,7 @@ from lib.common import (
     set_git_config,
     fetch_all_and_checkout_latest,
     NEXT_TAG,
+    LATEST_TAG,
     UPLOADS,
     short_sha,
     create_attachment,
@@ -37,52 +38,49 @@ def release(args: list):
     parser = argparse.ArgumentParser()
     parser.add_argument("dir", nargs="?")
     a, _ = parser.parse_known_args(args)
-    version_dir = "."
+    version_dir = "src"
     if a.dir:
         version_dir = a.dir
     set_git_config()
     fetch_all_and_checkout_latest()
     e = env(args)
+    current_tag = e[LATEST_TAG]
     tag = e[NEXT_TAG]
     uploads = e[UPLOADS]
     log = e[GIT_LOG]
     rebase_branch = e[REBASE_BRANCH]
     next_version = next_tag(tag, "patch") + "a0"
-    version(tag, next_version, version_dir)
+    version(current_tag, tag, next_version, version_dir)
     create_release(tag, log)
     create_attachment(uploads, tag)
     rebase(rebase_branch)
 
 
-def version(tag: str, next_version: str, version_dir: str):
-    write_version(tag, version_dir)
+def version(previous_tag: str, new_tag: str, next_version: str, version_dir: str):
+    write_version(previous_tag, new_tag, version_dir)
     git.add(_version_file(version_dir))
-    git.commit("-m", f'Setting version to {tag}')
+    git.commit("-m", f'Setting version to {new_tag}')
     git.push("origin", ci_commit_branch())
-    git.tag("-a", tag, "-m", f'Setting version to {tag}')
+    git.tag("-a", new_tag, "-m", f'Setting version to {new_tag}')
     git.push("origin", "--tags")
+    print(f'previous {previous_tag} tag {new_tag} next {next_version}, dir {version_dir}')
     write_version(next_version, version_dir)
     git.commit("-am", f'Setting version to {next_version}')
     git.push("origin", ci_commit_branch())
 
 
 # Write the latest tag ie semantic version tag out to the DESCRIPTION file
-def write_version(tag: str, version_dir: str):
+def write_version(development_version: str, version_dir: str):
     with open(_version_file(version_dir), "w") as f:
         content = f.read()
-        version_regex = r'^(Version: *)(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)'
-        next_version = re.sub(version_regex, f'Version: {tag}', content, re.M)
+        version_regex = (r'(^Version: *)((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|' 
+                         r'\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-]' 
+                         r'[0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$)')
+        # description_version = re.search(version_regex, content).group(2)
+        development_version = re.sub(version_regex, f'Version: {development_version}', content, re.M)
     with open(_version_file(version_dir), "w") as f:
-        f.write(next_version)
+        f.write(development_version)
+
 
 def _version_file(version_dir: str) -> str:
     return f"{version_dir}/DESCRIPTION"
-
-# Use curl to upload R package to repository
-# tag = latest semantic version (before bumping version)
-# name = the name of the built package eg mdcworld
-def upload_package(tag, name):
-    # Use curl to upload package to repo
-    # Maybe we do it all from the ci yaml directly with curl? All the vars should be available for use
-    # curl -v --user 'username:password' --upload-file package.tar.gz https://nexus.wopr.inf.mdc/repository/r-hosted/src/contrib/package.tar.gz
-    return "success"
