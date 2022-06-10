@@ -50,20 +50,19 @@ def release(args: list):
     log = e[GIT_LOG]
     rebase_branch = e[REBASE_BRANCH]
     next_version = next_tag(tag, "patch") + "a0"
-    version(current_tag, tag, next_version, version_dir)
+    version(tag, next_version, version_dir)
     create_release(tag, log)
     create_attachment(uploads, tag)
     rebase(rebase_branch)
 
 
-def version(previous_tag: str, new_tag: str, next_version: str, version_dir: str):
-    write_version(previous_tag, new_tag, version_dir)
+def version(new_tag: str, next_version: str, version_dir: str):
+    write_version(new_tag, version_dir)
     git.add(_version_file(version_dir))
     git.commit("-m", f'Setting version to {new_tag}')
     git.push("origin", ci_commit_branch())
     git.tag("-a", new_tag, "-m", f'Setting version to {new_tag}')
     git.push("origin", "--tags")
-    print(f'previous {previous_tag} tag {new_tag} next {next_version}, dir {version_dir}')
     write_version(next_version, version_dir)
     git.commit("-am", f'Setting version to {next_version}')
     git.push("origin", ci_commit_branch())

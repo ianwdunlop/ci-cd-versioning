@@ -81,7 +81,7 @@ class TestR(unittest.TestCase):
     @mock.patch("lib.r.write_version")
     @mock.patch("lib.r.git")
     def test_version(self, mock_git, version_writer):
-        version("0.0.1", "0.0.2", "0.0.2a0", "dir")
+        version("0.0.2", "0.0.2a0", "dir")
         version_writer.assert_any_call("0.0.2a0", "dir")
         mock_git.add.assert_any_call("dir/DESCRIPTION")
         mock_git.commit.assert_any_call("-m", 'Setting version to 0.0.2')
