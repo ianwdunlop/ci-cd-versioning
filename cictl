@@ -4,10 +4,6 @@ from argparse import ArgumentParser
 import os
 import sys
 
-from lib.r import {
-    release as r_release,
-    version as r_version
-}
 
 from lib.python import (
     config_pip,
@@ -46,6 +42,11 @@ from lib.node import (
 from lib.sbt import (
     release as sbt_release,
     version as sbt_version
+)
+
+from lib.r import (
+    release as r_release,
+    version as r_version
 )
 
 
@@ -124,6 +125,7 @@ def exec_version():
         "node": node_version,
         "python": python_version,
         "sbt": sbt_version,
+        "r": r_version
     }
 
     try:
@@ -142,6 +144,7 @@ def exec_release():
         "sbt": sbt_release,
         "go": go_release,
         "golang": go_release,
+        "r": r_release
     }
 
     try:
