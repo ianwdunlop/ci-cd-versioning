@@ -1,7 +1,6 @@
 import argparse
 import re
-from pathlib import Path
-from subprocess import check_call
+
 from lib.common import (
     GIT_LOG,
     REBASE_BRANCH,
@@ -12,26 +11,11 @@ from lib.common import (
     set_git_config,
     fetch_all_and_checkout_latest,
     NEXT_TAG,
-    LATEST_TAG,
     UPLOADS,
-    short_sha,
     create_attachment,
     ci_commit_branch,
-    nexus_username,
-    nexus_password,
-    nexus_host,
     git
 )
-
-
-# def config_r():
-#     index_path = "repository/r-hosted"
-#     index_url_path = "repository/pypi-all/simple"
-#     check_call(["pip", "config", "set", "global.index",
-#                 f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_path}"])
-#     check_call(["pip", "config", "set", "global.index-url",
-#                 f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_url_path}"])
-#     check_call(['pip', 'config', 'set', 'global.trusted-host', f'{nexus_host()}'])
 
 
 def release(args: list):
@@ -44,7 +28,6 @@ def release(args: list):
     set_git_config()
     fetch_all_and_checkout_latest()
     e = env(args)
-    current_tag = e[LATEST_TAG]
     tag = e[NEXT_TAG]
     uploads = e[UPLOADS]
     log = e[GIT_LOG]
@@ -68,13 +51,13 @@ def version(new_tag: str, next_version: str, version_dir: str):
     git.push("origin", ci_commit_branch())
 
 
-# Write the latest tag ie semantic version tag out to the DESCRIPTION file
-# development_version is the next dev tag eg 1.2.3a0.
-def write_version(development_version: str, version_dir: str):
+# Write a tag, ie semantic version eg 1.2.3, out to the DESCRIPTION file
+# It could be a release version eg 2.3.4 or a development version eg 2.3.5a0
+def write_version(tag: str, version_dir: str):
     with open(_version_file(version_dir), "r") as f:
         content = f.read()
         version_regex = '(Version *.*)'
-        replaced_content = re.sub(version_regex, f'Version: {development_version}', content, re.M)
+        replaced_content = re.sub(version_regex, f'Version: {tag}', content, re.M)
     with open(_version_file(version_dir), "w") as f:
         f.write(replaced_content)
 
