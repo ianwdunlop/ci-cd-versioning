@@ -1,11 +1,15 @@
 import os
+import shutil
+import re
+import unittest
 from unittest import mock
+
 from lib.common import NEXUS_USERNAME, NEXUS_PASSWORD, CI_TOKEN, CI_COMMIT_BRANCH
-from lib.r import release, version
+from lib.r import release, version, write_version
 from helpers import fake_response
 
 
-class TestR:
+class TestR(unittest.TestCase):
     @mock.patch.dict(os.environ, {NEXUS_USERNAME: "user", NEXUS_PASSWORD: "pass"})
     @mock.patch.dict(os.environ, {CI_TOKEN: "token"})
     @mock.patch('lib.r.write_version')
@@ -89,4 +93,14 @@ class TestR:
         mock_git.push.assert_any_call("origin", "test-master")
 
     def test_write_version(self):
-        pass
+        shutil.copyfile('tests/data/DESCRIPTION_EXAMPLE', 'tests/data/DESCRIPTION')
+        write_version("0.1.0a0", "tests/data")
+        with open('tests/data/DESCRIPTION', "r") as f:
+            content = f.read()
+            reg = re.search('(Version: 0.1.0a0)', content, re.M).group(0)
+            self.assertEqual('Version: 0.1.0a0', reg)
+
+    @classmethod
+    def tearDownClass(TestR):
+        os.remove('tests/data/DESCRIPTION')
+

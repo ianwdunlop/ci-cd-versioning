@@ -70,16 +70,14 @@ def version(previous_tag: str, new_tag: str, next_version: str, version_dir: str
 
 
 # Write the latest tag ie semantic version tag out to the DESCRIPTION file
+# development_version is the next dev tag eg 1.2.3a0.
 def write_version(development_version: str, version_dir: str):
-    with open(_version_file(version_dir), "w") as f:
+    with open(_version_file(version_dir), "r") as f:
         content = f.read()
-        version_regex = (r'(^Version: *)((0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:-((?:0|[1-9]\d*|' 
-                         r'\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-]' 
-                         r'[0-9a-zA-Z-]*))*))?(?:\+([0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$)')
-        # description_version = re.search(version_regex, content).group(2)
-        development_version = re.sub(version_regex, f'Version: {development_version}', content, re.M)
+        version_regex = '(Version *.*)'
+        replaced_content = re.sub(version_regex, f'Version: {development_version}', content, re.M)
     with open(_version_file(version_dir), "w") as f:
-        f.write(development_version)
+        f.write(replaced_content)
 
 
 def _version_file(version_dir: str) -> str:
