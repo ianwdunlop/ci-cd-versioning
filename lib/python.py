@@ -20,6 +20,8 @@ from lib.common import (
     git
 )
 
+development_version_tag = "a0"
+
 
 def config_pip():
     index_path = "repository/pypi-all/pypi"
@@ -45,7 +47,7 @@ def release(args: list):
     uploads = e[UPLOADS]
     log = e[GIT_LOG]
     rebase_branch = e[REBASE_BRANCH]
-    next_version = next_tag(tag, "patch") + "a0"
+    next_version = next_tag(tag, "patch") + development_version_tag
     version(tag, next_version, version_dir)
     create_release(tag, log)
     create_attachment(uploads, tag)
