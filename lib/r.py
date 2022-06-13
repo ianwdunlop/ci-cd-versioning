@@ -32,7 +32,7 @@ def release(args: list):
     uploads = e[UPLOADS]
     log = e[GIT_LOG]
     rebase_branch = e[REBASE_BRANCH]
-    next_version = next_tag(tag, "patch") + "a0"
+    next_version = next_tag(tag, "patch") + ".9000"
     version(tag, next_version, version_dir)
     create_release(tag, log)
     create_attachment(uploads, tag)
