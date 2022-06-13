@@ -1,5 +1,6 @@
 import argparse
-from subprocess import check_call
+import re
+
 from lib.common import (
     GIT_LOG,
     REBASE_BRANCH,
@@ -11,26 +12,12 @@ from lib.common import (
     fetch_all_and_checkout_latest,
     NEXT_TAG,
     UPLOADS,
-    short_sha,
     create_attachment,
     ci_commit_branch,
-    nexus_username,
-    nexus_password,
-    nexus_host,
     git
 )
 
-development_version_tag = "a0"
-
-
-def config_pip():
-    index_path = "repository/pypi-all/pypi"
-    index_url_path = "repository/pypi-all/simple"
-    check_call(["pip", "config", "set", "global.index",
-                f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_path}"])
-    check_call(["pip", "config", "set", "global.index-url",
-                f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_url_path}"])
-    check_call(['pip', 'config', 'set', 'global.trusted-host', f'{nexus_host()}'])
+development_version_tag = ".9000"
 
 
 def release(args: list):
@@ -66,10 +53,16 @@ def version(tag: str, next_version: str, version_dir: str):
     git.push("origin", ci_commit_branch())
 
 
+# Write a tag, ie semantic version eg 1.2.3, out to the DESCRIPTION file
+# It could be a release version eg 2.3.4 or a development version eg 2.3.5a0
 def write_version(tag: str, version_dir: str):
+    with open(_version_file(version_dir), "r") as f:
+        content = f.read()
+        version_regex = '(\\r\\n|\\r|\\nVersion: *.*)'
+        replaced_content = re.sub(version_regex, f'\\nVersion: {tag}', content, re.M)
     with open(_version_file(version_dir), "w") as f:
-        f.writelines([f"__version__ = \"{tag}\"\n", f"__hash__ = \"{short_sha()}\"\n"])
+        f.write(replaced_content)
 
 
 def _version_file(version_dir: str) -> str:
-    return f"{version_dir}/version.py"
+    return f"{version_dir}/DESCRIPTION"
