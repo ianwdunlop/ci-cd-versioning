@@ -58,8 +58,8 @@ def version(tag: str, next_version: str, version_dir: str):
 def write_version(tag: str, version_dir: str):
     with open(_version_file(version_dir), "r") as f:
         content = f.read()
-        version_regex = '(\\r\\n|\\r|\\nVersion: *.*)'
-        replaced_content = re.sub(version_regex, f'\\nVersion: {tag}', content, re.M)
+        version_regex = '(Version: *.*)'
+        replaced_content = re.sub(version_regex, f'Version: {tag}', content, re.M)
     with open(_version_file(version_dir), "w") as f:
         f.write(replaced_content)
 
