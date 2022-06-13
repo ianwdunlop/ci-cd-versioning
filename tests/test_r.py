@@ -100,7 +100,7 @@ class TestR(unittest.TestCase):
             reg = re.search('(\\nVersion: 0.1.0.9000)', content, re.M).group(0)
             self.assertEqual('\nVersion: 0.1.0.9000', reg)
 
-    # @classmethod
-    # def tearDownClass(TestR):
-    #     os.remove('tests/data/DESCRIPTION')
+    @classmethod
+    def tearDownClass(TestR):
+        os.remove('tests/data/DESCRIPTION')
 
