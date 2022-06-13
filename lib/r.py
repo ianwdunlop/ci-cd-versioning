@@ -1,5 +1,6 @@
 import argparse
-import re
+# import re
+import shutil
 
 from lib.common import (
     GIT_LOG,
@@ -56,12 +57,13 @@ def version(tag: str, next_version: str, version_dir: str):
 # Write a tag, ie semantic version eg 1.2.3, out to the DESCRIPTION file
 # It could be a release version eg 2.3.4 or a development version eg 2.3.5a0
 def write_version(tag: str, version_dir: str):
-    with open(_version_file(version_dir), "r") as f:
-        content = f.read()
-        version_regex = '(\nVersion: *.*)'
-        replaced_content = re.sub(version_regex, f'\nVersion: {tag}', content, re.M)
-    with open(_version_file(version_dir), "w") as f:
-        f.write(replaced_content)
+    with open(_version_file(version_dir)) as f_in, open(f"{version_dir}/DESCRIPTION2", 'w') as f_out:
+        for line in f_in:
+            if line.startswith("Version:"):
+                f_out.write(f"Version: {tag}\n")
+            else:
+                f_out.write(line)
+    shutil.move(f"{version_dir}/DESCRIPTION2", _version_file(version_dir))
 
 
 def _version_file(version_dir: str) -> str:
