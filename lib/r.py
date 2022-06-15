@@ -1,5 +1,4 @@
 import argparse
-# import re
 import shutil
 
 from lib.common import (
@@ -47,10 +46,14 @@ def version(tag: str, next_version: str, version_dir: str):
     git.add(_version_file(version_dir))
     git.commit("-m", f'Setting version to {tag}')
     git.push("origin", ci_commit_branch())
-    git.tag("-a", tag, "-m", f'Setting version to {tag}')
+    version_text = f'Setting version to {tag}'
+    git.tag("-a", tag, "-m", version_text)
+    # git.tag("-a", tag, "-m", f'Setting version to {tag}')
     git.push("origin", "--tags")
     write_version(next_version, version_dir)
-    git.commit("-am", f'Setting version to {next_version}')
+    next_version_text = f'Setting version to {next_version}'
+    git.commit("-am", next_version_text)
+    # git.commit("-am", f'Setting version to {next_version}')
     git.push("origin", ci_commit_branch())
 
 
