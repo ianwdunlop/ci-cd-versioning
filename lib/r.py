@@ -43,10 +43,10 @@ def release(args: list):
 
 def version(tag: str, next_version: str, version_dir: str):
     write_version(tag, version_dir)
-    git.add(_version_file(version_dir))
-    git.commit("-m", f'Setting version to {tag}')
-    git.push("origin", ci_commit_branch())
     version_text = f'Setting version to {tag}'
+    git.add(_version_file(version_dir))
+    git.commit("-m", version_text)
+    git.push("origin", ci_commit_branch())
     git.tag("-a", tag, "-m", version_text)
     # git.tag("-a", tag, "-m", f'Setting version to {tag}')
     git.push("origin", "--tags")
