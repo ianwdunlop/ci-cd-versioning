@@ -1,5 +1,5 @@
 import argparse
-import re
+import shutil
 
 from lib.common import (
     GIT_LOG,
@@ -43,25 +43,30 @@ def release(args: list):
 
 def version(tag: str, next_version: str, version_dir: str):
     write_version(tag, version_dir)
+    version_text = f'Setting version to {tag}'
     git.add(_version_file(version_dir))
-    git.commit("-m", f'Setting version to {tag}')
+    git.commit("-m", version_text)
     git.push("origin", ci_commit_branch())
-    git.tag("-a", tag, "-m", f'Setting version to {tag}')
+    git.tag("-a", tag, "-m", version_text)
+    # git.tag("-a", tag, "-m", f'Setting version to {tag}')
     git.push("origin", "--tags")
     write_version(next_version, version_dir)
-    git.commit("-am", f'Setting version to {next_version}')
+    next_version_text = f'Setting version to {next_version}'
+    git.commit("-am", next_version_text)
+    # git.commit("-am", f'Setting version to {next_version}')
     git.push("origin", ci_commit_branch())
 
 
 # Write a tag, ie semantic version eg 1.2.3, out to the DESCRIPTION file
 # It could be a release version eg 2.3.4 or a development version eg 2.3.5a0
 def write_version(tag: str, version_dir: str):
-    with open(_version_file(version_dir), "r") as f:
-        content = f.read()
-        version_regex = '(\\r\\n|\\r|\\nVersion: *.*)'
-        replaced_content = re.sub(version_regex, f'\\nVersion: {tag}', content, re.M)
-    with open(_version_file(version_dir), "w") as f:
-        f.write(replaced_content)
+    with open(_version_file(version_dir)) as f_in, open(f"{version_dir}/DESCRIPTION2", 'w') as f_out:
+        for line in f_in:
+            if line.startswith("Version:"):
+                f_out.write(f"Version: {tag}\n")
+            else:
+                f_out.write(line)
+    shutil.move(f"{version_dir}/DESCRIPTION2", _version_file(version_dir))
 
 
 def _version_file(version_dir: str) -> str:

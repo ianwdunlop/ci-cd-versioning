@@ -97,7 +97,7 @@ class TestR(unittest.TestCase):
         write_version("0.1.0.9000", "tests/data")
         with open('tests/data/DESCRIPTION', "r") as f:
             content = f.read()
-            reg = re.search('(\\nVersion: 0.1.0.9000)', content, re.M).group(0)
+            reg = re.search('(\nVersion: 0.1.0.9000)', content, re.M).group(0)
             self.assertEqual('\nVersion: 0.1.0.9000', reg)
 
     @classmethod
