@@ -153,6 +153,19 @@ node:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
+r:
+  stage: build
+  script:
+    - |
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile r/Dockerfile \
+      --destination $CI_REGISTRY_IMAGE/r:latest \
+      --destination $CI_REGISTRY_IMAGE/r:$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
 debian-dev:
   stage: build-dev
   script:
@@ -234,6 +247,17 @@ node-dev:
   stage: build-dev
   script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile node/Dockerfile --destination $CI_REGISTRY_IMAGE/node:$CI_COMMIT_REF_SLUG
+  except:
+    refs:
+      - master
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+r-dev:
+  stage: build-dev
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile r/Dockerfile --destination $CI_REGISTRY_IMAGE/r:$CI_COMMIT_REF_SLUG
   except:
     refs:
       - master

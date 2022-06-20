@@ -1,5 +1,6 @@
 import argparse
-from subprocess import check_call
+import shutil
+
 from lib.common import (
     GIT_LOG,
     REBASE_BRANCH,
@@ -11,26 +12,12 @@ from lib.common import (
     fetch_all_and_checkout_latest,
     NEXT_TAG,
     UPLOADS,
-    short_sha,
     create_attachment,
     ci_commit_branch,
-    nexus_username,
-    nexus_password,
-    nexus_host,
     git
 )
 
-development_version_tag = "a0"
-
-
-def config_pip():
-    index_path = "repository/pypi-all/pypi"
-    index_url_path = "repository/pypi-all/simple"
-    check_call(["pip", "config", "set", "global.index",
-                f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_path}"])
-    check_call(["pip", "config", "set", "global.index-url",
-                f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_url_path}"])
-    check_call(['pip', 'config', 'set', 'global.trusted-host', f'{nexus_host()}'])
+development_version_tag = ".9000"
 
 
 def release(args: list):
@@ -56,20 +43,31 @@ def release(args: list):
 
 def version(tag: str, next_version: str, version_dir: str):
     write_version(tag, version_dir)
+    version_text = f'Setting version to {tag}'
     git.add(_version_file(version_dir))
-    git.commit("-m", f'Setting version to {tag}')
+    git.commit("-m", version_text)
     git.push("origin", ci_commit_branch())
-    git.tag("-a", tag, "-m", f'Setting version to {tag}')
+    git.tag("-a", tag, "-m", version_text)
+    # git.tag("-a", tag, "-m", f'Setting version to {tag}')
     git.push("origin", "--tags")
     write_version(next_version, version_dir)
-    git.commit("-am", f'Setting version to {next_version}')
+    next_version_text = f'Setting version to {next_version}'
+    git.commit("-am", next_version_text)
+    # git.commit("-am", f'Setting version to {next_version}')
     git.push("origin", ci_commit_branch())
 
 
+# Write a tag, ie semantic version eg 1.2.3, out to the DESCRIPTION file
+# It could be a release version eg 2.3.4 or a development version eg 2.3.5a0
 def write_version(tag: str, version_dir: str):
-    with open(_version_file(version_dir), "w") as f:
-        f.writelines([f"__version__ = \"{tag}\"\n", f"__hash__ = \"{short_sha()}\"\n"])
+    with open(_version_file(version_dir)) as f_in, open(f"{version_dir}/DESCRIPTION2", 'w') as f_out:
+        for line in f_in:
+            if line.startswith("Version:"):
+                f_out.write(f"Version: {tag}\n")
+            else:
+                f_out.write(line)
+    shutil.move(f"{version_dir}/DESCRIPTION2", _version_file(version_dir))
 
 
 def _version_file(version_dir: str) -> str:
-    return f"{version_dir}/version.py"
+    return f"{version_dir}/DESCRIPTION"

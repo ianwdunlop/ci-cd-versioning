@@ -1,0 +1,21 @@
+Package: r-ci-test
+Title: R CI Release Test
+Version: 0.0.1
+Authors@R:
+    person(given = "My",
+           family = "Name",
+           role = c("aut", "cre"),
+           email = "my.email@somewhere.in.time")
+Description: This is a simple test of the gitlab CI release process for R.
+License: `use_apache_license()`
+LazyData: true
+Depends:
+    R (>= 4.0
+Imports:)
+    data.table (>= 1.9.4),
+    dplyr
+URL: https://are.you.still.reading.this
+VignetteBuilder: knitr
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.2
+Encoding: UTF-8
