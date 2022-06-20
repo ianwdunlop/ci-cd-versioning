@@ -32,14 +32,12 @@ publish-stable:
   tags:
     - wopr
   script:
-    - mkdir -p $R_LIBS_USER $CHECK_DIR
-    - R -e "install.packages('BiocManager')"
     - R -e "BiocManager::install('rols')"
     - R -e "devtools::install_deps(dependencies = TRUE)"
     - R CMD build . --no-build-vignettes --no-manual
     - PACKAGE_NAME="mdcworld_$NEXT_TAG.tar.gz"
     - PACKAGE_URL="https://nexus.wopr.inf.mdc/repository/r-hosted/src/contrib/$PACKAGE_NAME"
-    - curl -v -u $NEXUS_USERNAME:$NEXUS_PASSWORD --upload-file $PACKAGE_NAME $PACKAGE_URL
+    - curl -k -v -u $NEXUS_USERNAME:$NEXUS_PASSWORD --upload-file $PACKAGE_NAME $PACKAGE_URL
   only:
     refs:
       - tags
