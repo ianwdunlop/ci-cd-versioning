@@ -140,6 +140,48 @@ python3.7:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
+python3.8:
+  stage: build
+  script:
+    - |
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile \
+      --build-arg TAG=3.8 \
+      --destination $CI_REGISTRY_IMAGE/python:3.8 \
+      --destination $CI_REGISTRY_IMAGE/python:3.8-$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+python3.9:
+  stage: build
+  script:
+    - |
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile \
+      --build-arg TAG=3.9 \
+      --destination $CI_REGISTRY_IMAGE/python:3.9 \
+      --destination $CI_REGISTRY_IMAGE/python:3.9-$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+python3.10:
+  stage: build
+  script:
+    - |
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile \
+      --build-arg TAG=3.10 \
+      --destination $CI_REGISTRY_IMAGE/python:3.10 \
+      --destination $CI_REGISTRY_IMAGE/python:3.10-$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
 node:
   stage: build
   script:
@@ -236,6 +278,39 @@ python3.7-dev:
   stage: build-dev
   script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.7 --destination $CI_REGISTRY_IMAGE/python:3.7-$CI_COMMIT_REF_SLUG
+  except:
+    refs:
+      - master
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+python3.8-dev:
+  stage: build-dev
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.8 --destination $CI_REGISTRY_IMAGE/python:3.8-$CI_COMMIT_REF_SLUG
+  except:
+    refs:
+      - master
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+python3.9-dev:
+  stage: build-dev
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.9 --destination $CI_REGISTRY_IMAGE/python:3.9-$CI_COMMIT_REF_SLUG
+  except:
+    refs:
+      - master
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+python3.10-dev:
+  stage: build-dev
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.10 --destination $CI_REGISTRY_IMAGE/python:3.10-$CI_COMMIT_REF_SLUG
   except:
     refs:
       - master
