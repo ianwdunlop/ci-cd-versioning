@@ -9,6 +9,8 @@ All images:
 * Contain the `cictl` command line interface tool. This is in the `/scripts` folder and on the path.
 * Contain useful scripts in the `/scripts` folder and available on the `PATH`.
 * Have an example `.gitlab-ci.yml` file within their folder.
+* May come pre-installed with useful things. For example, the R image is based on the [R runner](https://gitlab.mdcatapult.io/informatics/docker-images/runners/-/tree/master/r) which has BioConductor and other packages pre-installed.
+* To test the CI process you can see the instructions below but there is also a [CI Test repo](https://gitlab.mdcatapult.io/informatics/software-engineering/ci-test) which has a specific branch for each language to try out the branch to develop to master merge process.
 
 ### General structure
 Each language has a folder with a Dockerfile to create the image, a sample CI file and a `release.sh` file for legacy purposes.
