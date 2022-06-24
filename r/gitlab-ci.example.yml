@@ -1,39 +1,17 @@
-variables:
-  PIP_CACHE_DIR: "$CI_PROJECT_DIR/.cache/pip"
-
-cache:
-  paths:
-    - .cache/pip
-
 stages: 
-  - test
   - release
   - publish
 
 default:
+  tags:
+    - wopr
   image: registry.mdcatapult.io/informatics/docker-images/ci/r
-  before_script:
-    - cictl config r
 
-test:
-  stage: test
-  tags:
-    - wopr
-  script:
-    - mkdir -p $R_LIBS_USER $CHECK_DIR
-    - R -e "install.packages('BiocManager')"
-    - R -e "BiocManager::install('rols')"
-    - R -e "devtools::install_deps(dependencies = TRUE)"
-    - R CMD build . --no-build-vignettes --no-manual
-  coverage: '/TOTAL.*\s+(\d+%)$/'
-
-publish-stable:
+publish-unstable:
   stage: publish
-  tags:
-    - wopr
   script:
-    - R -e "BiocManager::install('rols')"
     - R -e "devtools::install_deps(dependencies = TRUE)"
+    - source <(cictl config env)
     - R CMD build . --no-build-vignettes --no-manual
     - PACKAGE_NAME="mdcworld_$NEXT_TAG.tar.gz"
     - PACKAGE_URL="https://nexus.wopr.inf.mdc/repository/r-hosted/src/contrib/$PACKAGE_NAME"
@@ -44,10 +22,23 @@ publish-stable:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
+publish-stable:
+  stage: publish
+  script:
+    - R -e "devtools::install_deps(dependencies = TRUE)"
+    - source <(cictl config env)
+    - R CMD build . --no-build-vignettes --no-manual
+    - PACKAGE_NAME="mdcworld_$LATEST_TAG.tar.gz"
+    - PACKAGE_URL="https://nexus.wopr.inf.mdc/repository/r-hosted/src/contrib/$PACKAGE_NAME"
+    - curl -k -v -u $NEXUS_USERNAME:$NEXUS_PASSWORD --upload-file $PACKAGE_NAME $PACKAGE_URL
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
 release:
   stage: release
-  tags:
-    - wopr
   script:
     - cictl exec release r R
   only:
