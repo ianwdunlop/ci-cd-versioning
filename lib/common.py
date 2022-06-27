@@ -81,7 +81,7 @@ def ci_user_email() -> str:
     email = os.getenv(CI_USER_EMAIL)
     domain = os.getenv(CI_DOMAIN)
     if not domain:
-        domain = "gitlab.mdcatapult.io"
+        domain = "noreply.gitlab.mdcatapult.io"
     if not email:
         email = f"project{ci_project_id()}_bot@{domain}"
     return email
