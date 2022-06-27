@@ -27,7 +27,8 @@ from lib.common import (
     CI_API_V4_URL,
     CI_PROJECT_PATH,
     CI_SERVER_HOST,
-    CI_COMMIT_BRANCH
+    CI_COMMIT_BRANCH,
+    CI_DOMAIN
 )
 from unittest import mock
 import pytest
@@ -233,7 +234,7 @@ class TestCommon:
 
     @mock.patch.dict(os.environ, {CI_TOKEN: "test-token", CI_PROJECT_ID: "1",
                                   CI_SERVER_HOST: "gitlab.example.com", CI_PROJECT_PATH: "project/path",
-                                  CI_COMMIT_BRANCH: "test-develop"})
+                                  CI_COMMIT_BRANCH: "test-develop", CI_DOMAIN: "example.com"})
     @mock.patch("lib.common.git")
     def test_set_git_config(self, mock_git):
         set_git_config()
