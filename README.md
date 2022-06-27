@@ -84,7 +84,7 @@ The variables used in the CI process in gitlab can be accessed via the [Admin Ci
 
 ## Custom CI Environment Variables
 You can override the following CI environment variables through gitlab settings for your repo.
-`CI_DOMAIN`. The default is `gitlab.mdcatapult.io`.  
+`CI_DOMAIN`. The default is `noreply.gitlab.mdcatapult.io`.  
 `CI_USER_EMAIL`. The default is project_`project_id`_bot@`CI_USER_EMAIL`. The `project_id` can be found on the home page of your repository underneath the title.  
 eg project_702_bot@gitlab.mdcatapult.io. The CI pipeline will attempt to construct the correct email address for the `CI_TOKEN` that you created. If it gets it wrong you can set `CI_USER_EMAIL` with the correct one.
 ## Development & Testing CI pipelines
