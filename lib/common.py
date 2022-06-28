@@ -57,6 +57,7 @@ CI_USER = "CI_USER"
 CI_USER_EMAIL = "CI_USER_EMAIL"
 CI_READONLY_TOKEN = "CI_READONLY_TOKEN"
 CI_READONLY_USER = "CI_READONLY_USER"
+CI_DOMAIN = "CI_DOMAIN"
 NEXUS_USERNAME = "NEXUS_USERNAME"
 NEXUS_PASSWORD = "NEXUS_PASSWORD"
 NEXUS_HOST = "NEXUS_HOST"
@@ -78,8 +79,11 @@ def ci_user() -> str:
 
 def ci_user_email() -> str:
     email = os.getenv(CI_USER_EMAIL)
+    domain = os.getenv(CI_DOMAIN)
+    if not domain:
+        domain = "noreply.gitlab.mdcatapult.io"
     if not email:
-        email = f"project{ci_project_id()}_bot@example.com"
+        email = f"project{ci_project_id()}_bot@{domain}"
     return email
 
 
