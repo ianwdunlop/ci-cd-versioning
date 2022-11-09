@@ -1,3 +1,4 @@
+# Use runner with R 4.2.2
 ARG TAG=latest
 FROM registry.mdcatapult.io/informatics/docker-images/runners/r:$TAG
 
