@@ -89,7 +89,7 @@ sbt-jdk14:
   script:
     - |
       /kaniko/executor --context $CI_PROJECT_DIR --dockerfile sbt/Dockerfile \
-      --build-arg TAG=jdk14 \
+      --build-arg TAG=14-buster \
       --destination $CI_REGISTRY_IMAGE/sbt:jdk14 \
       --destination $CI_REGISTRY_IMAGE/sbt:jdk14-$CI_COMMIT_REF_NAME
   only:
