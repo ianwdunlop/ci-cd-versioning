@@ -144,7 +144,7 @@ def increment(tag: str) -> str:
 def create_release(tag: str, log: str):
     response = requests.post(f"{ci_api_v4_url()}/projects/{ci_project_id()}/releases",
                              json={"name": tag, "tag_name": tag, "description": f"""## Changelog\n\n{log}"""},
-                             headers={"PRIVATE-TOKEN": ci_token(), "Content-Type": "application/json"})
+                             headers={"PRIVATE-TOKEN": ci_token(), "Content-Type": "application/json"}, timeout=1000)
 
     if response.status_code >= 400:
         print(str(response.content))
@@ -279,7 +279,7 @@ def create_attachment(pattern: str, tag: str):
         with open(file, 'rb') as f:
             response = requests.post(f"{ci_api_v4_url()}/projects/{ci_project_id()}/uploads",
                                      files={'file': f},
-                                     headers={"PRIVATE-TOKEN": ci_token()})
+                                     headers={"PRIVATE-TOKEN": ci_token()}, timeout=1000)
 
             if response.status_code >= 400:
                 print(str(response.content))
@@ -290,7 +290,7 @@ def create_attachment(pattern: str, tag: str):
         _, name = os.path.split(link)
         response = requests.post(f"{ci_api_v4_url()}/projects/{ci_project_id()}/releases/{tag}/assets/links",
                                  data={"name": name, "url": link},
-                                 headers={"PRIVATE-TOKEN": ci_token()})
+                                 headers={"PRIVATE-TOKEN": ci_token()}, timeout=1000)
         if response.status_code >= 400:
             print(str(response.content))
             raise HTTPError(response.status_code)
