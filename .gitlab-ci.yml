@@ -243,7 +243,7 @@ sbt-dev:
 sbt-jdk14-dev:
   stage: build-dev
   script:
-    - /kaniko/executor --build-arg TAG=jdk14 --context $CI_PROJECT_DIR --dockerfile sbt/Dockerfile --destination $CI_REGISTRY_IMAGE/sbt:jdk14-$CI_COMMIT_REF_SLUG
+    - /kaniko/executor --build-arg TAG=14-buster --context $CI_PROJECT_DIR --dockerfile sbt/Dockerfile --destination $CI_REGISTRY_IMAGE/sbt:jdk14-$CI_COMMIT_REF_SLUG
   except:
     refs:
       - master
