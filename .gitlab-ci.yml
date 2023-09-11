@@ -39,7 +39,6 @@ release:
 
 default:
   tags:
-    - wopr
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
