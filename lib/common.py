@@ -291,6 +291,7 @@ def create_attachment(pattern: str, tag: str):
         response = requests.post(f"{ci_api_v4_url()}/projects/{ci_project_id()}/releases/{tag}/assets/links",
                                  data={"name": name, "url": link},
                                  headers={"PRIVATE-TOKEN": ci_token()}, timeout=1000)
+
         if response.status_code >= 400:
             print(str(response.content))
             raise HTTPError(response.status_code)

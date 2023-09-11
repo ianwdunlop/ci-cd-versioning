@@ -1,3 +1,4 @@
+# Use runner with R 4.2.2
 ARG TAG=latest
 FROM bioconductor/bioconductor_docker:$TAG
 
