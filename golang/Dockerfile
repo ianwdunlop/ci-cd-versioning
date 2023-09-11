@@ -1,4 +1,4 @@
-ARG TAG=latest
+ARG TAG=1.18
 FROM golang:$TAG
 
 RUN apt-get update -yqq && apt-get install -yqq build-essential apt-transport-https ca-certificates curl gnupg git bc jq wget git-lfs python3 python3-pip
