@@ -268,7 +268,7 @@ class TestCommon:
         create_release("0.0.0", "afawef my log<br/>fw44g53 my second log")
         mock_requests.post.assert_called_with("https://gitlab.example.com/api/v4/projects/1/releases",
                                                        json={"name": "0.0.0", "tag_name": "0.0.0", "description": "## Changelog\n\nafawef my log<br/>fw44g53 my second log"},
-                                                       headers={"PRIVATE-TOKEN": "test-token",  'Content-Type': 'application/json'}, timeout=10000)
+                                                       headers={"PRIVATE-TOKEN": "test-token",  'Content-Type': 'application/json'}, timeout=1000)
 
         mock_requests.post.side_effect = fake_response(400)
         with pytest.raises(HTTPError):
@@ -293,7 +293,7 @@ class TestCommon:
         mock_open.assert_called_with("my-upload.txt", "rb")
         mock_requests.post.assert_called_with("https://gitlab.example.com/api/v4/projects/1/releases/0.0.0/assets/links",
                                                        data={"name": "my-upload.txt", "url": "https://gitlab.example.com/namespace1/project1/uploads/66dbcd21ec5d24ed6ea225176098d52b/my-upload.txt"},
-                                                       headers={"PRIVATE-TOKEN": "test-token"}, timeout=10000)
+                                                       headers={"PRIVATE-TOKEN": "test-token"}, timeout=1000)
 
     @mock.patch.dict(os.environ, {CI_TOKEN: "test-token", CI_COMMIT_BRANCH: "test-master"})
     @mock.patch("lib.common.git")

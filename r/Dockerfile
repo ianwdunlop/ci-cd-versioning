@@ -1,6 +1,6 @@
 # Use runner with R 4.2.2
 ARG TAG=latest
-FROM registry.mdcatapult.io/informatics/docker-images/runners/r:$TAG
+FROM bioconductor/bioconductor_docker:$TAG
 
 RUN apt-get update -yqq && apt-get install -yqq build-essential apt-transport-https ca-certificates curl gnupg git bc jq wget git-lfs python3 python3-pip
 RUN git lfs install
