@@ -14,6 +14,7 @@ from lib.common import (
     short_sha,
     create_attachment,
     ci_commit_branch,
+    package_password,
     nexus_username,
     nexus_password,
     nexus_host,
@@ -26,11 +27,17 @@ development_version_tag = "a0"
 def config_pip():
     index_path = "repository/pypi-all/pypi"
     index_url_path = "repository/pypi-all/simple"
-    check_call(["pip", "config", "set", "global.index",
-                f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_path}"])
-    check_call(["pip", "config", "set", "global.index-url",
-                f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_url_path}"])
-    check_call(['pip', 'config', 'set', 'global.trusted-host', f'{nexus_host()}'])
+    if not package_password():
+        check_call(["pip", "config", "set", "global.index",
+                    f"https://pypi.org/{index_path}"])
+        check_call(["pip", "config", "set", "global.index-url",
+                    f"https://pypi.org/{index_url_path}"])
+    else:
+        check_call(["pip", "config", "set", "global.index",
+                    f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_path}"])
+        check_call(["pip", "config", "set", "global.index-url",
+                    f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_url_path}"])
+        check_call(['pip', 'config', 'set', 'global.trusted-host', f'{nexus_host()}'])
 
 
 def release(args: list):
