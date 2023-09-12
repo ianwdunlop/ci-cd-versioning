@@ -240,7 +240,7 @@ class TestCommon:
         set_git_config()
         mock_git.remote.assert_called_with("set-url", "origin", "https://project_1_bot:test-token@gitlab.example.com/project/path.git")
         mock_git.config.assert_any_call("user.name", "project_1_bot")
-        mock_git.config.assert_called_with("user.email", "project1_bot@example.com")
+        mock_git.config.assert_called_with("user.email", "project_1_bot@example.com")
 
     @mock.patch.dict(os.environ, {CI_TOKEN: "test-token", CI_PROJECT_ID: "1",
                                   CI_SERVER_HOST: "gitlab.example.com", CI_PROJECT_PATH: "project/path",
@@ -250,7 +250,7 @@ class TestCommon:
         set_git_config()
         mock_git.remote.assert_called_with("set-url", "origin", "https://project_1_bot:test-token@gitlab.example.com/project/path.git")
         mock_git.config.assert_any_call("user.name", "project_1_bot")
-        mock_git.config.assert_called_with("user.email", "project1_bot@noreply.gitlab.mdcatapult.io")
+        mock_git.config.assert_called_with("user.email", "project_1_bot@noreply.gitlab.mdcatapult.io")
 
     @mock.patch.dict(os.environ, {CI_COMMIT_BRANCH: "test-develop"})
     @mock.patch("lib.common.git")

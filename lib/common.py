@@ -83,7 +83,7 @@ def ci_user_email() -> str:
     if not domain:
         domain = "noreply.gitlab.mdcatapult.io"
     if not email:
-        email = f"project{ci_project_id()}_bot@{domain}"
+        email = f"project_{ci_project_id()}_bot@{domain}"
     return email
 
 
