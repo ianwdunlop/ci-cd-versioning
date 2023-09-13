@@ -61,6 +61,7 @@ CI_DOMAIN = "CI_DOMAIN"
 NEXUS_USERNAME = "NEXUS_USERNAME"
 NEXUS_PASSWORD = "NEXUS_PASSWORD"
 NEXUS_HOST = "NEXUS_HOST"
+PACKAGE_PASSWORD = "PACKAGE_PASSWORD"
 
 
 def ci_token() -> str:
@@ -100,6 +101,8 @@ def ci_readonly_user() -> str:
         return ci_user()
     return user
 
+def package_password() -> str:
+    return os.getenv(PACKAGE_PASSWORD)
 
 def nexus_username() -> str:
     return os.getenv(NEXUS_USERNAME)

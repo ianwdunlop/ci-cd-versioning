@@ -87,6 +87,8 @@ You can override the following CI environment variables through gitlab settings 
 `CI_DOMAIN`. The default is `noreply.gitlab.mdcatapult.io`.  
 `CI_USER_EMAIL`. The default is project_`project_id`_bot@`CI_DOMAIN`. The `project_id` can be found on the home page of your repository underneath the title.  
 eg project_702_bot@noreply.gitlab.mdcatapult.io. The CI pipeline will attempt to construct the correct email address for the `CI_TOKEN` that you created. If it gets it wrong you can set `CI_USER_EMAIL` with the correct one.
+
+Set `PACKAGE_PASSWORD` to `true` if there is a password required to access the package repository and also set the `NEXUS_PASSWORD`, `NEXUS_USERNAME` and `NEXUS_HOST` variables. If you want to use `pypi` repo then do not set these variables.
 ## Development & Testing CI pipelines
 Requires python3.6+, virtualenv and docker. The `example.env` file contains all the gitlab builtin environment variables that these scripts make use of. They have been set to values suitable for testing against the [CI Test repository](https://gitlab.mdcatapult.io/informatics/software-engineering/ci-test).
 ```bash
