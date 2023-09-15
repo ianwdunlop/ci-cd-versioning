@@ -23,16 +23,11 @@ from lib.common import (
 
 development_version_tag = "a0"
 
-
+# If using a custom repo then create a pip conf file
 def config_pip():
     index_path = "repository/pypi-all/pypi"
     index_url_path = "repository/pypi-all/simple"
-    if not package_password():
-        check_call(["pip", "config", "set", "global.index",
-                    f"https://pypi.org/{index_path}"])
-        check_call(["pip", "config", "set", "global.index-url",
-                    f"https://pypi.org/{index_url_path}"])
-    else:
+    if package_password():
         check_call(["pip", "config", "set", "global.index",
                     f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_path}"])
         check_call(["pip", "config", "set", "global.index-url",

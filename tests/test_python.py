@@ -16,14 +16,6 @@ class TestPython:
                                    "https://user:pass@nexus.wopr.inf.mdc/repository/pypi-all/simple"])
         mock_call.assert_any_call(["pip", "config", "set", "global.trusted-host", "nexus.wopr.inf.mdc"])
 
-    @mock.patch("lib.python.check_call")
-    def test_config_pip(self, mock_call):
-        config_pip()
-        mock_call.assert_any_call(["pip", "config", "set", "global.index",
-                                   "https://pypi.org/repository/pypi-all/pypi"])
-        mock_call.assert_any_call(["pip", "config", "set", "global.index-url",
-                                   "https://pypi.org/repository/pypi-all/simple"])
-
     @mock.patch.dict(os.environ, {CI_TOKEN: "token"})
     @mock.patch('lib.python.write_version')
     @mock.patch('lib.python.git')
