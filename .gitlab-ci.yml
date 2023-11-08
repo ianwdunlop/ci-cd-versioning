@@ -4,6 +4,9 @@ stages:
   - release
   - build
 
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+
 lint:
   stage: test
   image: python:3.10
