@@ -8,6 +8,10 @@ RUN echo "deb https://repo.scala-sbt.org/scalasbt/debian all main" | tee /etc/ap
 RUN apt-get update --allow-releaseinfo-change -yqq && apt-get install -yqq sbt build-essential apt-transport-https ca-certificates curl gnupg git bc jq wget git-lfs python3 python3-pip
 RUN git lfs install
 
+COPY certificates /certs
+RUN cp /certs/*.crt /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+
 WORKDIR /scripts
 
 COPY requirements.txt .
