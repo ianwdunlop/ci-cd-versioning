@@ -4,6 +4,10 @@ FROM node:$TAG
 RUN apt-get update -yqq && apt-get install -yqq build-essential apt-transport-https ca-certificates curl gnupg git bc jq wget git-lfs python3 python3-pip
 RUN git lfs install
 
+COPY certificates /certs
+RUN cp /certs/*.crt /usr/local/share/ca-certificates/
+RUN update-ca-certificates
+
 RUN apt-get install -yqq chromium
 ENV CHROME_BIN=/usr/bin/chromium
 
