@@ -127,18 +127,15 @@ def increment(tag: str) -> str:
     minor = r"feature|minor"
 
     if tag:
-        commit_prefixes = re.sub(fr".*({major}|{minor}).*", r"\1",
-                                 git.log("--no-merges", '--pretty=format:%s', f"{tag}..HEAD"))
-        branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch()}'", r"\1",
-                                 git.log("--merges", "--oneline", f"{tag}..HEAD"))
+        commit_text = git.log("--no-merges", '--pretty=format:%s', f"{tag}..HEAD")
+        branch_text = git.log("--merges", "--oneline", f"{tag}..HEAD")
     else:
-        commit_prefixes = re.sub(fr".*({major}|{minor}).*", r"\1", git.log("--no-merges", '--pretty=format:%s'))
-        branch_prefixes = re.sub(fr".*Merge branch '({major}|{minor})/.*' into '{ci_commit_branch()}'", "\1",
-                                 git.log("--merges", "--oneline"))
+        commit_text = git.log("--no-merges", '--pretty=format:%s')
+        branch_text = git.log("--merges", "--oneline")
 
-    if re.match(major, commit_prefixes) or re.match(major, branch_prefixes):
+    if re.search(major, commit_text) or re.search(major, branch_text):
         return "major"
-    if re.match(minor, commit_prefixes) or re.match(minor, branch_prefixes):
+    if re.search(minor, commit_text) or re.search(minor, branch_text):
         return "minor"
     
     return "patch"
