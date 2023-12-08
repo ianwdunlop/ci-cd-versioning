@@ -9,7 +9,7 @@ variables:
 
 lint:
   stage: test
-  image: python:3.10
+  image: python:3.11
   before_script:
     - pip install -r requirements.txt
     - pip install -r requirements.dev.txt
@@ -18,7 +18,7 @@ lint:
 
 test:
   stage: test
-  image: python:3.10
+  image: python:3.11
   before_script:
     - pip install -r requirements.txt
     - pip install -r requirements.dev.txt
