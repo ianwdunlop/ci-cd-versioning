@@ -9,7 +9,7 @@ variables:
 
 lint:
   stage: test
-  image: python:3.10
+  image: python:3.11
   before_script:
     - pip install -r requirements.txt
     - pip install -r requirements.dev.txt
@@ -18,7 +18,7 @@ lint:
 
 test:
   stage: test
-  image: python:3.10
+  image: python:3.11
   before_script:
     - pip install -r requirements.txt
     - pip install -r requirements.dev.txt
@@ -184,6 +184,20 @@ python3.10:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
+python3.11:
+  stage: build
+  script:
+    - |
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile \
+      --build-arg TAG=3.11 \
+      --destination $CI_REGISTRY_IMAGE/python:3.11 \
+      --destination $CI_REGISTRY_IMAGE/python:3.11-$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
 node:
   stage: build
   script:
@@ -313,6 +327,17 @@ python3.10-dev:
   stage: build-dev
   script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.10 --destination $CI_REGISTRY_IMAGE/python:3.10-$CI_COMMIT_REF_SLUG
+  except:
+    refs:
+      - master
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+python3.11-dev:
+  stage: build-dev
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.11 --destination $CI_REGISTRY_IMAGE/python:3.11-$CI_COMMIT_REF_SLUG
   except:
     refs:
       - master
