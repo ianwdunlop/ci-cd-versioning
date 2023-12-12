@@ -114,34 +114,6 @@ python:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-python3.6:
-  stage: build
-  script:
-    - |
-      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile \
-      --build-arg TAG=3.6 \
-      --destination $CI_REGISTRY_IMAGE/python:3.6 \
-      --destination $CI_REGISTRY_IMAGE/python:3.6-$CI_COMMIT_REF_NAME
-  only:
-    refs:
-      - tags
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
-
-python3.7:
-  stage: build
-  script:
-    - |
-      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile \
-      --build-arg TAG=3.7 \
-      --destination $CI_REGISTRY_IMAGE/python:3.7 \
-      --destination $CI_REGISTRY_IMAGE/python:3.7-$CI_COMMIT_REF_NAME
-  only:
-    refs:
-      - tags
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
-
 python3.8:
   stage: build
   script:
@@ -286,28 +258,6 @@ python-dev:
   stage: build-dev
   script:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --destination $CI_REGISTRY_IMAGE/python:$CI_COMMIT_REF_SLUG
-  except:
-    refs:
-      - main
-      - tags
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
-
-python3.6-dev:
-  stage: build-dev
-  script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.6 --destination $CI_REGISTRY_IMAGE/python:3.6-$CI_COMMIT_REF_SLUG
-  except:
-    refs:
-      - main
-      - tags
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
-
-python3.7-dev:
-  stage: build-dev
-  script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.7 --destination $CI_REGISTRY_IMAGE/python:3.7-$CI_COMMIT_REF_SLUG
   except:
     refs:
       - main
