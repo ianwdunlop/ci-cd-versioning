@@ -35,7 +35,7 @@ release:
   script:
     - ./cictl exec release
   only:
-    - master
+    - main
   except:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
@@ -114,34 +114,6 @@ python:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-python3.6:
-  stage: build
-  script:
-    - |
-      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile \
-      --build-arg TAG=3.6 \
-      --destination $CI_REGISTRY_IMAGE/python:3.6 \
-      --destination $CI_REGISTRY_IMAGE/python:3.6-$CI_COMMIT_REF_NAME
-  only:
-    refs:
-      - tags
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
-
-python3.7:
-  stage: build
-  script:
-    - |
-      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile \
-      --build-arg TAG=3.7 \
-      --destination $CI_REGISTRY_IMAGE/python:3.7 \
-      --destination $CI_REGISTRY_IMAGE/python:3.7-$CI_COMMIT_REF_NAME
-  only:
-    refs:
-      - tags
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
-
 python3.8:
   stage: build
   script:
@@ -198,6 +170,20 @@ python3.11:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
+python3.12:
+  stage: build
+  script:
+    - |
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile \
+      --build-arg TAG=3.12 \
+      --destination $CI_REGISTRY_IMAGE/python:3.12 \
+      --destination $CI_REGISTRY_IMAGE/python:3.12-$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
 node:
   stage: build
   script:
@@ -230,7 +216,7 @@ debian-dev:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile debian/Dockerfile --destination $CI_REGISTRY_IMAGE/debian:$CI_COMMIT_REF_SLUG
   except:
     refs:
-      - master
+      - main
       - tags
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
@@ -241,7 +227,7 @@ golang-dev:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile golang/Dockerfile --destination $CI_REGISTRY_IMAGE/golang:$CI_COMMIT_REF_SLUG
   except:
     refs:
-      - master
+      - main
       - tags
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
@@ -252,7 +238,7 @@ sbt-dev:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile sbt/Dockerfile --destination $CI_REGISTRY_IMAGE/sbt:$CI_COMMIT_REF_SLUG
   except:
     refs:
-      - master
+      - main
       - tags
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
@@ -263,7 +249,7 @@ sbt-jdk14-dev:
     - /kaniko/executor --build-arg TAG=14-buster --context $CI_PROJECT_DIR --dockerfile sbt/Dockerfile --destination $CI_REGISTRY_IMAGE/sbt:jdk14-$CI_COMMIT_REF_SLUG
   except:
     refs:
-      - master
+      - main
       - tags
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
@@ -274,29 +260,7 @@ python-dev:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --destination $CI_REGISTRY_IMAGE/python:$CI_COMMIT_REF_SLUG
   except:
     refs:
-      - master
-      - tags
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
-
-python3.6-dev:
-  stage: build-dev
-  script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.6 --destination $CI_REGISTRY_IMAGE/python:3.6-$CI_COMMIT_REF_SLUG
-  except:
-    refs:
-      - master
-      - tags
-    variables:
-      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
-
-python3.7-dev:
-  stage: build-dev
-  script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.7 --destination $CI_REGISTRY_IMAGE/python:3.7-$CI_COMMIT_REF_SLUG
-  except:
-    refs:
-      - master
+      - main
       - tags
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
@@ -307,7 +271,7 @@ python3.8-dev:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.8 --destination $CI_REGISTRY_IMAGE/python:3.8-$CI_COMMIT_REF_SLUG
   except:
     refs:
-      - master
+      - main
       - tags
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
@@ -318,7 +282,7 @@ python3.9-dev:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.9 --destination $CI_REGISTRY_IMAGE/python:3.9-$CI_COMMIT_REF_SLUG
   except:
     refs:
-      - master
+      - main
       - tags
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
@@ -329,7 +293,7 @@ python3.10-dev:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.10 --destination $CI_REGISTRY_IMAGE/python:3.10-$CI_COMMIT_REF_SLUG
   except:
     refs:
-      - master
+      - main
       - tags
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
@@ -340,7 +304,18 @@ python3.11-dev:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.11 --destination $CI_REGISTRY_IMAGE/python:3.11-$CI_COMMIT_REF_SLUG
   except:
     refs:
-      - master
+      - main
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+python3.12-dev:
+  stage: build-dev
+  script:
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile --build-arg TAG=3.12 --destination $CI_REGISTRY_IMAGE/python:3.12-$CI_COMMIT_REF_SLUG
+  except:
+    refs:
+      - main
       - tags
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
@@ -351,7 +326,7 @@ node-dev:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile node/Dockerfile --destination $CI_REGISTRY_IMAGE/node:$CI_COMMIT_REF_SLUG
   except:
     refs:
-      - master
+      - main
       - tags
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
@@ -362,7 +337,7 @@ r-dev:
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile r/Dockerfile --destination $CI_REGISTRY_IMAGE/r:$CI_COMMIT_REF_SLUG
   except:
     refs:
-      - master
+      - main
       - tags
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
