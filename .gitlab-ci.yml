@@ -197,6 +197,34 @@ node:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
+node-lts:
+  stage: build
+  script:
+    - |
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile node/Dockerfile \
+      --build-arg TAG=lts-buster
+      --destination $CI_REGISTRY_IMAGE/node:lts \
+      --destination $CI_REGISTRY_IMAGE/node:$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
+node-20:
+  stage: build
+  script:
+    - |
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile node/Dockerfile \
+      --build-arg TAG=20-buster
+      --destination $CI_REGISTRY_IMAGE/node:lts \
+      --destination $CI_REGISTRY_IMAGE/node:$CI_COMMIT_REF_NAME
+  only:
+    refs:
+      - tags
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
+
 r:
   stage: build
   script:
