@@ -202,7 +202,7 @@ node-lts:
   script:
     - |
       /kaniko/executor --context $CI_PROJECT_DIR --dockerfile node/Dockerfile \
-      --build-arg TAG=lts-buster
+      --build-arg TAG=lts-buster \
       --destination $CI_REGISTRY_IMAGE/node:lts \
       --destination $CI_REGISTRY_IMAGE/node:$CI_COMMIT_REF_NAME
   only:
@@ -216,8 +216,8 @@ node-20:
   script:
     - |
       /kaniko/executor --context $CI_PROJECT_DIR --dockerfile node/Dockerfile \
-      --build-arg TAG=20-buster
-      --destination $CI_REGISTRY_IMAGE/node:lts \
+      --build-arg TAG=20-buster \
+      --destination $CI_REGISTRY_IMAGE/node:20 \
       --destination $CI_REGISTRY_IMAGE/node:$CI_COMMIT_REF_NAME
   only:
     refs:
