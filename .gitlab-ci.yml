@@ -362,7 +362,7 @@ node-dev:
 node-lts-dev:
   stage: build-dev
   script:
-    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile node/Dockerfile --build-arg TAG=lts-buster --destination $CI_REGISTRY_IMAGE/node:$CI_COMMIT_REF_SLUG
+    - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile node/Dockerfile --build-arg TAG=lts-buster --destination $CI_REGISTRY_IMAGE/node-lts:$CI_COMMIT_REF_SLUG
   except:
     refs:
       - main
