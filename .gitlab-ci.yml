@@ -217,7 +217,7 @@ node-20:
     - |
       /kaniko/executor --context $CI_PROJECT_DIR --dockerfile node/Dockerfile \
       --build-arg TAG=20-buster \
-      --destination $CI_REGISTRY_IMAGE/node:20 \
+      --destination $CI_REGISTRY_IMAGE/node:lts-20 \
       --destination $CI_REGISTRY_IMAGE/node:$CI_COMMIT_REF_NAME
   only:
     refs:
