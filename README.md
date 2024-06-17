@@ -17,8 +17,13 @@ Note: It doesn't have to be `main` but can be whatever branch you want.
 All the language subfolders contain an example of a gitlab CI file. Use one of the language based images in your ci process and then
 to update the version/release the code use the cictl command to release it. For example, for python `cictl exec release python src`.
 
-*If using these images for your CI, it is recommended that you **always** create merge commits, and **never** squash your commits. These are the default options in gitlab.*
+## Gotchas
+* If using these images for your CI process, it is recommended that you **always** create merge commits, and **never** squash your commits. These are the default options in gitlab.
+* Ensure that the push rules in your `Repository>Push rules` settings allow unverified users to push code. This is so that the bot user can tag & rebase the branch.
+* Make sure you have created an access token called `CI_TOKEN` which is given `maintainer` access and read/write permissions.
+* Ensure your project is allowed access to the CI images repo and, if you are using or pushing any packages, to the private gitlab package registry. Look at the `CI/CD>Token Access` settings.
 
+### General structure
 All images:
 * Are based on [debian](https://www.debian.org/).
 * Contain the `cictl` command line interface tool. This is in the `/scripts` folder and on the path.
@@ -27,7 +32,6 @@ All images:
 * May come pre-installed with useful things. For example, the R image is based on the [R runner](https://gitlab.mdcatapult.io/informatics/docker-images/runners/-/tree/master/r) which has BioConductor and other packages pre-installed.
 * To test the CI process you can see the instructions below but there is also a [CI Test repo](https://gitlab.mdcatapult.io/informatics/software-engineering/ci-test) which has a specific branch for each language to try out the branch to develop to master merge process.
 
-### General structure
 Each language has a folder with a Dockerfile to create the image, a sample CI file and a `release.sh` file for legacy purposes.
 Originally the CI processes were  written in bash scripts but they are now python based. Language specific commands are
 in the `lib` folder.
@@ -87,7 +91,7 @@ There are lots of commands, most of them are used internally by the release proc
 * `git`: configures git to use the ci user credentials (project token) and ensures we are up to date.
 * `env`: returns a set of environment variables to export. It should be used like `source <(cictl config env <language(optional)>)`.
 * `goprivate`: writes credentials to the `~/.netrc` file so that private go modules can be pulled. Must be used after `source <(cictl config env golang)`.
-* `pip` configures pip to use our internal nexus host.
+* `pip` configures pip to use an internal nexus host. - **DEPRECATED**
 
 `cictl exec` executes the following:
 * `rebase`: performs a rebase of `$REBASE_BRANCH`, `develop`, or `dev` (in order of precedence) onto the `$CI_COMMIT_BRANCH`. Typically, this is performed during a release when the `$CI_COMMIT_BRANCH` is master (i.e. we've just merged develop into master, so the pipeline is running on master), so develop is rebased onto master.
@@ -103,8 +107,25 @@ The variables used in the CI process in gitlab can be accessed via the [Admin Ci
 You can override the following CI environment variables through gitlab settings for your repo.
 `CI_DOMAIN`. The default is `noreply.gitlab.mdcatapult.io`.  
 `CI_USER_EMAIL`. The default is project_`project_id`_bot@`CI_DOMAIN`. The `project_id` can be found on the home page of your repository underneath the title.  
-eg project_702_bot@noreply.gitlab.mdcatapult.io. The CI pipeline will attempt to construct the correct email address for the `CI_TOKEN` that you created. If it gets it wrong you can set `CI_USER_EMAIL` with the correct one.
+eg project_702_bot@noreply.gitlab.mdcatapult.io. The CI pipeline will attempt to construct the correct email address for the `CI_TOKEN` that you created. If it gets it wrong you can set `CI_USER_EMAIL` with the correct one.  
+This bot email/user is used to tag and rebase the release. If you look at the release pipeline you will see things like
+```bash
+INFO:git.cmd:git config user.name project_52267953_bot -> 0
+INFO:git.cmd:git config user.email project_52267953_bot@noreply.gitlab.mdcatapult.io -> 0
+```
 
+## cictl config pip deprecation
+You can create a pip config file use `cictl config pip` which was mainly used when MDC had an internal `NEXUS` package repository. We now have use `gitlab` for the package registry
+and recommend using the `index-url` and/or `extra-index-url` settings within the CI file itself like this:
+```bash
+test:
+  stage: test
+  script:
+    - pip install -r requirements.txt --index-url https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/api/v4/projects/${REGISTRY_HOST_PROJECT_ID}/packages/pypi/simple
+```
+Note that here we use a CI variable called `REGISTRY_HOST_PROJECT_ID` to hide the actual project id. Don't forget to allow your project repo access to your package repository via the CI/CD settings.
+
+*If you do* have an internal Nexus based package repo and want to create the pip config file then note the following (plus the fact that it will be removed in a future release):  
 Set `PACKAGE_PASSWORD` to `true` if there is a password required to access the package repository and also set the `NEXUS_PASSWORD`, `NEXUS_USERNAME` and `NEXUS_HOST` variables. If you want to use `pypi` repo then do not set these variables.
 
 ## Development & Testing CI pipelines
