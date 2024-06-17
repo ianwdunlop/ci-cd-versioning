@@ -89,6 +89,7 @@ def config_git():
     set_git_config()
     fetch_all_and_checkout_latest()
 
+
 def get_git_log():
     parser.add_argument('tag', nargs="?")
     args, _ = parser.parse_known_args()
