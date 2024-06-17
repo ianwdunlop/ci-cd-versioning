@@ -3,9 +3,7 @@ stages:
   - publish
 
 default:
-  tags:
-    - wopr
-  image: registry.mdcatapult.io/informatics/docker-images/ci/r
+  image: registry.gitlab.com/medicines-discovery-catapult/informatics/docker-images/ci/r:latest
 
 publish-unstable:
   stage: publish
@@ -42,7 +40,7 @@ release:
   script:
     - cictl exec release r R
   only:
-    - master
+    - main
   except:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/

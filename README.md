@@ -4,18 +4,29 @@
 
 ## What does it do?
 
-Updates the semantic version of your code when you release it.
+**tl/dr** Updates the semantic version of your code when you release it. Bumps versions for the languages `golang`, `Node`, `R`, `Python` & `SBT` ie `Scala`.
 
 ## How does it do it?
 
-On a merge to the `main` branch it updates the semantic version of the code, creates a tag based on that version and then creates
+On a merge to the default branch (nowadays in gitlab this is called `main`) it updates the semantic version of the code, creates a tag based on that version and then creates
 the next snapshot version and rebases back on to develop in readiness for the next release.  
-Note: It doesn't have to be `main` but can be whatever branch you want.
+Note: It doesn't have to be `main` but can be whatever branch you want as long as you have configured your default branch correctly.
 
-## How do I use it?
+## How do I use it via a CI file?
 
 All the language subfolders contain an example of a gitlab CI file. Use one of the language based images in your ci process and then
-to update the version/release the code use the cictl command to release it. For example, for python `cictl exec release python src`.
+to update the version/release the code use the cictl command to release it. For example, for python you could use the image `registry.gitlab.com/medicines-discovery-catapult/informatics/docker-images/ci/python:3.12` and release/version with `cictl exec release python src`.
+
+## How do I get a path/minor/major semantic version change
+Prefix the branch name following these rules:
+* For major version bump eg 2.1.3 to 3.0.0 prefix the branch name with `breaking-change` or `major`
+`breaking-change/whatever-you-want`
+`major/whatever-you-want`
+* For minor version bump eg 2.1.3 to 2.2.0 prefix the branch name with `feature` or `minor`
+`feature/whatever-you-want`
+`minor/whatever-you-want`
+* For patch version bump it is the default behaviour eg 2.1.3 to 2.1.4
+`call-the-branch anything`
 
 ## Gotchas
 * If using these images for your CI process, it is recommended that you **always** create merge commits, and **never** squash your commits. These are the default options in gitlab.
@@ -23,7 +34,7 @@ to update the version/release the code use the cictl command to release it. For 
 * Make sure you have created an access token called `CI_TOKEN` which is given `maintainer` access and read/write permissions.
 * Ensure your project is allowed access to the CI images repo and, if you are using or pushing any packages, to the private gitlab package registry. Look at the `CI/CD>Token Access` settings.
 
-### General structure
+### General project structure
 All images:
 * Are based on [debian](https://www.debian.org/).
 * Contain the `cictl` command line interface tool. This is in the `/scripts` folder and on the path.
@@ -65,10 +76,14 @@ in the `lib` folder.
 │   ├── Dockerfile
 │   ├── gitlab-ci.example.yml
 │   └── release.sh
+├── r
+│   ├── Dockerfile
+│   ├── gitlab-ci.example.yml
+│   └── release.sh
 ```
 
 ## Usage
-There are lots of commands, most of them are used internally by the release process but you have access to them all if you need them.  
+There are lots of commands, most of them are used internally by the release process, but you have access to them all if you need them.  
 
 `cictl` has the following commands:
 * `get`: get a resource.
@@ -100,8 +115,8 @@ There are lots of commands, most of them are used internally by the release proc
 
 Additionally, the golang image contains a script to obtain the raw html required to make godocs. This is located under `/scripts` as `godoc.sh`.
 
-The variables used in the CI process in gitlab can be accessed via the [Admin Ci/CD pages](https://gitlab.mdcatapult.io/admin/application_settings/ci_cd). It is important that the
-`CI_READONLY_USER` & `CI_READONLY_TOKEN` are for an actual current user and actually work!
+The variables used in the CI process in gitlab can be accessed via the gitlab Admin Ci/CD pages. It is important that the
+`CI_READONLY_USER` & `CI_READONLY_TOKEN` are for an actual current user and actually work! The default is the `project_bot`.
 
 ## Custom CI Environment Variables
 You can override the following CI environment variables through gitlab settings for your repo.
@@ -128,15 +143,39 @@ Note that here we use a CI variable called `REGISTRY_HOST_PROJECT_ID` to hide th
 *If you do* have an internal Nexus based package repo and want to create the pip config file then note the following (plus the fact that it will be removed in a future release):  
 Set `PACKAGE_PASSWORD` to `true` if there is a password required to access the package repository and also set the `NEXUS_PASSWORD`, `NEXUS_USERNAME` and `NEXUS_HOST` variables. If you want to use `pypi` repo then do not set these variables.
 
+## Adding and updating images
+
+Some background on what happens in teh build process: Each language folder, `sbt`, `python` etc, has a Dockerfile that defines what goes into each image. The Dockerfile defines a `TAG` variable to determine what version of the upstream image
+should be used. For example,
+```bash
+ARG TAG=latest
+FROM python:$TAG
+```
+Within the projects `.gitlab-ci.yml` file there are various stages, eg `python3.11` that define the actual tagged image to be built. In this example it builds a `python:3.11` image:
+```yaml
+python3.11:
+  stage: build
+  script:
+    - |
+      /kaniko/executor --context $CI_PROJECT_DIR --dockerfile python/Dockerfile \
+      --build-arg TAG=3.11 \
+      --destination $CI_REGISTRY_IMAGE/python:3.11 \
+      --destination $CI_REGISTRY_IMAGE/python:3.11-$CI_COMMIT_REF_NAME
+```
+
+Within each Dockerfile it also copies the `cictl` script and the `lib` folder. It also copies the internal MDC ssl certificates (note: it's not clear if these certificates are needed since the images are not used to run any services on the MDC kube cluster).
+
+If you want to change an existing build then change the kaniko `--build-arg` that contains the `TAG` to something else. If you want to add a completely new image then copy an existing build stage
+and change the kaniko command appropriately. There is usually an accompanying `-dev` stage for building images for branches.
+
 ## Development & Testing CI pipelines
 Requires python3.6+, virtualenv and docker. The `example.env` file contains all the gitlab builtin environment variables that these scripts make use of. They have been set to values suitable for testing against the [CI Test repository](https://gitlab.mdcatapult.io/informatics/software-engineering/ci-test).
 ```bash
 # environment:
-git clone git@gitlab.mdcatapult.io:informatics/docker-images/ci.git
+git clone git@gitlab.com:medicines-discovery-catapult/informatics/docker-images/ci.git
 cd ci
 virtualenv -p python3.7 venv
 source venv/bin/activate
-echo -e "[global]\nindex = https://nexus.wopr.inf.mdc/repository/pypi-all/pypi\nindex-url = https://nexus.wopr.inf.mdc/repository/pypi-all/simple" > venv/pip.conf
 pip install -r requirements.txt
 
 # testing the commands directly:
@@ -147,8 +186,8 @@ source <(./cictl config env)
 ./cictl create release $NEXT_TAG 
 
 # building & pushing test images:
-docker build --pull -f debian/Dockerfile -t registry.mdcatapult.io/informatics/docker-images/ci/debian:test .
-docker push registry.mdcatapult.io/informatics/docker-images/ci/debian:test
+docker build --pull -f debian/Dockerfile -t registry.gitlab.com/medicines-discovery-catapult/informatics/docker-images/ci/debian:test .
+docker push registry.gitlab.com/medicines-discovery-catapult/informatics/docker-images/ci/debian:test
 
 # testing images with a local repo:
 # (fill out the .env file first)
@@ -157,12 +196,13 @@ docker build --pull -f debian/node -t ci-node-test .
 docker run -it -v $LOCAL_REPO:/repo -w /repo --env-file .env ci-node-test
 ```
 
-In the `docker build` phase there are 5 images possible:
+In the `docker build` phase there are 6 images possible:
 * debian/Dockerfile
 * node/Dockerfile
 * golang/Dockerfile
 * python/Dockerfile
 * sbt/Dockerfile
+* r/Dockerfile
 
 **Make sure you choose the correct Dockerfile and tag before you push anything to the repo.**
 
@@ -202,6 +242,8 @@ you are testing.
 
 **Remember this is all just code, none of it  is magic.**
 
+## Some notes on R
+If you look at the R example CI file you will see that it includes package upload to Nexus. Gitlab doesn't support R packages yet and we recommend using the [remotes package](https://remotes.r-lib.org/index.html).
 
 ### License
 This project is licensed under the terms of the Apache 2 license, which can be found in the repository as `LICENSE.txt`

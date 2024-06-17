@@ -13,9 +13,7 @@ cache:
     - "sbt-cache/target"
 
 default:
-  image: registry.mdcatapult.io/informatics/docker-images/ci/sbt
-  tags:
-    - wopr
+  image: registry.gitlab.com/medicines-discovery-catapult/informatics/docker-images/ci/sbt:latest
 
 test:
   stage: test
@@ -39,8 +37,6 @@ assemble:
 
 publish:
   stage: publish
-  tags:
-    - wopr
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
@@ -53,7 +49,7 @@ publish:
       --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   except:
     refs:
-      - master
+      - main
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
@@ -62,7 +58,7 @@ release:
   script:
     - cictl exec release sbt -u target/scala-2.13/consumer.jar
   only:
-    - master
+    - main
   except:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
@@ -80,10 +76,8 @@ assemble-master:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
-publish-master:
+publish-main:
   stage: publish
-  tags:
-    - wopr
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]

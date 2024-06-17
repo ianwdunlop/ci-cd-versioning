@@ -4,9 +4,7 @@ stages:
   - publish
 
 default:
-  image: registry.mdcatapult.io/informatics/docker-images/ci/node
-  tags:
-    - wopr
+  image: registry.gitlab.com/medicines-discovery-catapult/informatics/docker-images/ci/node:lts-20
 
 test:
   stage: test
@@ -24,15 +22,13 @@ publish:
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
-  tags:
-    - wopr
   before_script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
   script:
     - /kaniko/executor --context $CI_PROJECT_DIR --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   except:
     refs:
-      - master
+      - main
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
@@ -41,7 +37,7 @@ release:
   script:
     - cictl exec release node
   only:
-    - master
+    - main
   except:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
@@ -51,8 +47,6 @@ publish-master:
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
-  tags:
-    - wopr
   before_script:
     - echo "{\"auths\":{\"$CI_REGISTRY\":{\"username\":\"$CI_REGISTRY_USER\",\"password\":\"$CI_REGISTRY_PASSWORD\"}}}" > /kaniko/.docker/config.json
   script:
