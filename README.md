@@ -162,3 +162,7 @@ Make sure that your `CI_PROJECT_ID`, `CI_TOKEN` & `CI_PROJECT_PATH` are correct 
 you are testing.
 
 **Remember this is all just code, none of it  is magic.**
+
+
+### License
+This project is licensed under the terms of the Apache 2 license, which can be found in the repository as `LICENSE.txt`
