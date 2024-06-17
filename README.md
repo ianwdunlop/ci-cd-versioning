@@ -1,6 +1,21 @@
-# Continuous Integration
+# Continuous Integration & Code Versioning for Gitlab CI/CD pipelines
 
 > Shared repository for base images to use in gitlab CI/CD pipelines.
+
+## What does it do?
+
+Updates the semantic version of your code when you release it.
+
+## How does it do it?
+
+On a merge to the `main` branch it updates the semantic version of the code, creates a tag based on that version and then creates
+the next snapshot version and rebases back on to develop in readiness for the next release.  
+Note: It doesn't have to be `main` but can be whatever branch you want.
+
+## How do I use it?
+
+All the language subfolders contain an example of a gitlab CI file. Use one of the language based images in your ci process and then
+to update the version/release the code use the cictl command to release it. For example, for python `cictl exec release python src`.
 
 *If using these images for your CI, it is recommended that you **always** create merge commits, and **never** squash your commits. These are the default options in gitlab.*
 
@@ -49,6 +64,8 @@ in the `lib` folder.
 ```
 
 ## Usage
+There are lots of commands, most of them are used internally by the release process but you have access to them all if you need them.  
+
 `cictl` has the following commands:
 * `get`: get a resource.
 * `create`: create a resource.
@@ -89,6 +106,7 @@ You can override the following CI environment variables through gitlab settings 
 eg project_702_bot@noreply.gitlab.mdcatapult.io. The CI pipeline will attempt to construct the correct email address for the `CI_TOKEN` that you created. If it gets it wrong you can set `CI_USER_EMAIL` with the correct one.
 
 Set `PACKAGE_PASSWORD` to `true` if there is a password required to access the package repository and also set the `NEXUS_PASSWORD`, `NEXUS_USERNAME` and `NEXUS_HOST` variables. If you want to use `pypi` repo then do not set these variables.
+
 ## Development & Testing CI pipelines
 Requires python3.6+, virtualenv and docker. The `example.env` file contains all the gitlab builtin environment variables that these scripts make use of. They have been set to values suitable for testing against the [CI Test repository](https://gitlab.mdcatapult.io/informatics/software-engineering/ci-test).
 ```bash
