@@ -33,6 +33,18 @@ Prefix the branch name following these rules:
 * Ensure that the push rules in your `Repository>Push rules` settings allow unverified users to push code. This is so that the bot user can tag & rebase the branch.
 * Make sure you have created an access token called `CI_TOKEN` which is given `maintainer` access and read/write permissions.
 * Ensure your project is allowed access to the CI images repo and, if you are using or pushing any packages, to the private gitlab package registry. Look at the `CI/CD>Token Access` settings.
+* If you are running gitlab sast pipelines and using a private pypi repo then make sure to tell the CI stage using the `PIP_INDEX_URL` variable eg
+```yaml
+dependency_scanning:
+  stage: test
+  allow_failure: false
+  inherit:
+    default: false
+  variables:
+    SECURE_LOG_LEVEL: "debug"
+    PIP_INDEX_URL: https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/api/v4/projects/${REGISTRY_HOST_PROJECT_ID}/packages/pypi/simple
+```
+
 
 ### General project structure
 All images:
