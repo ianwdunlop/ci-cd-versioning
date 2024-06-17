@@ -45,6 +45,7 @@ dependency_scanning:
     PIP_INDEX_URL: https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/api/v4/projects/${REGISTRY_HOST_PROJECT_ID}/packages/pypi/simple
 ```
 * If you want to access any of the cictl commands beyond `release` then you may need to ensure that the correct env vars are available by running this command for the language in question: `source <(cictl config env golang)`.
+* The tag names for images do not always reflect the version of the language they are built on. Some, for example `R`, are built on whatever the `latest` release of the `R` language is. Exceptions are the `sbt:jdk-14`, `node:lts-20` and the `python: 3.x` tags.
 
 ### General project structure
 All images:
@@ -181,6 +182,8 @@ Within each Dockerfile it also copies the `cictl` script and the `lib` folder. I
 
 If you want to change an existing build then change the kaniko `--build-arg` that contains the `TAG` to something else. If you want to add a completely new image then copy an existing build stage
 and change the kaniko command appropriately. There is usually an accompanying `-dev` stage for building images for branches.
+
+Note that the CI release process is used to release these updated images.
 
 ## Development & Testing CI pipelines
 Requires python3.6+, virtualenv and docker. The `example.env` file contains all the gitlab builtin environment variables that these scripts make use of. They have been set to values suitable for testing against the [CI Test repository](https://gitlab.mdcatapult.io/informatics/software-engineering/ci-test).
