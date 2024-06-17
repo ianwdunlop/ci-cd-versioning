@@ -17,7 +17,7 @@ Note: It doesn't have to be `main` but can be whatever branch you want as long a
 All the language subfolders contain an example of a gitlab CI file. Use one of the language based images in your ci process and then
 to update the version/release the code use the cictl command to release it. For example, for python you could use the image `registry.gitlab.com/medicines-discovery-catapult/informatics/docker-images/ci/python:3.12` and release/version with `cictl exec release python src`.
 
-## How do I get a path/minor/major semantic version change
+## How do I get a patch/minor/major semantic version change
 Prefix the branch name following these rules:
 * For major version bump eg 2.1.3 to 3.0.0 prefix the branch name with `breaking-change` or `major`
 `breaking-change/whatever-you-want`
@@ -44,7 +44,8 @@ dependency_scanning:
     SECURE_LOG_LEVEL: "debug"
     PIP_INDEX_URL: https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/api/v4/projects/${REGISTRY_HOST_PROJECT_ID}/packages/pypi/simple
 ```
-
+* If you want to access any of the cictl commands beyond `release` then you may need to ensure that the correct env vars are available by running this command for the language in question: `source <(cictl config env golang)`.
+* The tag names for images do not always reflect the version of the language they are built on. Some, for example `R`, are built on whatever the `latest` release of the `R` language is. Exceptions are the `sbt:jdk-14`, `node:lts-20` and the `python: 3.x` tags.
 
 ### General project structure
 All images:
@@ -127,7 +128,7 @@ There are lots of commands, most of them are used internally by the release proc
 
 Additionally, the golang image contains a script to obtain the raw html required to make godocs. This is located under `/scripts` as `godoc.sh`.
 
-The variables used in the CI process in gitlab can be accessed via the gitlab Admin Ci/CD pages. It is important that the
+The variables used in the CI process in gitlab can be accessed via the gitlab Admin CI/CD pages. It is important that the
 `CI_READONLY_USER` & `CI_READONLY_TOKEN` are for an actual current user and actually work! The default is the `project_bot`.
 
 ## Custom CI Environment Variables
@@ -140,6 +141,8 @@ This bot email/user is used to tag and rebase the release. If you look at the re
 INFO:git.cmd:git config user.name project_52267953_bot -> 0
 INFO:git.cmd:git config user.email project_52267953_bot@noreply.gitlab.mdcatapult.io -> 0
 ```
+`CI_READONLY_USER`. Used to generate the `netrc` file for go private repo
+`CI_READONLY_TOKEN`. Used to generate the `netrc` file for go private repo
 
 ## cictl config pip deprecation
 You can create a pip config file use `cictl config pip` which was mainly used when MDC had an internal `NEXUS` package repository. We now have use `gitlab` for the package registry
@@ -179,6 +182,8 @@ Within each Dockerfile it also copies the `cictl` script and the `lib` folder. I
 
 If you want to change an existing build then change the kaniko `--build-arg` that contains the `TAG` to something else. If you want to add a completely new image then copy an existing build stage
 and change the kaniko command appropriately. There is usually an accompanying `-dev` stage for building images for branches.
+
+Note that the CI release process is used to release these updated images.
 
 ## Development & Testing CI pipelines
 Requires python3.6+, virtualenv and docker. The `example.env` file contains all the gitlab builtin environment variables that these scripts make use of. They have been set to values suitable for testing against the [CI Test repository](https://gitlab.mdcatapult.io/informatics/software-engineering/ci-test).
