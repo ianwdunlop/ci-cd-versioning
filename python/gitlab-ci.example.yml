@@ -11,27 +11,21 @@ stages:
   - publish
 
 default:
-  image: registry.mdcatapult.io/informatics/docker-images/ci/python
-  before_script:
-    - cictl config pip
+  image: registry.gitlab.com/medicines-discovery-catapult/informatics/docker-images/ci/python:3.12
 
 lint:
   stage: test
-  tags:
-    - wopr
   script:
     - pip install -r requirements.txt
     - pylint --rcfile=.pylintrc src
   except:
     refs:
-      - master
+      - main
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
 test:
   stage: test
-  tags:
-    - wopr
   script:
     - pip install -r requirements.txt
     - python -m pytest --cov-report term --cov src/ tests/
@@ -39,11 +33,9 @@ test:
 
 publish-stable:
   stage: publish
-  tags:
-    - wopr
   script:
     - python setup.py sdist bdist_wheel
-    - twine upload -u $NEXUS_USERNAME -p $NEXUS_PASSWORD --repository-url https://nexus.mdcatapult.io/repository/pypi-stable/ dist/*
+    - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --repository-url ${CI_API_V4_URL}/projects/${REGISTRY_HOST_PROJECT_ID}/packages/pypi dist/*
   only:
     refs:
       - tags
@@ -52,25 +44,21 @@ publish-stable:
 
 publish-unstable:
   stage: publish
-  tags:
-    - wopr
   script:
     - python setup.py sdist bdist_wheel
-    - twine upload -u $NEXUS_USERNAME -p $NEXUS_PASSWORD --repository-url https://nexus.mdcatapult.io/repository/pypi-unstable/ dist/*
+    - TWINE_PASSWORD=${CI_JOB_TOKEN} TWINE_USERNAME=gitlab-ci-token python -m twine upload --skip-existing --repository-url ${CI_API_V4_URL}/projects/${REGISTRY_HOST_PROJECT_ID}/packages/pypi dist/*
   except:
     refs:
-      - master
+      - main
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
 release:
   stage: release
-  tags:
-    - wopr
   script:
     - cictl exec release python src
   only:
-    - master
+    - main
   except:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/

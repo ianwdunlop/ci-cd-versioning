@@ -5,9 +5,7 @@ stages:
   - docs
 
 default:
-  image: registry.mdcatapult.io/informatics/docker-images/ci/golang
-  tags:
-    - wopr
+  image: registry.gitlab.com/medicines-discovery-catapult/informatics/docker-images/ci/golang:latest
 
 lint:
   stage: test
@@ -31,8 +29,6 @@ test:
 
 publish:
   stage: publish
-  tags:
-    - wopr
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
@@ -41,22 +37,20 @@ publish:
   script:
     - /kaniko/executor --context $CI_PROJECT_DIR --destination $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_SLUG
   except:
-    - master
+    - main
 
 release:
   stage: release
   script:
     - cictl exec release golang
   only:
-    - master
+    - main
   except:
     variables:
       - $CI_COMMIT_MESSAGE =~ /^Setting version to.*/
 
 publish-master:
   stage: publish
-  tags:
-    - wopr
   image:
     name: gcr.io/kaniko-project/executor:debug
     entrypoint: [""]
