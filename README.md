@@ -17,7 +17,7 @@ Note: It doesn't have to be `main` but can be whatever branch you want as long a
 All the language subfolders contain an example of a gitlab CI file. Use one of the language based images in your ci process and then
 to update the version/release the code use the cictl command to release it. For example, for python you could use the image `registry.gitlab.com/medicines-discovery-catapult/informatics/docker-images/ci/python:3.12` and release/version with `cictl exec release python src`.
 
-## How do I get a path/minor/major semantic version change
+## How do I get a patch/minor/major semantic version change
 Prefix the branch name following these rules:
 * For major version bump eg 2.1.3 to 3.0.0 prefix the branch name with `breaking-change` or `major`
 `breaking-change/whatever-you-want`
