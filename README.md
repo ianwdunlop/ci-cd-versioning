@@ -44,7 +44,7 @@ dependency_scanning:
     SECURE_LOG_LEVEL: "debug"
     PIP_INDEX_URL: https://gitlab-ci-token:${CI_JOB_TOKEN}@gitlab.com/api/v4/projects/${REGISTRY_HOST_PROJECT_ID}/packages/pypi/simple
 ```
-
+* If you want to access any of the cictl commands beyond `release` then you may need to ensure that the correct env vars are available by running this command for the language in question: `source <(cictl config env golang)`.
 
 ### General project structure
 All images:
@@ -127,7 +127,7 @@ There are lots of commands, most of them are used internally by the release proc
 
 Additionally, the golang image contains a script to obtain the raw html required to make godocs. This is located under `/scripts` as `godoc.sh`.
 
-The variables used in the CI process in gitlab can be accessed via the gitlab Admin Ci/CD pages. It is important that the
+The variables used in the CI process in gitlab can be accessed via the gitlab Admin CI/CD pages. It is important that the
 `CI_READONLY_USER` & `CI_READONLY_TOKEN` are for an actual current user and actually work! The default is the `project_bot`.
 
 ## Custom CI Environment Variables
@@ -140,6 +140,8 @@ This bot email/user is used to tag and rebase the release. If you look at the re
 INFO:git.cmd:git config user.name project_52267953_bot -> 0
 INFO:git.cmd:git config user.email project_52267953_bot@noreply.gitlab.mdcatapult.io -> 0
 ```
+`CI_READONLY_USER`. Used to generate the `netrc` file for go private repo
+`CI_READONLY_TOKEN`. Used to generate the `netrc` file for go private repo
 
 ## cictl config pip deprecation
 You can create a pip config file use `cictl config pip` which was mainly used when MDC had an internal `NEXUS` package repository. We now have use `gitlab` for the package registry
