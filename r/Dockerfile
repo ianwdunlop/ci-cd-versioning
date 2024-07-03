@@ -1,4 +1,4 @@
-ARG TAG=4.3.0
+ARG TAG=3.17
 FROM bioconductor/bioconductor_docker:$TAG
 
 RUN apt-get update -yqq && apt-get install -yqq build-essential apt-transport-https ca-certificates curl gnupg git bc jq wget git-lfs python3 python3-pip
