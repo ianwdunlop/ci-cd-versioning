@@ -18,13 +18,13 @@ import re
 import unittest
 from unittest import mock
 
-from lib.common import NEXUS_USERNAME, NEXUS_PASSWORD, CI_TOKEN, CI_COMMIT_BRANCH
+from lib.common import PYPI_USERNAME, PYPI_PASSWORD, CI_TOKEN, CI_COMMIT_BRANCH
 from lib.r import release, version, write_version
 from helpers import fake_response
 
 
 class TestR(unittest.TestCase):
-    @mock.patch.dict(os.environ, {NEXUS_USERNAME: "user", NEXUS_PASSWORD: "pass"})
+    @mock.patch.dict(os.environ, {PYPI_USERNAME: "user", PYPI_PASSWORD: "pass"})
     @mock.patch.dict(os.environ, {CI_TOKEN: "token"})
     @mock.patch('lib.r.write_version')
     @mock.patch('lib.r.git')
@@ -48,7 +48,7 @@ class TestR(unittest.TestCase):
         mock_version_writer.assert_any_call("0.0.2.9000", "lib")
         mock_version_writer.assert_called_with("0.0.2.9000", "lib")
 
-    @mock.patch.dict(os.environ, {NEXUS_USERNAME: "user", NEXUS_PASSWORD: "pass"})
+    @mock.patch.dict(os.environ, {PYPI_USERNAME: "user", PYPI_PASSWORD: "pass"})
     @mock.patch.dict(os.environ, {CI_TOKEN: "token"})
     @mock.patch('lib.r.write_version')
     @mock.patch('lib.r.git')
@@ -69,7 +69,7 @@ class TestR(unittest.TestCase):
         mock_version_writer.assert_any_call("0.0.2.9000", "lib")
         mock_version_writer.assert_called_with("0.0.2.9000", "lib")
 
-    @mock.patch.dict(os.environ, {NEXUS_USERNAME: "user", NEXUS_PASSWORD: "pass"})
+    @mock.patch.dict(os.environ, {PYPI_USERNAME: "user", PYPI_PASSWORD: "pass"})
     @mock.patch.dict(os.environ, {CI_TOKEN: "token"})
     @mock.patch('lib.r.write_version')
     @mock.patch('lib.r.git')
@@ -90,7 +90,7 @@ class TestR(unittest.TestCase):
         mock_version_writer.assert_any_call("0.0.3.9000", "r")
         mock_version_writer.assert_called_with("0.0.3.9000", "r")
 
-    @mock.patch.dict(os.environ, {NEXUS_USERNAME: "user", NEXUS_PASSWORD: "pass"})
+    @mock.patch.dict(os.environ, {PYPI_USERNAME: "user", PYPI_PASSWORD: "pass"})
     @mock.patch.dict(os.environ, {CI_COMMIT_BRANCH: "test-master"})
     @mock.patch("lib.r.write_version")
     @mock.patch("lib.r.git")

@@ -72,9 +72,9 @@ CI_USER_EMAIL = "CI_USER_EMAIL"
 CI_READONLY_TOKEN = "CI_READONLY_TOKEN"
 CI_READONLY_USER = "CI_READONLY_USER"
 CI_DOMAIN = "CI_DOMAIN"
-NEXUS_USERNAME = "NEXUS_USERNAME"
-NEXUS_PASSWORD = "NEXUS_PASSWORD"
-NEXUS_HOST = "NEXUS_HOST"
+PYPI_USERNAME = "PYPI_USERNAME"
+PYPI_PASSWORD = "PYPI_PASSWORD"
+PYPI_HOST = "PYPI_HOST"
 PACKAGE_PASSWORD = "PACKAGE_PASSWORD"
 
 
@@ -118,18 +118,18 @@ def ci_readonly_user() -> str:
 def package_password() -> str:
     return os.getenv(PACKAGE_PASSWORD)
 
-def nexus_username() -> str:
-    return os.getenv(NEXUS_USERNAME)
+def pypi_username() -> str:
+    return os.getenv(PYPI_USERNAME)
 
 
-def nexus_password() -> str:
-    return os.getenv(NEXUS_PASSWORD)
+def pypi_password() -> str:
+    return os.getenv(PYPI_PASSWORD)
 
 
-def nexus_host() -> str:
-    host = os.getenv(NEXUS_HOST)
+def pypi_host() -> str:
+    host = os.getenv(PYPI_HOST)
     if not host:
-        host = "nexus.wopr.inf.mdc"
+        host = "pypi.org"
     return host
 
 
@@ -156,6 +156,9 @@ def increment(tag: str) -> str:
 
 
 def create_release(tag: str, log: str):
+    """
+    Use the Gitlab API to create release notes for this tagged version
+    """
     response = requests.post(f"{ci_api_v4_url()}/projects/{ci_project_id()}/releases",
                              json={"name": tag, "tag_name": tag, "description": f"""## Changelog\n\n{log}"""},
                              headers={"PRIVATE-TOKEN": ci_token(), "Content-Type": "application/json"}, timeout=1000)
@@ -271,8 +274,9 @@ def release(args: list):
     log = e[GIT_LOG]
     rebase_branch = e[REBASE_BRANCH]
     version(tag)
-    create_release(tag, log)
-    create_attachment(uploads, tag)
+    # create_release and create_attachment only work in Gitlab
+    # create_release(tag, log)
+    # create_attachment(uploads, tag)
     rebase(rebase_branch)
 
 
@@ -289,6 +293,10 @@ def fetch_all_and_checkout_latest():
 
 
 def create_attachment(pattern: str, tag: str):
+    """
+    Use the Gitlab API to upload the files to the project release
+    """
+
     for file in glob.glob(pattern, recursive=True):
         with open(file, 'rb') as f:
             response = requests.post(f"{ci_api_v4_url()}/projects/{ci_project_id()}/uploads",

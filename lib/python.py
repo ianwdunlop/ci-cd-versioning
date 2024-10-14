@@ -29,9 +29,9 @@ from lib.common import (
     create_attachment,
     ci_commit_branch,
     package_password,
-    nexus_username,
-    nexus_password,
-    nexus_host,
+    pypi_username,
+    pypi_password,
+    pypi_host,
     git
 )
 
@@ -43,10 +43,10 @@ def config_pip():
     index_url_path = "repository/pypi-all/simple"
     if package_password():
         check_call(["pip", "config", "set", "global.index",
-                    f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_path}"])
+                    f"https://{pypi_username()}:{pypi_password()}@{pypi_host()}/{index_path}"])
         check_call(["pip", "config", "set", "global.index-url",
-                    f"https://{nexus_username()}:{nexus_password()}@{nexus_host()}/{index_url_path}"])
-        check_call(['pip', 'config', 'set', 'global.trusted-host', f'{nexus_host()}'])
+                    f"https://{pypi_username()}:{pypi_password()}@{pypi_host()}/{index_url_path}"])
+        check_call(['pip', 'config', 'set', 'global.trusted-host', f'{pypi_host()}'])
 
 
 def release(args: list):
